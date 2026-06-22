@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { BrainCircuit, Target, Trophy, Upload, ArrowRight } from "lucide-react";
+import { BrainCircuit, Target, Trophy, Upload, ArrowRight, Map, Mic, Sparkles, Network } from "lucide-react";
 import Link from "next/link";
 
 export default function DashboardOverview() {
@@ -28,7 +28,7 @@ export default function DashboardOverview() {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Link href="/dashboard/resume-intelligence" className="group p-5 rounded-2xl bg-white/60 hover:bg-white transition-all border border-gray-200 shadow-sm flex flex-col items-start gap-4 cursor-pointer">
                 <div className="p-2.5 rounded-full bg-[#4f46e5]/10 text-[#4f46e5] group-hover:scale-110 transition-transform">
                   <Upload className="h-5 w-5" />
@@ -46,6 +46,46 @@ export default function DashboardOverview() {
                 <div>
                   <p className="font-medium text-gray-900 mb-1">Career Twin</p>
                   <p className="text-xs text-gray-500">View 12-month trajectory</p>
+                </div>
+              </Link>
+
+              <Link href="/dashboard/roadmap" className="group p-5 rounded-2xl bg-white/60 hover:bg-white transition-all border border-gray-200 shadow-sm flex flex-col items-start gap-4 cursor-pointer">
+                <div className="p-2.5 rounded-full bg-emerald-500/10 text-emerald-600 group-hover:scale-110 transition-transform">
+                  <Map className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 mb-1">Learning Roadmap</p>
+                  <p className="text-xs text-gray-500">Track study progression</p>
+                </div>
+              </Link>
+
+              <Link href="/dashboard/mock-interview" className="group p-5 rounded-2xl bg-white/60 hover:bg-white transition-all border border-gray-200 shadow-sm flex flex-col items-start gap-4 cursor-pointer">
+                <div className="p-2.5 rounded-full bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform">
+                  <Mic className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 mb-1">Mock Interviews</p>
+                  <p className="text-xs text-gray-500">Practice with AI avatars</p>
+                </div>
+              </Link>
+
+              <Link href="/dashboard/chat" className="group p-5 rounded-2xl bg-white/60 hover:bg-white transition-all border border-gray-200 shadow-sm flex flex-col items-start gap-4 cursor-pointer">
+                <div className="p-2.5 rounded-full bg-purple-500/10 text-purple-600 group-hover:scale-110 transition-transform">
+                  <Sparkles className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 mb-1">AI Career Coach</p>
+                  <p className="text-xs text-gray-500">Get instant advice</p>
+                </div>
+              </Link>
+
+              <Link href="/dashboard/skill-graph" className="group p-5 rounded-2xl bg-white/60 hover:bg-white transition-all border border-gray-200 shadow-sm flex flex-col items-start gap-4 cursor-pointer">
+                <div className="p-2.5 rounded-full bg-pink-500/10 text-pink-600 group-hover:scale-110 transition-transform">
+                  <Network className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900 mb-1">3D Skill Graph</p>
+                  <p className="text-xs text-gray-500">Visualize your skill nodes</p>
                 </div>
               </Link>
             </div>

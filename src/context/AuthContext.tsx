@@ -1,0 +1,266 @@
+"use client";
+
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  GithubAuthProvider, 
+  signOut as firebaseSignOut, 
+  onAuthStateChanged,
+  User as FirebaseUser
+} from "firebase/auth";
+import { 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc 
+} from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { useRouter, usePathname } from "next/navigation";
+
+export interface UserProfile {
+  uid: string;
+  name: string;
+  email: string;
+  photoURL: string;
+  provider: string;
+  createdAt: string;
+  githubConnected: boolean;
+  linkedinConnected: boolean;
+  careerTwinGenerated: boolean;
+  onboardingCompleted: boolean;
+  role?: "STUDENT" | "RECRUITER";
+}
+
+interface AuthContextType {
+  user: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+  loginWithGoogle: () => Promise<void>;
+  loginWithGitHub: () => Promise<void>;
+  loginWithLinkedIn: () => void;
+  logout: () => Promise<void>;
+  updateOnboarding: (data: Partial<UserProfile>) => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Sync / create user profile in Firestore
+  const syncUserProfile = async (firebaseUser: FirebaseUser) => {
+    try {
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // Create new user profile in Firestore
+        const isGitHub = firebaseUser.providerData.some(
+          (p) => p.providerId === "github.com"
+        );
+        
+        const newProfile: UserProfile = {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName || "SkillSprint User",
+          email: firebaseUser.email || "",
+          photoURL: firebaseUser.photoURL || "",
+          provider: isGitHub ? "github" : "google",
+          createdAt: new Date().toISOString(),
+          githubConnected: isGitHub,
+          linkedinConnected: false,
+          careerTwinGenerated: false,
+          onboardingCompleted: false,
+          role: "STUDENT"
+        };
+        await setDoc(userRef, newProfile);
+        setUser(newProfile);
+      } else {
+        // Update profile photo if changed, and load existing profile
+        const existingData = userSnap.data() as UserProfile;
+        if (firebaseUser.photoURL && firebaseUser.photoURL !== existingData.photoURL) {
+          await updateDoc(userRef, { photoURL: firebaseUser.photoURL });
+          existingData.photoURL = firebaseUser.photoURL;
+        }
+        setUser(existingData);
+      }
+    } catch (err: any) {
+      console.error("Error syncing user profile:", err);
+      setError(err.message || "Failed to sync user profile");
+    }
+  };
+
+  // Check LinkedIn session from Next.js cookie
+  const checkLinkedInSession = async () => {
+    try {
+      const res = await fetch("/api/auth/session");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          setUser(data.user);
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error("Error checking LinkedIn session:", err);
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    // Listen to Firebase Auth state
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setLoading(true);
+      setError(null);
+
+      if (firebaseUser) {
+        await syncUserProfile(firebaseUser);
+        setLoading(false);
+      } else {
+        // If not authenticated via Firebase, check if there is a LinkedIn session
+        const hasLinkedIn = await checkLinkedInSession();
+        if (!hasLinkedIn) {
+          setUser(null);
+        }
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const loginWithGoogle = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err: any) {
+      console.error("Google sign-in error:", err);
+      setError(err.message || "Failed to sign in with Google");
+      setLoading(false);
+      throw err;
+    }
+  };
+
+  const loginWithGitHub = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const provider = new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (err: any) {
+      console.error("GitHub sign-in error:", err);
+      setError(err.message || "Failed to sign in with GitHub");
+      setLoading(false);
+      throw err;
+    }
+  };
+
+  const loginWithLinkedIn = () => {
+    router.push("/api/auth/linkedin");
+  };
+
+  const logout = async () => {
+    setLoading(true);
+    try {
+      // Sign out of Firebase Auth
+      await firebaseSignOut(auth);
+      // Clear LinkedIn server session cookie
+      await fetch("/api/auth/session", { method: "POST" });
+      setUser(null);
+      router.push("/auth/signin");
+    } catch (err: any) {
+      console.error("Sign-out error:", err);
+      setError(err.message || "Failed to sign out");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateOnboarding = async (data: Partial<UserProfile>) => {
+    if (!user) return;
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, data);
+      setUser((prev) => prev ? { ...prev, ...data } : null);
+    } catch (err: any) {
+      console.error("Failed to update onboarding state in Firestore:", err);
+      throw err;
+    }
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        error,
+        loginWithGoogle,
+        loginWithGitHub,
+        loginWithLinkedIn,
+        logout,
+        updateOnboarding,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}
+
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (loading) return;
+
+    if (!user) {
+      router.push("/auth/signin");
+    } else if (!user.onboardingCompleted && pathname !== "/onboarding") {
+      router.push("/onboarding");
+    } else if (user.onboardingCompleted && (pathname === "/onboarding" || pathname.startsWith("/auth/"))) {
+      router.push("/dashboard");
+    }
+  }, [user, loading, pathname, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#090D16] text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative w-16 h-16">
+            <div className="absolute inset-0 rounded-full border-4 border-[#4f46e5]/20 animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-[#4f46e5] animate-spin"></div>
+          </div>
+          <span className="text-[14px] text-gray-400 font-semibold tracking-wider animate-pulse">
+            Authenticating with SkillSprint...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Render children if we have a user and they are on the correct path
+  const isCorrectPath = user 
+    ? (user.onboardingCompleted ? pathname !== "/onboarding" && !pathname.startsWith("/auth/") : pathname === "/onboarding")
+    : pathname.startsWith("/auth/") || pathname === "/";
+
+  if (!user && !pathname.startsWith("/auth/") && pathname !== "/") {
+    return null; // Prevent flash of content
+  }
+
+  return <>{children}</>;
+}

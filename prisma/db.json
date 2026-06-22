@@ -1,0 +1,568 @@
+{
+  "users": [
+    {
+      "id": "0k0wx11xzgmq",
+      "email": "harshsingh3989@gmail.com",
+      "passwordHash": "testtest",
+      "role": "STUDENT",
+      "createdAt": "2026-06-22T16:00:00.625Z"
+    },
+    {
+      "id": "8afxqtmc0os",
+      "email": "priya.sharma@skillsprint.ai",
+      "passwordHash": null,
+      "role": "STUDENT",
+      "createdAt": "2026-06-22T16:15:28.281Z"
+    },
+    {
+      "id": "4jtte1sj97e",
+      "email": "rohan.mehta@skillsprint.ai",
+      "passwordHash": null,
+      "role": "STUDENT",
+      "createdAt": "2026-06-22T16:15:28.283Z"
+    },
+    {
+      "id": "google-mock-id",
+      "email": "google.demo@skillsprint.ai",
+      "passwordHash": null,
+      "role": "STUDENT",
+      "createdAt": "2026-06-22T17:52:24.631Z"
+    },
+    {
+      "id": "github-mock-id",
+      "email": "github.demo@skillsprint.ai",
+      "passwordHash": null,
+      "role": "STUDENT",
+      "createdAt": "2026-06-22T17:52:41.154Z"
+    },
+    {
+      "id": "google-mock-id",
+      "email": "hs9580143826@gmail.com",
+      "passwordHash": null,
+      "role": "STUDENT",
+      "createdAt": "2026-06-22T18:18:23.505Z"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "rfhbmvw568l",
+      "userId": "0k0wx11xzgmq",
+      "fullName": "Harsh",
+      "college": "aktu",
+      "branch": "Computer science",
+      "graduationYear": 2028,
+      "cgpa": 8.5,
+      "githubUsername": "@h4rsh740",
+      "targetRole": "Frontend Developer",
+      "skills": [
+        "React",
+        ".three.js",
+        "TypeScript",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "studyHoursPerWeek": 10,
+      "updatedAt": "2026-06-22T17:12:18.220Z"
+    },
+    {
+      "id": "lai41gde7nb",
+      "userId": "8afxqtmc0os",
+      "fullName": "Priya Sharma",
+      "college": "IIT Madras",
+      "branch": "Computer Science",
+      "graduationYear": 2026,
+      "cgpa": 9.2,
+      "githubUsername": "priyasharma",
+      "targetRole": "AI Engineer",
+      "skills": [
+        "Python",
+        "PyTorch",
+        "Next.js",
+        "TypeScript",
+        "AWS",
+        "API Design"
+      ],
+      "studyHoursPerWeek": 10,
+      "updatedAt": "2026-06-22T16:15:28.282Z"
+    },
+    {
+      "id": "c7x5doxa3hb",
+      "userId": "4jtte1sj97e",
+      "fullName": "Rohan Mehta",
+      "college": "BITS Pilani",
+      "branch": "Information Systems",
+      "graduationYear": 2025,
+      "cgpa": 8.7,
+      "githubUsername": "rohanmehta",
+      "targetRole": "Backend Developer",
+      "skills": [
+        "Go",
+        "Node.js",
+        "Docker",
+        "PostgreSQL",
+        "Kafka",
+        "REST APIs"
+      ],
+      "studyHoursPerWeek": 10,
+      "updatedAt": "2026-06-22T16:15:28.283Z"
+    }
+  ],
+  "resumes": [
+    {
+      "id": "qyd5zsy70g9",
+      "userId": "0k0wx11xzgmq",
+      "fileUrl": "My_Resume.pdf",
+      "parsedContent": {
+        "skills": [
+          "React",
+          ".three.js"
+        ],
+        "strengths": [
+          "Solid foundation in modern frontend web tech (React, Next.js, TailwindCSS).",
+          "Good academic track record passing initial screening thresholds.",
+          "Clear developer intent targeting specialized engineering positions."
+        ]
+      },
+      "atsScore": 75,
+      "placementProbability": 68,
+      "weakAreas": [
+        "No direct experience in server architecture, API design, or datastores.",
+        "Lack of metrics and impact figures in project highlight points.",
+        "No listed experience in automated quality assurance or unit testing."
+      ],
+      "missingSkills": [
+        "Node.js",
+        "Docker",
+        "PostgreSQL"
+      ],
+      "suggestions": [
+        {
+          "original": "built a weather app using React.",
+          "improved": "Architected a responsive weather dashboard using React and Tailwind, integrating third-party REST APIs and achieving a 98% Lighthouse performance score."
+        }
+      ],
+      "createdAt": "2026-06-22T16:01:27.236Z"
+    },
+    {
+      "id": "ve28z00er3",
+      "userId": "0k0wx11xzgmq",
+      "fileUrl": "My_Resume.pdf",
+      "parsedContent": {
+        "skills": [
+          "React",
+          ".three.js"
+        ],
+        "strengths": [
+          "Solid foundation in modern frontend web tech (React, Next.js, TailwindCSS).",
+          "Good academic track record passing initial screening thresholds.",
+          "Clear developer intent targeting specialized engineering positions."
+        ]
+      },
+      "atsScore": 75,
+      "placementProbability": 68,
+      "weakAreas": [
+        "No direct experience in server architecture, API design, or datastores.",
+        "Lack of metrics and impact figures in project highlight points.",
+        "No listed experience in automated quality assurance or unit testing."
+      ],
+      "missingSkills": [
+        "Node.js",
+        "Docker",
+        "PostgreSQL"
+      ],
+      "suggestions": [
+        {
+          "original": "built a weather app using React.",
+          "improved": "Architected a responsive weather dashboard using React and Tailwind, integrating third-party REST APIs and achieving a 98% Lighthouse performance score."
+        }
+      ],
+      "createdAt": "2026-06-22T16:01:35.588Z"
+    },
+    {
+      "id": "0pq4olsqfdxf",
+      "userId": "0k0wx11xzgmq",
+      "fileUrl": "My_Resume.pdf",
+      "parsedContent": {
+        "skills": [
+          "React",
+          ".three.js"
+        ],
+        "strengths": [
+          "Solid foundation in modern frontend web tech (React, Next.js, TailwindCSS).",
+          "Good academic track record passing initial screening thresholds.",
+          "Clear developer intent targeting specialized engineering positions."
+        ]
+      },
+      "atsScore": 75,
+      "placementProbability": 68,
+      "weakAreas": [
+        "No direct experience in server architecture, API design, or datastores.",
+        "Lack of metrics and impact figures in project highlight points.",
+        "No listed experience in automated quality assurance or unit testing."
+      ],
+      "missingSkills": [
+        "Node.js",
+        "Docker",
+        "PostgreSQL"
+      ],
+      "suggestions": [
+        {
+          "original": "built a weather app using React.",
+          "improved": "Architected a responsive weather dashboard using React and Tailwind, integrating third-party REST APIs and achieving a 98% Lighthouse performance score."
+        }
+      ],
+      "createdAt": "2026-06-22T16:01:52.943Z"
+    },
+    {
+      "id": "fem91u7h43p",
+      "userId": "8afxqtmc0os",
+      "fileUrl": "resume.pdf",
+      "parsedContent": {
+        "skills": [
+          "Python",
+          "PyTorch",
+          "Next.js",
+          "TypeScript",
+          "AWS",
+          "API Design"
+        ],
+        "strengths": [
+          "Excellent core algorithms",
+          "Scalable design patterns"
+        ]
+      },
+      "atsScore": 89,
+      "placementProbability": 92,
+      "weakAreas": [
+        "Missing UI/UX experience"
+      ],
+      "missingSkills": [
+        "Kubernetes"
+      ],
+      "suggestions": [],
+      "createdAt": "2026-06-22T16:15:28.282Z"
+    },
+    {
+      "id": "xhedoouzxqr",
+      "userId": "4jtte1sj97e",
+      "fileUrl": "resume.pdf",
+      "parsedContent": {
+        "skills": [
+          "Go",
+          "Node.js",
+          "Docker",
+          "PostgreSQL",
+          "Kafka",
+          "REST APIs"
+        ],
+        "strengths": [
+          "Excellent core algorithms",
+          "Scalable design patterns"
+        ]
+      },
+      "atsScore": 85,
+      "placementProbability": 88,
+      "weakAreas": [
+        "Missing UI/UX experience"
+      ],
+      "missingSkills": [
+        "Kubernetes"
+      ],
+      "suggestions": [],
+      "createdAt": "2026-06-22T16:15:28.284Z"
+    }
+  ],
+  "careerTwins": [
+    {
+      "id": "uts40vy81wp",
+      "userId": "8afxqtmc0os",
+      "prediction3m": {
+        "title": "Research Fellow",
+        "subtitle": "Working on LLM fine-tuning",
+        "skills": [
+          "PyTorch",
+          "Transformers"
+        ]
+      },
+      "prediction6m": {
+        "title": "AI Intern at Cohere",
+        "subtitle": "High performance scoring candidate",
+        "skills": [
+          "Python",
+          "Cohere API"
+        ]
+      },
+      "prediction12m": {
+        "title": "AI Engineer",
+        "subtitle": "Full-time placement",
+        "skills": [
+          "Transformers",
+          "Kubernetes"
+        ]
+      },
+      "salaryProjection": "₹18L - ₹24L / yr",
+      "riskFactors": [
+        "Lack of front-end framework experience",
+        "Needs better unit test coverage"
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Contribute to LangChain",
+          "impact": "Boosts recruiter search visibility"
+        }
+      ],
+      "createdAt": "2026-06-22T16:15:28.282Z"
+    },
+    {
+      "id": "ybb0jie258l",
+      "userId": "4jtte1sj97e",
+      "prediction3m": {
+        "title": "Backend Contributor",
+        "subtitle": "Building scalable backend libraries",
+        "skills": [
+          "Go",
+          "Redis"
+        ]
+      },
+      "prediction6m": {
+        "title": "Backend SDE Intern",
+        "subtitle": "High placement confidence",
+        "skills": [
+          "Docker",
+          "Kafka"
+        ]
+      },
+      "prediction12m": {
+        "title": "SDE-1 (Backend)",
+        "subtitle": "Placement locked",
+        "skills": [
+          "Kubernetes",
+          "gRPC"
+        ]
+      },
+      "salaryProjection": "₹14L - ₹20L / yr",
+      "riskFactors": [
+        "Needs better communication score in Behavioral",
+        "No frontend projects"
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Host microservices on AWS",
+          "impact": "Improves deployment experience"
+        }
+      ],
+      "createdAt": "2026-06-22T16:15:28.284Z"
+    }
+  ],
+  "interviews": [],
+  "learningRoadmaps": [
+    {
+      "id": "bcjei9guftu",
+      "userId": "0k0wx11xzgmq",
+      "targetCompany": "Google",
+      "targetRole": "Frontend Developer",
+      "dailyTasks": [
+        {
+          "text": "Solve 2 LeetCode problems (Array / String) in Python/JS",
+          "completed": false
+        },
+        {
+          "text": "Review 1 System Design concept (Caching, Load Balancers)",
+          "completed": false
+        },
+        {
+          "text": "Commit at least once to GitHub project repositories",
+          "completed": false
+        },
+        {
+          "text": "Read 1 technical blog post or framework documentation page",
+          "completed": false
+        }
+      ],
+      "weeklyTasks": [
+        {
+          "text": "Build a responsive Next.js page integrating third-party APIs",
+          "completed": false
+        },
+        {
+          "text": "Conduct a mock interview on behavioral/technical fundamentals",
+          "completed": false
+        },
+        {
+          "text": "Refactor a project using TypeScript and ESLint configuration",
+          "completed": false
+        },
+        {
+          "text": "Review mock interview transcripts and fix suggested gaps",
+          "completed": false
+        }
+      ],
+      "monthlyTasks": [
+        {
+          "text": "Complete a full portfolio project with complete unit tests",
+          "completed": false
+        },
+        {
+          "text": "Write and publish a detailed blog post on a coding pattern",
+          "completed": false
+        },
+        {
+          "text": "Get resume ATS score above 85/100 using AI suggestions",
+          "completed": false
+        },
+        {
+          "text": "Contribute 1 PR to an open source library or public repository",
+          "completed": false
+        }
+      ],
+      "completionPercentage": 0,
+      "createdAt": "2026-06-22T17:12:48.151Z"
+    }
+  ],
+  "activityLogs": [
+    {
+      "id": "jnm8yoipure",
+      "userId": "0k0wx11xzgmq",
+      "action": "GITHUB_ANALYSIS",
+      "details": {
+        "githubScore": 87,
+        "consistencyScore": 75,
+        "projectQuality": 98,
+        "openSourceSignal": "High",
+        "developerLevel": "Advanced",
+        "repositoriesCount": 12,
+        "languagesUsed": [
+          {
+            "name": "TypeScript",
+            "percentage": 78
+          },
+          {
+            "name": "JavaScript",
+            "percentage": 64
+          },
+          {
+            "name": "HTML",
+            "percentage": 38
+          },
+          {
+            "name": "CSS",
+            "percentage": 24
+          }
+        ],
+        "repositoryHealth": [
+          {
+            "name": "career-twin-ui",
+            "signal": "High",
+            "insight": "Strong structure, docs, and UI consistency"
+          },
+          {
+            "name": "weather-dashboard",
+            "signal": "Medium",
+            "insight": "Needs tests and deployment evidence"
+          },
+          {
+            "name": "portfolio-v3",
+            "signal": "High",
+            "insight": "Great personal branding but improve SEO"
+          },
+          {
+            "name": "dsa-notes",
+            "signal": "Low",
+            "insight": "Good learning artifact, weak production signal"
+          }
+        ]
+      },
+      "createdAt": "2026-06-22T17:12:18.222Z"
+    }
+  ],
+  "scores": [
+    {
+      "userId": "0k0wx11xzgmq",
+      "resume": 75,
+      "github": 65,
+      "projects": 70,
+      "interview": 60,
+      "marketDemand": 75,
+      "skillsprintScore": 69,
+      "history": [
+        {
+          "month": "April",
+          "score": 58
+        },
+        {
+          "month": "May",
+          "score": 67
+        },
+        {
+          "month": "June",
+          "score": 69
+        }
+      ]
+    },
+    {
+      "userId": "8afxqtmc0os",
+      "resume": 89,
+      "github": 80,
+      "projects": 85,
+      "interview": 75,
+      "marketDemand": 85,
+      "skillsprintScore": 83,
+      "history": [
+        {
+          "month": "April",
+          "score": 58
+        },
+        {
+          "month": "May",
+          "score": 67
+        },
+        {
+          "month": "June",
+          "score": 68
+        }
+      ]
+    },
+    {
+      "userId": "4jtte1sj97e",
+      "resume": 85,
+      "github": 80,
+      "projects": 85,
+      "interview": 75,
+      "marketDemand": 85,
+      "skillsprintScore": 82,
+      "history": [
+        {
+          "month": "April",
+          "score": 58
+        },
+        {
+          "month": "May",
+          "score": 67
+        },
+        {
+          "month": "June",
+          "score": 68
+        }
+      ]
+    }
+  ],
+  "portfolios": [
+    {
+      "id": "tkrzweuvqf",
+      "userId": "0k0wx11xzgmq",
+      "portfolioUrl": "https://my-profile-r222.vercel.app/",
+      "designScore": 84,
+      "performanceScore": 78,
+      "seoScore": 82,
+      "suggestions": [
+        "Compress hero banner image assets to improve Initial Input Delay from 2.8s to under 1.2s.",
+        "Add description and keyword meta tags to optimize crawling indices on Google and Bing.",
+        "Adjust body contrast ratios on dark mode layouts to satisfy WCAG AA accessibility standards.",
+        "Include a clickable link pointing directly to your AI Career Twin timeline validation page."
+      ],
+      "createdAt": "2026-06-22T16:04:04.208Z"
+    }
+  ],
+  "hackathons": []
+}

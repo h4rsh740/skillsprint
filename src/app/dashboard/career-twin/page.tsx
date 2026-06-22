@@ -117,40 +117,70 @@ export default function CareerTwinPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 max-w-6xl mx-auto">
+            {/* Left Column: SWOT Analysis */}
             <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 flex flex-col">
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Growth Opportunities</h3>
-                <p className="text-sm text-gray-500 mt-1">Actions to accelerate your timeline</p>
+              <div className="flex justify-between items-start gap-4 mb-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Career Twin Summary</h3>
+                  <p className="text-sm text-gray-500 mt-1">Current stack: {result.timeline[0]?.skills.join(', ') || "React, JavaScript"}</p>
+                </div>
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[13px] font-semibold rounded-full border border-emerald-200">
+                  Confidence 92%
+                </span>
               </div>
-              <div className="space-y-4">
-                {result.growthOpportunities.map((opp, index) => (
-                  <div key={index} className="flex items-center justify-between p-3.5 rounded-xl bg-white/40 border border-white/20 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-full ${index % 2 === 0 ? 'bg-[#4f46e5]/10 text-[#4f46e5]' : 'bg-[#F26522]/10 text-[#F26522]'}`}>
-                        {index % 2 === 0 ? <TrendingUp className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
-                      </div>
-                      <div>
-                        <p className="font-medium text-[14px] text-gray-900 leading-none mb-1">{opp.title}</p>
-                        <p className="text-[12px] text-gray-500">{opp.impact}</p>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-gray-400" />
-                  </div>
-                ))}
+              
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="p-4 rounded-xl bg-white/40 border border-gray-200 shadow-sm">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-emerald-600"/> Strengths</h4>
+                  <ul className="text-[13px] text-gray-600 space-y-2 list-disc list-inside">
+                    {result.swot?.strengths.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                </div>
+                <div className="p-4 rounded-xl bg-white/40 border border-gray-200 shadow-sm">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-red-500"/> Weaknesses</h4>
+                  <ul className="text-[13px] text-gray-600 space-y-2 list-disc list-inside">
+                    {result.swot?.weaknesses.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                </div>
+                <div className="p-4 rounded-xl bg-white/40 border border-gray-200 shadow-sm">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-500"/> Opportunities</h4>
+                  <ul className="text-[13px] text-gray-600 space-y-2 list-disc list-inside">
+                    {result.swot?.opportunities.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                </div>
+                <div className="p-4 rounded-xl bg-white/40 border border-gray-200 shadow-sm">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"><RefreshCw className="w-4 h-4 text-orange-500"/> Threats</h4>
+                  <ul className="text-[13px] text-gray-600 space-y-2 list-disc list-inside">
+                    {result.swot?.threats.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                </div>
               </div>
             </div>
 
+            {/* Right Column: Recommended Roles & Explainable AI */}
             <div className="liquid-glass-light rounded-2xl p-6 sm:p-8 flex flex-col">
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-red-600">Risk Factors</h3>
-                <p className="text-sm text-gray-500 mt-1">Issues that could delay your timeline</p>
-              </div>
-              <ul className="space-y-4 list-disc list-inside text-[14px] text-gray-700 bg-white/40 p-5 rounded-xl border border-red-100/50">
-                {result.riskFactors.map((risk, index) => (
-                  <li key={index}>{risk}</li>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Recommended Roles</h3>
+              
+              <div className="space-y-3 mb-6">
+                {result.recommendedRoles?.map((role, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 rounded-xl bg-white/60 border border-gray-200 shadow-sm">
+                    <div>
+                      <strong className="block text-[14.5px] font-semibold text-gray-900">{role.title}</strong>
+                      <div className="text-[12.5px] text-gray-500 mt-1">{role.description}</div>
+                    </div>
+                    <span className="px-2.5 py-1 bg-[#4f46e5]/10 text-[#4f46e5] text-[12px] font-bold rounded-full ml-3 whitespace-nowrap">
+                      {role.match}%
+                    </span>
+                  </div>
                 ))}
-              </ul>
+              </div>
+
+              <h3 className="text-md font-semibold text-gray-900 mt-2 mb-3">Explainable AI Reasoning</h3>
+              <div className="p-4 rounded-xl border border-dashed border-[#8b5cf6]/40 bg-[#8b5cf6]/5 text-[13px] leading-relaxed text-gray-700">
+                Recommended role: <strong className="text-gray-900">{result.recommendedRoles?.[0]?.title}</strong><br/><br/>
+                Reason: {result.recommendedRoles?.[0]?.reason}
+              </div>
             </div>
           </div>
 

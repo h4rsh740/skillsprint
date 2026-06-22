@@ -1,0 +1,123 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  RECRUITER
+}
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  passwordHash     String?
+  role             Role              @default(STUDENT)
+  createdAt        DateTime          @default(now())
+  profile          Profile?
+  resumes          Resume[]
+  careerTwins      CareerTwin[]
+  interviews       Interview[]
+  learningRoadmaps LearningRoadmap[]
+  activityLogs     ActivityLog[]
+
+  @@map("users")
+}
+
+model Profile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName          String?
+  college           String?
+  branch            String?
+  graduationYear    Int?
+  cgpa              Float?
+  targetRole        String?
+  githubUsername    String?
+  linkedinUrl       String?
+  skills            String[]
+  studyHoursPerWeek Int?     @default(10)
+  updatedAt         DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model Resume {
+  id                   String   @id @default(uuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileUrl              String
+  parsedContent        Json?
+  atsScore             Int?
+  skillsprintScore     Int?
+  placementProbability Float?
+  weakAreas            String[]
+  missingSkills        String[]
+  suggestions          Json?
+  createdAt            DateTime @default(now())
+
+  @@map("resumes")
+}
+
+model CareerTwin {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prediction3m       Json?
+  prediction6m       Json?
+  prediction12m      Json?
+  salaryProjection   String?
+  riskFactors        String[]
+  growthOpportunities Json?
+  createdAt          DateTime @default(now())
+
+  @@map("career_twins")
+}
+
+model Interview {
+  id                     String   @id @default(uuid())
+  userId                 String
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode                   String
+  transcript             Json?
+  communicationScore     Int?
+  confidenceScore        Int?
+  technicalScore         Int?
+  leadershipScore        Int?
+  overallScore           Int?
+  improvementSuggestions String[]
+  createdAt              DateTime @default(now())
+
+  @@map("interviews")
+}
+
+model LearningRoadmap {
+  id                   String   @id @default(uuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  targetCompany        String?
+  targetRole           String?
+  dailyTasks           Json?
+  weeklyTasks          Json?
+  monthlyTasks         Json?
+  completionPercentage Int      @default(0)
+  createdAt            DateTime @default(now())
+
+  @@map("learning_roadmaps")
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@map("activity_logs")
+}

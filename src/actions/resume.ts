@@ -4,9 +4,16 @@ import { generateStructuredAIResponse, MODELS } from "@/lib/ai";
 
 export type ResumeAnalysisResult = {
   atsScore: number;
-  placementProbability: number;
-  strengths: string[];
-  weaknesses: string[];
+  resumeScore: number;
+  projectsParsed: number;
+  keywordGaps: number;
+  extractedSignals: string[];
+  improvementSuggestions: {
+    title: string;
+    description: string;
+    priority: "High" | "Med" | "Low";
+    progress: number;
+  }[];
   rewriteSuggestions: {
     original: string;
     improved: string;
@@ -31,23 +38,38 @@ export async function analyzeResume(formData: FormData): Promise<ResumeAnalysisR
 
   const systemPrompt = `You are a strict, top-tier tech recruiter AI. Analyze the candidate's resume and return a JSON object with:
   - atsScore (0-100)
-  - placementProbability (0-100)
-  - strengths (array of 3 strings)
-  - weaknesses (array of 3 strings)
+  - resumeScore (0-100)
+  - projectsParsed (number)
+  - keywordGaps (number)
+  - extractedSignals (array of strings)
+  - improvementSuggestions (array of objects with title, description, priority, progress)
   - rewriteSuggestions (array of 1 object with 'original' and 'improved' bullet points)`;
 
   const simulatedPayload: ResumeAnalysisResult = {
-    atsScore: 72,
-    placementProbability: 58,
-    strengths: [
-      "Solid foundation in modern frontend ecosystem (React, Next.js).",
-      "Hackathon participation indicates strong builder mentality and initiative.",
-      "Good academic standing (8.5 CGPA) passes initial screens."
-    ],
-    weaknesses: [
-      "Zero backend, database, or cloud infrastructure skills listed.",
-      "Lacks quantifiable metrics in project descriptions (e.g., 'improved performance by X%').",
-      "No listed experience with testing frameworks (Jest, Cypress)."
+    resumeScore: 81,
+    atsScore: 73,
+    projectsParsed: 5,
+    keywordGaps: 11,
+    extractedSignals: ["React", "JavaScript", "TypeScript", "Git", "TailwindCSS", "REST APIs"],
+    improvementSuggestions: [
+      {
+        title: "Rewrite summary for target role",
+        description: "Lead with frontend positioning and measurable outcomes.",
+        priority: "High",
+        progress: 82
+      },
+      {
+        title: "Insert ATS keywords",
+        description: "TypeScript, Next.js, unit testing, performance optimization.",
+        priority: "High",
+        progress: 68
+      },
+      {
+        title: "Project bullets → impact bullets",
+        description: "Use metrics like load time, users, conversion, deployments.",
+        priority: "Med",
+        progress: 57
+      }
     ],
     rewriteSuggestions: [
       {

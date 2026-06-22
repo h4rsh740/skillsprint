@@ -17,6 +17,18 @@ export type CareerTwinResult = {
     impact: string;
   }[];
   riskFactors: string[];
+  swot?: {
+    strengths: string[];
+    weaknesses: string[];
+    opportunities: string[];
+    threats: string[];
+  };
+  recommendedRoles?: {
+    title: string;
+    match: number;
+    reason: string;
+    description: string;
+  }[];
 };
 
 export async function generateCareerTwin(formData: FormData): Promise<CareerTwinResult> {
@@ -37,7 +49,9 @@ export async function generateCareerTwin(formData: FormData): Promise<CareerTwin
   const systemPrompt = `You are an AI Career Twin projector. Based on the student's current profile, project their career timeline for the next 12 months. Return a JSON object with:
   - timeline (array of 4 objects for Present, +3 Months, +6 Months, +12 Months with fields: month, title, subtitle, skills, salary)
   - growthOpportunities (array of 2 objects with title, impact)
-  - riskFactors (array of 3 strings)`;
+  - riskFactors (array of 3 strings)
+  - swot (object with strengths, weaknesses, opportunities, threats array of strings)
+  - recommendedRoles (array of objects with title, match, reason, description)`;
 
   const simulatedPayload: CareerTwinResult = {
     timeline: [
@@ -84,6 +98,32 @@ export async function generateCareerTwin(formData: FormData): Promise<CareerTwin
       "Low consistency in coding practice (GitHub commits irregular).",
       "Missing core CS fundamentals in resume (OS, DBMS, Networks).",
       "No significant backend project to showcase full-stack ability."
+    ],
+    swot: {
+      strengths: ["Strong frontend foundations", "Consistent project shipping", "Clean UI implementation taste"],
+      weaknesses: ["Limited testing depth", "Low system design exposure", "Weak DSA interview consistency"],
+      opportunities: ["Product Engineer track", "Hackathons + internships", "Portfolio case-study upgrades"],
+      threats: ["High market competition", "Generic resume wording", "No strong open-source signal yet"]
+    },
+    recommendedRoles: [
+      {
+        title: "Frontend Developer",
+        match: 86,
+        description: "React strength + UI project quality",
+        reason: "Recommended based on strong React skills, portfolio evidence of UI craftsmanship, good Git discipline, and rising consistency across shipped projects."
+      },
+      {
+        title: "UI Engineer",
+        match: 82,
+        description: "Design systems + responsive implementation",
+        reason: "Recommended due to excellent CSS/Tailwind skills and attention to visual detail."
+      },
+      {
+        title: "Product Engineer",
+        match: 78,
+        description: "Fast shipping + cross-functional potential",
+        reason: "Good alignment with your rapid prototyping skills and full-stack side projects."
+      }
     ]
   };
 

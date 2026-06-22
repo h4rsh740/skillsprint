@@ -13,13 +13,13 @@ export default function MockInterviewPage() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 liquid-glass rounded-3xl h-[500px] flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-gray-300">
+        <div className="md:col-span-2 liquid-glass rounded-3xl h-[400px] flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-gray-300">
           <div className="w-24 h-24 rounded-full bg-[#4f46e5]/10 flex items-center justify-center mb-6 shadow-[0_0_0_8px_rgba(79,70,229,0.05)]">
             <Mic className="h-10 w-10 text-[#4f46e5]" />
           </div>
           <h3 className="text-xl font-semibold text-gray-900">Ready for your interview?</h3>
           <p className="text-gray-500 mt-2 mb-8 max-w-sm">Ensure your microphone is connected and you are in a quiet environment.</p>
-          <button className="group flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[15px] font-medium rounded-full pl-6 pr-2 py-2.5 transition-colors">
+          <button className="group flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[15px] font-medium rounded-full pl-6 pr-2 py-2.5 transition-colors shadow-sm">
             <div className="h-[20px] overflow-hidden relative">
               <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
                 <span className="h-[20px] flex items-center">Start Interview</span>
@@ -63,6 +63,38 @@ export default function MockInterviewPage() {
                 <option>SDE-1 (Entry Level)</option>
                 <option>Internship</option>
               </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-6">
+        <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Performance</h3>
+        <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row gap-8 items-center">
+          <div className="w-full md:w-1/3 text-center md:text-left border-b md:border-b-0 md:border-r border-gray-200 pb-6 md:pb-0 md:pr-8">
+            <div className="text-[13px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Last Interview</div>
+            <h4 className="text-lg font-bold text-gray-900">Technical (Frontend)</h4>
+            <p className="text-sm text-gray-500 mt-1">Microsoft • SDE-1</p>
+            <div className="mt-4 inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-[13px] font-semibold">
+              Result: Developing
+            </div>
+          </div>
+          
+          <div className="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="bg-white/40 p-4 rounded-2xl border border-white">
+              <div className="text-[12px] text-gray-500 font-medium mb-1">Communication</div>
+              <div className="text-2xl font-bold text-gray-900">82<span className="text-sm text-gray-400 font-normal">/100</span></div>
+              <div className="h-1.5 w-full bg-gray-200 rounded-full mt-3"><div className="h-full bg-emerald-500 rounded-full w-[82%]" /></div>
+            </div>
+            <div className="bg-white/40 p-4 rounded-2xl border border-white">
+              <div className="text-[12px] text-gray-500 font-medium mb-1">Confidence</div>
+              <div className="text-2xl font-bold text-gray-900">75<span className="text-sm text-gray-400 font-normal">/100</span></div>
+              <div className="h-1.5 w-full bg-gray-200 rounded-full mt-3"><div className="h-full bg-amber-500 rounded-full w-[75%]" /></div>
+            </div>
+            <div className="bg-white/40 p-4 rounded-2xl border border-white">
+              <div className="text-[12px] text-gray-500 font-medium mb-1">Technical Accuracy</div>
+              <div className="text-2xl font-bold text-gray-900">64<span className="text-sm text-gray-400 font-normal">/100</span></div>
+              <div className="h-1.5 w-full bg-gray-200 rounded-full mt-3"><div className="h-full bg-red-500 rounded-full w-[64%]" /></div>
             </div>
           </div>
         </div>

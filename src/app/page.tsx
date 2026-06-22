@@ -28,8 +28,18 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#F26522] selection:text-white">
       {/* SECTION 1: HERO */}
       <section className="relative min-h-screen flex flex-col overflow-hidden bg-[#EFEFEF]">
-        {/* Shaders Background */}
-        <div className="absolute inset-0 z-10 pointer-events-none">
+        {/* Mobile Background Image (shown on small screens) */}
+        <div className="absolute inset-0 z-10 pointer-events-none md:hidden">
+          <img 
+            src="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2232&auto=format&fit=crop" 
+            alt="" 
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#EFEFEF]/60 via-[#EFEFEF]/40 to-[#EFEFEF]" />
+        </div>
+
+        {/* Shaders Background (hidden on mobile for performance) */}
+        <div className="absolute inset-0 z-10 pointer-events-none hidden md:block">
           <Shader>
             <Swirl colorA="#ffffff" colorB="#e0e7ff" detail={1.7} />
             <ChromaFlow baseColor="#ffffff" downColor="#4f46e5" leftColor="#3b82f6" rightColor="#8b5cf6" upColor="#6366f1" momentum={13} radius={3.5} />
@@ -46,23 +56,27 @@ export default function LandingPage() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-900 rounded-full flex items-center justify-center">
                 <BrainCircuit className="w-5 h-5 text-white" />
               </div>
-              <div className="hidden md:flex items-center gap-6 ml-2">
-                {["Career Twin", "Resume Intel", "Mock Interviews", "For Recruiters"].map((link) => (
-                  <a key={link} href={`/dashboard`} className="text-[14px] font-medium text-gray-900 hover:text-[#4f46e5] transition-colors duration-300">
-                    {link}
-                  </a>
-                ))}
-              </div>
             </div>
 
             {/* Right side (Desktop) */}
-            <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-3">
               <span className="text-[13px] text-gray-600 hidden lg:block">Ready for Placement Q1 2026</span>
-              <div className="flex items-center gap-1.5 border-l border-gray-200 pl-6 h-4">
+              <div className="flex items-center gap-1.5 border-l border-gray-200 pl-3 h-4">
                 <Clock className="w-3.5 h-3.5 text-gray-600" />
                 <span className="text-[13px] text-gray-600 font-medium">{londonTime} IST</span>
               </div>
-              <a href="/dashboard" className="group flex items-center gap-2 bg-gray-900 text-white text-[13px] font-medium rounded-full pl-5 pr-2 py-2 hover:bg-gray-800 transition-colors">
+              <a href="/auth/signin" className="group flex items-center gap-2 bg-gray-900 text-white text-[13px] font-medium rounded-full pl-5 pr-2 py-2 hover:bg-gray-800 transition-colors">
+                <div className="h-[20px] overflow-hidden relative">
+                  <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
+                    <span className="h-[20px] flex items-center">Sign In</span>
+                    <span className="h-[20px] flex items-center">Sign In</span>
+                  </div>
+                </div>
+                <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                  <ArrowRight className="w-3 h-3 text-gray-900 transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-rotate-45" />
+                </div>
+              </a>
+              <a href="/auth/signup" className="group flex items-center gap-2 bg-gray-900 text-white text-[13px] font-medium rounded-full pl-5 pr-2 py-2 hover:bg-gray-800 transition-colors">
                 <div className="h-[20px] overflow-hidden relative">
                   <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
                     <span className="h-[20px] flex items-center">Get Started</span>
@@ -102,13 +116,11 @@ export default function LandingPage() {
               </button>
             </div>
             <nav className="flex flex-col gap-4 mb-10">
-              {["Career Twin", "Resume Intel", "Mock Interviews", "For Recruiters"].map((link) => (
-                <a key={link} href="/dashboard" className="text-[28px] leading-[32px] font-medium text-gray-900 tracking-tight">
-                  {link}
-                </a>
-              ))}
+              <a href="/auth/signin" className="text-[28px] leading-[32px] font-medium text-gray-900 tracking-tight">
+                Sign In
+              </a>
             </nav>
-            <a href="/dashboard" className="flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] transition-colors text-white text-[15px] font-medium rounded-full p-4 w-full">
+            <a href="/auth/signup" className="flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] transition-colors text-white text-[15px] font-medium rounded-full p-4 w-full">
               Get Started
               <ArrowRight className="w-4 h-4" />
             </a>
@@ -128,7 +140,7 @@ export default function LandingPage() {
           </h1>
           
           <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
-            <a href="/dashboard" className="group flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[13px] sm:text-[14px] font-medium rounded-full pl-5 sm:pl-6 pr-2 py-2 transition-colors">
+            <a href="/auth/signup" className="group flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[13px] sm:text-[14px] font-medium rounded-full pl-5 sm:pl-6 pr-2 py-2 transition-colors">
               <div className="h-[20px] overflow-hidden relative">
                 <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
                   <span className="h-[20px] flex items-center">Start your journey</span>
@@ -177,7 +189,7 @@ export default function LandingPage() {
                 <p className="text-[15px] sm:text-[17px] leading-[1.6] font-medium text-gray-900 mb-6 max-w-md">
                   Through predictive modeling, resume intelligence and AI mock interviews we help students realize their true placement potential.
                 </p>
-                <a href="/dashboard" className="group inline-flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[13px] sm:text-[14px] font-medium rounded-full pl-5 sm:pl-6 pr-2 py-2 transition-colors">
+                <a href="/auth/signup" className="group inline-flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[13px] sm:text-[14px] font-medium rounded-full pl-5 sm:pl-6 pr-2 py-2 transition-colors">
                   <div className="h-[20px] overflow-hidden relative">
                     <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
                       <span className="h-[20px] flex items-center">Explore features</span>
@@ -216,7 +228,7 @@ export default function LandingPage() {
                 <p className="text-[16px] xl:text-[18px] leading-[1.65] font-medium text-gray-900 whitespace-nowrap mb-8 text-right">
                   Through predictive modeling, resume intelligence<br/>and AI mock interviews we help students<br/>realize their true placement potential.
                 </p>
-                <a href="/dashboard" className="group inline-flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[14px] font-medium rounded-full pl-6 pr-2 py-2 transition-colors">
+                <a href="/auth/signup" className="group inline-flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[14px] font-medium rounded-full pl-6 pr-2 py-2 transition-colors">
                   <div className="h-[20px] overflow-hidden relative">
                     <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
                       <span className="h-[20px] flex items-center">Explore features</span>
