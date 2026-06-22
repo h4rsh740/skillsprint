@@ -7,6 +7,7 @@ import { Clock, Menu, X, ArrowRight, BrainCircuit } from "lucide-react";
 export default function LandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [londonTime, setLondonTime] = useState("");
+  const [showIntroVideo, setShowIntroVideo] = useState(true);
 
   useEffect(() => {
     const updateTime = () => {
@@ -26,6 +27,26 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-[#F26522] selection:text-white">
+      {/* Intro Video Overlay */}
+      {showIntroVideo && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center">
+          <video 
+            src="/intro-video.mp4" 
+            autoPlay 
+            muted 
+            playsInline
+            onEnded={() => setShowIntroVideo(false)}
+            className="w-full h-full object-contain sm:object-cover"
+          />
+          <button 
+            onClick={() => setShowIntroVideo(false)}
+            className="absolute bottom-10 sm:bottom-auto sm:top-6 right-6 sm:right-6 text-white/70 hover:text-white bg-black/40 hover:bg-black/60 px-5 py-2.5 sm:px-4 sm:py-2 rounded-full text-[14px] sm:text-sm font-medium backdrop-blur-md transition-all border border-white/20"
+          >
+            Skip Intro
+          </button>
+        </div>
+      )}
+
       {/* SECTION 1: HERO */}
       <section className="relative min-h-screen flex flex-col overflow-hidden bg-[#EFEFEF]">
         {/* Mobile Background Image (shown on small screens) */}
