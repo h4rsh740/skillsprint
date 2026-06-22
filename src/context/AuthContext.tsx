@@ -7,7 +7,10 @@ import {
   GithubAuthProvider, 
   signOut as firebaseSignOut, 
   onAuthStateChanged,
-  User as FirebaseUser
+  User as FirebaseUser,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile
 } from "firebase/auth";
 import { 
   doc, 
@@ -39,6 +42,8 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   loginWithGitHub: () => Promise<void>;
   loginWithLinkedIn: () => void;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  registerWithEmail: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   updateOnboarding: (data: Partial<UserProfile>) => Promise<void>;
 }
@@ -165,6 +170,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/api/auth/linkedin");
   };
 
+  const loginWithEmail = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      console.error("Email sign-in error:", err);
+      setError(err.message || "Failed to sign in with email");
+      setLoading(false);
+      throw err;
+    }
+  };
+
+  const registerWithEmail = async (email: string, password: string, name: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(userCredential.user, { displayName: name });
+      
+      const userRef = doc(db, "users", userCredential.user.uid);
+      await setDoc(userRef, { name }, { merge: true });
+      
+      setUser((prev) => prev ? { ...prev, name } : null);
+    } catch (err: any) {
+      console.error("Email registration error:", err);
+      setError(err.message || "Failed to register with email");
+      setLoading(false);
+      throw err;
+    }
+  };
+
   const logout = async () => {
     setLoading(true);
     try {
@@ -203,6 +240,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginWithGoogle,
         loginWithGitHub,
         loginWithLinkedIn,
+        loginWithEmail,
+        registerWithEmail,
         logout,
         updateOnboarding,
       }}

@@ -70,8 +70,12 @@ export default function LandingPage() {
         </div>
 
         {/* Navigation */}
-        <div className="relative z-20 w-full max-w-[1440px] mx-auto p-2 sm:p-3 mt-4">
-          <nav className="flex items-center justify-between bg-white/90 backdrop-blur-md rounded-full p-[5px] shadow-sm">
+        <div className="fixed top-0 left-0 right-0 z-50 w-full pointer-events-none">
+          {/* Fading blur mask to cleanly hide scrolling text above the pill */}
+          <div className="absolute top-0 left-0 right-0 h-16 bg-white/70 backdrop-blur-lg" style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)', maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' }} />
+          
+          <div className="relative max-w-[1440px] mx-auto p-2 sm:p-4 mt-1 sm:mt-2 pointer-events-auto">
+            <nav className="flex items-center justify-between bg-white/50 backdrop-blur-xl rounded-full p-[5px] shadow-md border border-white/50">
             {/* Left side */}
             <div className="flex items-center gap-6">
               <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gray-900 rounded-full flex items-center justify-center">
@@ -118,10 +122,11 @@ export default function LandingPage() {
               <Menu className="w-4 h-4 text-white" />
             </button>
           </nav>
+          </div>
         </div>
 
         {/* Mobile Menu Overlay */}
-        <div className={`fixed inset-0 z-50 flex flex-col justify-end transition-opacity duration-500 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`fixed inset-0 z-[60] flex flex-col justify-end transition-opacity duration-500 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
           <div className="absolute inset-0 bg-black/60" onClick={() => setIsMobileMenuOpen(false)} />
           <div className={`relative bg-white rounded-2xl mx-3 mb-3 p-6 flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${isMobileMenuOpen ? 'translate-y-0' : 'translate-y-[120%]'}`}>
             <div className="flex justify-between items-center mb-8">
