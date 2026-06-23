@@ -291,7 +291,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }}
     >
       {showGlobalLoader && (
-        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
+        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden">
           <video 
             ref={videoRef}
             src="/loading-video.mp4" 
@@ -301,7 +301,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             playsInline
             preload="auto"
             onEnded={() => setVideoEnded(true)}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover scale-[1.12]"
           />
         </div>
       )}
