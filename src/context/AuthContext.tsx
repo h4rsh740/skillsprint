@@ -269,6 +269,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [videoEnded, setVideoEnded] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -282,15 +283,16 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, pathname, router]);
 
-  if (loading) {
+  if (loading || !videoEnded) {
     return (
       <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
         <video 
           src="/loading-video.mp4" 
           autoPlay 
           muted 
-          loop 
+          loop={loading}
           playsInline
+          onEnded={() => setVideoEnded(true)}
           className="w-full h-full object-contain"
         />
       </div>
