@@ -301,7 +301,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             playsInline
             preload="auto"
             onEnded={() => setVideoEnded(true)}
-            className="w-full h-full object-cover scale-[1.12]"
+            className="w-full h-full object-contain"
           />
         </div>
       )}
