@@ -293,7 +293,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
           loop={loading}
           playsInline
           onEnded={() => setVideoEnded(true)}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover"
         />
       </div>
     );
