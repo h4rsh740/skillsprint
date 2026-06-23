@@ -284,16 +284,15 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#090D16] text-white">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 rounded-full border-4 border-[#4f46e5]/20 animate-pulse"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-[#4f46e5] animate-spin"></div>
-          </div>
-          <span className="text-[14px] text-gray-400 font-semibold tracking-wider animate-pulse">
-            Authenticating with SkillSprint...
-          </span>
-        </div>
+      <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
+        <video 
+          src="/loading-video.mp4" 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="w-full h-full object-contain"
+        />
       </div>
     );
   }
