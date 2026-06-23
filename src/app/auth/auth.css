@@ -377,6 +377,10 @@
   transform: rotate(-25deg);
 }
 
+.mobile-auth-logo {
+  display: none;
+}
+
 @media only screen and (max-width: 1024px) {
   .auth-section {
     flex-direction: column;
@@ -392,14 +396,147 @@
 }
 
 @media only screen and (max-width: 720px) {
-  .login-container { flex-direction: column-reverse; }
-  .vector-3 { top: 89%; }
+  .mobile-auth-logo {
+    display: block;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  .login-container {
+    flex-direction: column-reverse;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+  }
+  .vector-3 {
+    top: 89%;
+  }
+  
+  .social-login {
+    padding: 15px 20px;
+    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .social-login .auth-logo {
+    display: none; /* Hide branding text inside the bottom drawer to save space */
+  }
+  
+  .social-login > p {
+    font-size: 12px;
+    margin: 0;
+    text-align: center;
+    opacity: 0.9;
+  }
+  
+  .social-grp {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    margin-top: 5px;
+  }
+  
+  .social-btn {
+    margin-bottom: 0;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 3px 3px #111827;
+  }
+  
+  .social-btn button {
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+  }
+  
+  .social-btn button span {
+    display: none; /* Hide Google/GitHub/LinkedIn text label */
+  }
+  
+  .social-btn button svg {
+    width: 24px;
+    height: 24px;
+    margin: 0 auto;
+  }
+  
+  .email-login {
+    padding: 20px 25px;
+  }
+  
+  .login-h-container {
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  
+  .login-h-container h1 {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  
+  .login-h-container p {
+    font-size: 13px;
+  }
+  
+  .auth-form {
+    gap: 12px;
+  }
+  
+  .auth-form input[type="text"],
+  .auth-form input[type="email"],
+  .auth-form input[type="password"] {
+    line-height: 2.2;
+    font-size: 15px;
+    padding: 0 10px;
+  }
+  
+  .auth-label span {
+    font-size: 15px;
+    top: 8px;
+    left: 4px;
+  }
+  
+  .auth-label:focus-within span,
+  .auth-label .focus-span {
+    transform: translate(0.2rem, -92%) scale(0.75);
+  }
+  
+  .auth-form button[type="submit"] {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 17px;
+    padding: 8px;
+  }
+  
+  .recovery {
+    font-size: 13px;
+    margin-top: 5px;
+  }
 }
 
 @media only screen and (max-width: 420px) {
-  .auth-main { padding: 0; }
-  .social-login { padding: 20px; }
-  .auth-logo { font-size: 24px; }
-  .email-login { padding: 20px; }
-  .social-btn button { padding: 8px 12px; }
+  .auth-main {
+    padding: 0;
+  }
+  .social-login {
+    padding: 12px 15px;
+  }
+  .email-login {
+    padding: 15px 20px;
+  }
+  .social-btn {
+    width: 48px;
+    height: 48px;
+  }
 }

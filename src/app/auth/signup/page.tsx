@@ -148,10 +148,10 @@ function SignUpContent() {
             
             <div className="login-container">
               <div className="social-login">
-                <div className="auth-logo">
+                <Link href="/" className="auth-logo cursor-pointer hover:opacity-90 transition-opacity">
                   <BrainCircuit className="text-[#ffc85c]" />
                   <p>SkillSprint AI</p>
-                </div>
+                </Link>
                 <p>Register using social media to get quick access</p>
                 <div className="social-grp">
                   <div className="social-btn">
@@ -196,6 +196,12 @@ function SignUpContent() {
                 </div>
               </div>
               <div className="email-login">
+                <div className="mobile-auth-logo">
+                  <Link href="/" className="flex items-center gap-2 justify-center py-2 hover:opacity-85 transition-opacity">
+                    <BrainCircuit className="text-[#ee7344] w-6 h-6" />
+                    <span className="font-bold text-[18px] text-black" style={{ fontFamily: "Unbounded, sans-serif" }}>SkillSprint AI</span>
+                  </Link>
+                </div>
                 <div className="login-h-container">
                   <h1>Create an account</h1>
                   <p>Already have an account? <Link href="/auth/signin">Sign in!</Link></p>

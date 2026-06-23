@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { 
   BrainCircuit, 
   Loader2, 
@@ -366,10 +367,10 @@ export default function OnboardingPage() {
               
               {/* Left Panel: Step progress checklist */}
               <div className="social-login" style={{ flex: "1.1", padding: "30px 25px", gap: "28px" }}>
-                <div className="auth-logo">
+                <Link href="/" className="auth-logo cursor-pointer hover:opacity-90 transition-opacity">
                   <BrainCircuit className="text-[#ffc85c]" />
                   <p style={{ fontSize: "20px" }}>SkillSprint AI</p>
-                </div>
+                </Link>
                 
                 <div>
                   <h2 className="text-lg font-bold text-white mb-1.5" style={{ fontFamily: "Unbounded, sans-serif" }}>Onboarding</h2>
@@ -414,10 +415,10 @@ export default function OnboardingPage() {
                 
                 {/* Mobile-Only Header */}
                 <div className="sm:hidden flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-1.5">
+                  <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
                     <BrainCircuit className="text-[#ee7344] w-5.5 h-5.5" />
                     <span className="font-bold text-[15px] text-black" style={{ fontFamily: "Unbounded, sans-serif" }}>SkillSprint AI</span>
-                  </div>
+                  </Link>
                   <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Step {step} of 5</span>
                 </div>
 
