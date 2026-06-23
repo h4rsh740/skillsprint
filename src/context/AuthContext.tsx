@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { 
   signInWithPopup, 
   GoogleAuthProvider, 
@@ -270,6 +270,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [videoEnded, setVideoEnded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -283,15 +284,38 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, pathname, router]);
 
+  // Fallback timeout to ensure the user is let in after 23 seconds under any circumstance
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVideoEnded(true);
+    }, 23000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Attempt to play the video programmatically and catch autoplay restrictions (e.g. mobile battery saver mode)
+  useEffect(() => {
+    if (videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.warn("Mobile video autoplay blocked. Bypassing animation to prevent black screen hang:", error);
+          setVideoEnded(true);
+        });
+      }
+    }
+  }, [loading]);
+
   if (loading || !videoEnded) {
     return (
       <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center">
         <video 
+          ref={videoRef}
           src="/loading-video.mp4" 
           autoPlay 
           muted 
           loop={loading}
           playsInline
+          preload="auto"
           onEnded={() => setVideoEnded(true)}
           className="w-full h-full object-cover"
         />
