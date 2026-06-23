@@ -20,15 +20,45 @@ import {
   Trophy,
   Link2,
   Shield,
-  User as UserIcon
+  ArrowRight,
+  Clock
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export function SidebarNav() {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [londonTime, setLondonTime] = useState("");
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = { 
+        timeZone: "Asia/Kolkata", 
+        hour: "2-digit", 
+        minute: "2-digit", 
+        hour12: true 
+      };
+      setLondonTime(new Intl.DateTimeFormat("en-IN", options).format(now).toUpperCase());
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const links = [
     { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
@@ -50,7 +80,8 @@ export function SidebarNav() {
     await logout();
   };
 
-  const navContent = (
+  // Desktop sidebar content
+  const desktopSidebarContent = (
     <div className="flex flex-col h-full bg-white text-gray-900 border-r border-gray-200">
       {/* Brand Logo */}
       <div className="p-6 border-b border-gray-200 flex items-center gap-3">
@@ -72,15 +103,31 @@ export function SidebarNav() {
             <Link
               key={link.name}
               href={link.path}
-              onClick={() => setIsOpen(false)}
-              className={`group flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[13.5px] font-semibold transition-all duration-300 ${
+              className={`group flex items-center justify-between px-4 py-3 rounded-2xl text-[13.5px] font-semibold transition-all duration-300 ${
                 isActive
                   ? "bg-[#4f46e5] text-white shadow-md shadow-[#4f46e5]/20 scale-[1.02]"
                   : "text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-transparent hover:border-gray-200"
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
-              <span>{link.name}</span>
+              <div className="flex items-center gap-3.5">
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
+                {/* Vertical slide text animation */}
+                <div className="h-[20px] overflow-hidden relative">
+                  <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
+                    <span className="h-[20px] flex items-center">{link.name}</span>
+                    <span className="h-[20px] flex items-center">{link.name}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dynamic rotating Arrow indicator */}
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
+                isActive 
+                  ? "bg-white/20 text-white" 
+                  : "bg-gray-100 text-gray-400 group-hover:bg-gray-200 group-hover:text-gray-700"
+              }`}>
+                <ArrowRight className="w-2.5 h-2.5 transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-rotate-45" />
+              </div>
             </Link>
           );
         })}
@@ -109,22 +156,45 @@ export function SidebarNav() {
         )}
         <Link
           href="/dashboard/settings"
-          onClick={() => setIsOpen(false)}
-          className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all ${
+          className={`group flex items-center justify-between px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all ${
             pathname === "/dashboard/settings"
               ? "bg-[#4f46e5]/10 text-[#4f46e5]"
               : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
           }`}
         >
-          <Settings className="w-4 h-4 text-gray-500" />
-          <span>Settings</span>
+          <div className="flex items-center gap-3">
+            <Settings className="w-4 h-4 text-gray-500 flex-shrink-0" />
+            <div className="h-[20px] overflow-hidden relative">
+              <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
+                <span className="h-[20px] flex items-center">Settings</span>
+                <span className="h-[20px] flex items-center">Settings</span>
+              </div>
+            </div>
+          </div>
+          <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
+            pathname === "/dashboard/settings"
+              ? "bg-[#4f46e5]/20 text-[#4f46e5]"
+              : "bg-gray-100 text-gray-400 group-hover:bg-gray-200 group-hover:text-gray-700"
+          }`}>
+            <ArrowRight className="w-2.5 h-2.5 transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-rotate-45" />
+          </div>
         </Link>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 transition-all text-left cursor-pointer"
+          className="group w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-[13px] font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 transition-all text-left cursor-pointer"
         >
-          <LogOut className="w-4 h-4 text-red-500" />
-          <span>Sign Out</span>
+          <div className="flex items-center gap-3">
+            <LogOut className="w-4 h-4 text-red-500 flex-shrink-0" />
+            <div className="h-[20px] overflow-hidden relative">
+              <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
+                <span className="h-[20px] flex items-center">Sign Out</span>
+                <span className="h-[20px] flex items-center">Sign Out</span>
+              </div>
+            </div>
+          </div>
+          <div className="w-5 h-5 bg-red-100 text-red-600 rounded-full flex items-center justify-center transition-all duration-300 group-hover:bg-red-200">
+            <ArrowRight className="w-2.5 h-2.5 transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-rotate-45" />
+          </div>
         </button>
       </div>
     </div>
@@ -142,42 +212,104 @@ export function SidebarNav() {
         </Link>
         <button
           onClick={() => setIsOpen(true)}
-          className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center"
+          className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center mr-1"
         >
-          <Menu className="w-4.5 h-4.5 text-gray-900" />
+          <Menu className="w-4 h-4 text-white" />
         </button>
       </div>
 
       {/* Desktop Sidebar (Fixed Left) */}
       <aside className="hidden md:block w-[260px] h-screen sticky top-0 bg-white border-r border-gray-200 z-30">
-        {navContent}
+        {desktopSidebarContent}
       </aside>
 
-      {/* Mobile Sidebar Slide-Over Drawer */}
+      {/* Mobile Sidebar Slide-Over Drawer (Bottom Sheet Style matching landing page) */}
       <div
-        className={`fixed inset-0 z-50 flex transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 z-50 flex flex-col justify-end transition-opacity duration-500 md:hidden ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+        <div className="absolute inset-0 bg-black/60" onClick={() => setIsOpen(false)} />
 
         {/* Drawer panel */}
         <div
-          className={`relative w-[280px] h-full bg-white flex flex-col transition-transform duration-300 ease-out z-10 ${
-            isOpen ? "translate-x-0" : "-translate-x-full"
+          className={`relative bg-white rounded-2xl mx-3 mb-3 p-6 flex flex-col max-h-[85vh] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] z-10 ${
+            isOpen ? "translate-y-0" : "translate-y-[120%]"
           }`}
         >
-          <button
-            onClick={() => setIsOpen(false)}
-            className="absolute top-4 right-4 w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center"
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full">
+              <Clock className="w-3.5 h-3.5 text-gray-600" />
+              <span className="text-[13px] text-gray-600 font-medium">{londonTime} IST</span>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"
+            >
+              <X className="w-5 h-5 text-gray-900" />
+            </button>
+          </div>
+
+          {/* User Profile Card */}
+          {user && (
+            <div className="flex items-center gap-3 p-3.5 bg-gray-50 rounded-2xl border border-gray-150 mb-6">
+              {user.photoURL ? (
+                <img 
+                  src={user.photoURL} 
+                  alt={user.name} 
+                  className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-tr from-[#4f46e5] to-[#06b6d4] rounded-full flex items-center justify-center text-white text-[14px] font-bold uppercase">
+                  {user.name.substring(0, 2)}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-[13.5px] font-bold text-gray-800 truncate">{user.name}</div>
+                <div className="text-[10.5px] text-gray-400 truncate mt-0.5">{user.email}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Scrollable Links */}
+          <nav className="flex flex-col gap-4 mb-8 overflow-y-auto max-h-[40vh] pr-1">
+            {links.map((link) => {
+              const isActive = pathname === link.path;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`text-[28px] leading-[32px] font-medium tracking-tight transition-colors duration-300 ${
+                    isActive ? "text-[#4f46e5]" : "text-gray-900 hover:text-[#4f46e5]"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Action buttons at the bottom */}
+          <button 
+            onClick={() => { setIsOpen(false); handleLogout(); }} 
+            className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 transition-colors text-white text-[15px] font-medium rounded-full p-4 w-full mb-3 cursor-pointer"
           >
-            <X className="w-4 h-4 text-gray-900" />
+            Sign Out
+            <LogOut className="w-4 h-4" />
           </button>
-          {navContent}
+          <Link 
+            href="/dashboard/settings" 
+            onClick={() => setIsOpen(false)} 
+            className="flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] transition-colors text-white text-[15px] font-medium rounded-full p-4 w-full"
+          >
+            Settings
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </>
   );
 }
-

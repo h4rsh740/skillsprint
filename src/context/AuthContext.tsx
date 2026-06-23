@@ -20,6 +20,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useRouter, usePathname } from "next/navigation";
+import { syncOAuthUser, signOutUser } from "@/actions/auth";
 
 export interface UserProfile {
   uid: string;
@@ -93,6 +94,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setUser(existingData);
       }
+
+      // Sync user session to PostgreSQL server-side DB and set session cookie
+      await syncOAuthUser(firebaseUser.uid, firebaseUser.email || "", "STUDENT");
     } catch (err: any) {
       console.error("Error syncing user profile:", err);
       setError(err.message || "Failed to sync user profile");
@@ -207,6 +211,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Sign out of Firebase Auth
       await firebaseSignOut(auth);
+      // Clear session cookie
+      await signOutUser();
       // Clear LinkedIn server session cookie
       await fetch("/api/auth/session", { method: "POST" });
       setUser(null);
