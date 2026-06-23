@@ -1,43 +1,61 @@
-<div align="center">
-  <img src="https://images.unsplash.com/photo-1639322537228-f710d846310a?q=80&w=2232&auto=format&fit=crop" width="120" height="120" style="border-radius: 50%; object-fit: cover; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);" alt="SkillSprint AI Logo" />
-  
-  # 🚀 SkillSprint AI
-  
-  **Predict. Prepare. Place.** — A premium, state-of-the-art AI-powered Career Twin & Talent Intelligence Platform.
-  
-  [![Vercel Status](https://img.shields.io/badge/Vercel-Configured-success?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
-  [![Next.js 16](https://img.shields.io/badge/Next.js-16.2.9-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS%204.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-  [![Prisma ORM](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://prisma.io)
-  [![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-  [![Firebase](https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
-</div>
+<!-- Banner -->
+<p align="center">
+  <img src="./public/skillsprint_readme_header.png" width="100%" alt="SkillSprint AI Banner" style="border-radius: 10px; margin-bottom: 20px; box-shadow: 0 12px 30px rgba(0,0,0,0.3);" />
+</p>
+
+<h1 align="center">🚀 SkillSprint AI</h1>
+
+<p align="center">
+  <strong>Predict. Prepare. Place.</strong><br>
+  A premium, state-of-the-art AI-powered Career Twin & Talent Intelligence Platform designed to bridge the gap between student competence and corporate placement.
+</p>
+
+<p align="center">
+  <a href="https://vercel.com"><img src="https://img.shields.io/badge/Vercel-Configured-success?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Status" /></a>
+  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js%2016-App%20Router-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" /></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React%2019-UI%20Library-blue?style=for-the-badge&logo=react&logoColor=white" alt="React 19" /></a>
+  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind-CSS%204.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
+  <a href="https://prisma.io"><img src="https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma ORM" /></a>
+  <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" /></a>
+  <a href="https://firebase.google.com"><img src="https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" /></a>
+</p>
 
 ---
 
 ## 🌟 Overview
 
-SkillSprint AI is an advanced, student-to-corporate acceleration platform. It creates a digital clone of your professional persona (your **Career Twin**) to project career trajectories, while giving you the AI-powered prep tools (mock interviews, resume intelligence, and dynamic roadmaps) needed to achieve your placement goals.
+**SkillSprint AI** is an advanced career acceleration platform. By synthesizing raw academic performance, GitHub portfolios, resume data, and live mock interview feedback, the system constructs a digital clone of your professional self — the **Career Twin**. 
+
+The Twin projects career trajectories (3, 6, and 12 months out), assesses placement probability in top companies, diagnoses critical skills gaps, and prescribes dynamic daily learning roadmaps to ensure students are corporate-ready.
 
 ---
 
 ## 🔮 Core Features
 
 ### 🧠 1. AI Career Twin
-A predictive clone of your professional self projecting your trajectory 3, 6, and 12 months out. It calculates placement probabilities, projects salaries, and flags growth opportunities or career risk factors.
+*   **Predictive Modeling:** Projects salary bounds, career progression, and placement probabilities.
+*   **Risk Diagnostics:** Identifies bottleneck skills and tags risk factors that could trigger placement failures.
+*   **Continuous Synchronization:** Adapts dynamically as you complete roadmaps, pass interviews, or push commits to GitHub.
 
 ### 🎙️ 2. Voice-Enabled Mock Interviews
-Real-time AI interviewer evaluating HR, Technical, and System Design competence. It transcripts responses, assesses communication, confidence, leadership, and technical capability, and outputs concrete suggestions.
+*   **Real-time AI Interviewer:** Configurable for Technical, HR, and System Design domains.
+*   **Speech-to-Text & Sentiment:** Transcribes spoken replies and evaluates confidence, communication clarity, and command over technical subjects.
+*   **Constructive Feedback:** Generates immediate transcripts, scorecards, and custom improvement plans.
 
-### 📄 3. Resume Intelligence
-Upload your resume for instant ATS scores, deep parsing, skills-gap analysis, and actionable advice targeted at your specific dream roles.
+### 📄 3. Resume & Portfolio Intelligence
+*   **ATS Analyzer:** Renders instant ATS scoring, extracts key skills, and identifies missing keywords.
+*   **GitHub Insights:** Integrates with GitHub to score project complexity, repository commits, and active development consistency.
+*   **Portfolio Analysis:** Evaluates existing personal projects and sites to pinpoint practical design and system-engineering strengths.
 
 ### 🗺️ 4. Dynamic Learning Roadmaps
-Automatically generates customized daily, weekly, and monthly tasks to bridge the skill gaps required by your target companies and roles.
+*   **Adaptive Tasks:** Builds personalized, modular schedules (daily, weekly, and monthly milestones) centered on target roles.
+*   **Automated Progress Tracking:** Tracks completion rates and automatically updates the Career Twin's prediction models.
 
 ---
 
 ## 🏗️ System Architecture
+
+The following diagram illustrates the flow of data, API triggers, and persistence layers across SkillSprint AI:
 
 ```mermaid
 graph TD
@@ -45,6 +63,7 @@ graph TD
     LandingPage -->|Sign In / Up| AuthContext[AuthContext / Firebase Auth / LinkedIn API]
     AuthContext -->|Sync User Profile| Firestore[(Firebase Firestore)]
     User -->|Navigate| Dashboard[Dashboard / App]
+    
     Dashboard -->|Predict Future| CareerTwin[AI Career Twin]
     Dashboard -->|Voice Interview| MockInterview[AI Mock Interview Agent]
     Dashboard -->|Optimize Resume| ResumeIntel[Resume Intelligence]
@@ -60,26 +79,51 @@ graph TD
 
 ---
 
+## 📁 Repository Directory Structure
+
+```
+skillsprint/
+├── prisma/                  # Database schema definitions & migrations
+├── public/                  # Static assets (including banners & SVGs)
+├── supabase/                # Supabase configuration & Edge functions
+├── src/
+│   ├── actions/             # Next.js Server Actions (Auth, AI, Twin, Jobs, Resume)
+│   ├── app/                 # Next.js App Router (pages, layout, APIs)
+│   │   ├── auth/            # Authentication templates (Signup, Signin, Callbacks)
+│   │   ├── dashboard/       # Dashboard sub-routes (Roadmaps, Skill Graph, Career Twin, Admin)
+│   │   ├── onboarding/      # Initial onboarding questions & profile builder
+│   │   └── api/             # REST Endpoints
+│   ├── components/          # React Components
+│   │   ├── dashboard/       # Dashboard layouts, sidebar and navbar navigation
+│   │   └── ui/              # Reusable UI primitives (buttons, tables, skeletons)
+│   ├── context/             # Context API providers (AuthContext)
+│   └── lib/                 # Third-party initializations (Supabase, Firebase, Prisma, Gemini)
+```
+
+---
+
 ## 🛠️ Tech Stack & Integrations
 
-| Layer | Technologies Used |
-|---|---|
-| **Frontend** | Next.js 16.2.9 (App Router), React 19, Framer Motion, Shaders (react), TailwindCSS 4.0 |
-| **Authentication** | Firebase Auth (Google, GitHub, Email/Password) & LinkedIn OAuth API |
-| **Database & ORM**| Prisma, PostgreSQL (hosted on Supabase) & Firebase Firestore |
-| **AI Processing** | OpenAI API & Google Generative AI (Gemini) |
-| **Hosting** | Vercel (Production Web App) & Firebase Hosting (CI/CD Pipeline) |
+| Layer | Technologies | Description |
+|---|---|---|
+| **Core Architecture** | **Next.js 16 (App Router) & React 19** | Dynamic server-side pre-rendering, Server Actions, & Suspense transitions. |
+| **Styling & UI** | **Tailwind CSS 4.0 & Framer Motion** | Glassmorphism, premium dark-mode hues, fluid animations, and custom shaders. |
+| **Authentication** | **Firebase Auth & LinkedIn OAuth** | Secured Google, GitHub, Email/Password, and Professional Auth profiles. |
+| **Databases** | **Supabase (Postgres) & Firestore** | Structured relational schemas combined with high-frequency JSON documents. |
+| **ORM** | **Prisma** | Safe database query generation, mapping, and automated migrations. |
+| **AI Models** | **Google Gemini & OpenAI APIs** | Large Language Models for resumes, mocks, roadmaps, and career modeling. |
+| **Hosting & CI/CD** | **Vercel & Firebase Hosting** | Seamless automated deployments linked to GitHub repository hooks. |
 
 ---
 
 ## 🚀 Local Setup & Installation
 
-Follow these steps to run the application on your local machine:
+To run SkillSprint AI on your local machine, follow these steps:
 
 ### 1. Prerequisites
-- **Node.js** (v20 or higher recommended)
-- **Git**
-- **npm** or **yarn**
+*   **Node.js** (v20 or higher recommended)
+*   **Git**
+*   **npm** or **yarn**
 
 ### 2. Clone and Install Dependencies
 ```bash
@@ -89,10 +133,10 @@ npm install
 ```
 
 ### 3. Setup Environment Variables
-Create a `.env` or `.env.local` file in the root directory and add the following:
+Create a `.env.local` file in the root directory and configure the variables:
 
 ```env
-# Firebase Configuration
+# Firebase Client Credentials
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=skillsprint-ai-d8c4e.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=skillsprint-ai-d8c4e
@@ -101,32 +145,35 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
-# Supabase & Prisma Configuration
+# Supabase & Relational Database Connection (Prisma)
 DATABASE_URL="postgresql://postgres:[password]@db.[project-id].supabase.co:5432/postgres?schema=public"
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-# Generative AI APIs
+# Generative AI Models (API Keys)
 GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-### 4. Run Development Server
+### 4. Database Setup & Initialization
+Run the Prisma client generator:
 ```bash
-# Generate Prisma Client
 npx prisma generate
+```
 
-# Run local development server
+### 5. Launch the Application
+Start the local development server:
+```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+Open [http://localhost:3000](http://localhost:3000) to view the running app.
 
 ---
 
 ## 🔧 Vercel Deployment & Build Diagnostics
 
-### 💡 Fixing the Vercel 404/Build Error
-A common issue during Next.js deployments on Vercel is the build crashing due to **missing environment variables during build-time page pre-rendering**:
-- **The Issue**: Next.js App Router instantiates routes (like `/api/auth/session`) during compilation. If Firebase is initialized with undefined variables (`apiKey: undefined`), the Firebase client library immediately throws a fatal `auth/invalid-api-key` exception, causing the Vercel build to fail.
-- **The Fix**: We updated `src/lib/firebase.ts` to include safe fallback dummy values for the initialization phase. When Next.js compiles the routes, Firebase configures successfully with dummy credentials, preventing compile-time crashes. At runtime, the actual keys provided in Vercel's Environment Variables panel are used.
+### 💡 Fixing the Vercel Compile-Time Crash
+A common pitfall with App Router and client-side modules (like Firebase/Supabase) is compilation failing due to missing environment variables during **static pre-rendering**:
+*   **The Issue:** Next.js compiles routes (e.g., Auth APIs) during the build. If Firebase reads blank strings, it immediately throws `auth/invalid-api-key`, which halts compiling.
+*   **The Solution:** In `src/lib/firebase.ts`, we implement fallback dummy strings specifically for compilation. During actual browser execution, the true runtime keys configured in the Vercel settings panel override these fallbacks, allowing the build to complete seamlessly without sacrificing runtime security.
