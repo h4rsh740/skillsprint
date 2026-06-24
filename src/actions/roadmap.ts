@@ -44,13 +44,17 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
   if (!user) throw new Error("Unauthorized");
 
   const targetCompany = (formData.get("targetCompany") as string) || "Google";
+  const duration = (formData.get("duration") as string) || "90";
   const profile = await db.getProfileByUserId(user.id);
   const targetRole = profile?.targetRole || "Software Developer";
   const skills = profile?.skills?.join(", ") || "React, JavaScript";
 
-  const prompt = `Generate a 30-60-90 day learning roadmap for a student aiming for ${targetRole} at ${targetCompany}.
+  const prompt = `Generate a highly structured ${duration}-day learning roadmap for a student aiming to land a ${targetRole} position at ${targetCompany}.
   Current Skills: ${skills}
-  Provide 4 daily habits/tasks, 4 weekly goals, and 4 monthly milestones.`;
+  Provide exactly:
+  - 4 daily habits/tasks (e.g. solve 2 DSA questions, write 1 code commit)
+  - 4 weekly core milestones/goals suitable for a ${duration}-day timeline
+  - 4 monthly checkpoints/milestones that divide this ${duration}-day roadmap evenly.`;
 
   const systemPrompt = `You are a career development architect. Design a roadmap for a tech student. Return a JSON object matching this schema:
   {
@@ -148,6 +152,112 @@ export async function toggleTask(
     weeklyTasks.filter(t => t.completed).length +
     monthlyTasks.filter(t => t.completed).length;
   
+  const completionPercentage = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const updated = await db.updateRoadmap(roadmapId, {
+    dailyTasks,
+    weeklyTasks,
+    monthlyTasks,
+    completionPercentage
+  });
+
+  return {
+    id: updated!.id,
+    targetCompany: updated!.targetCompany || "Google",
+    targetRole: updated!.targetRole || "Software Engineer",
+    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    dailyTasks,
+    weeklyTasks,
+    monthlyTasks,
+    completionPercentage
+  };
+}
+
+export async function addRoadmapTask(
+  roadmapId: string,
+  period: "daily" | "weekly" | "monthly",
+  text: string
+): Promise<RoadmapResult> {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const store = await db.getLatestRoadmap(user.id);
+  if (!store || store.id !== roadmapId) {
+    throw new Error("Roadmap not found");
+  }
+
+  const dailyTasks = (store.dailyTasks as TaskItem[]) || [];
+  const weeklyTasks = (store.weeklyTasks as TaskItem[]) || [];
+  const monthlyTasks = (store.monthlyTasks as TaskItem[]) || [];
+
+  const newTask = { text, completed: false };
+
+  if (period === "daily") {
+    dailyTasks.push(newTask);
+  } else if (period === "weekly") {
+    weeklyTasks.push(newTask);
+  } else if (period === "monthly") {
+    monthlyTasks.push(newTask);
+  }
+
+  // Calculate completion percentage
+  const total = dailyTasks.length + weeklyTasks.length + monthlyTasks.length;
+  const done = 
+    dailyTasks.filter(t => t.completed).length +
+    weeklyTasks.filter(t => t.completed).length +
+    monthlyTasks.filter(t => t.completed).length;
+  const completionPercentage = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const updated = await db.updateRoadmap(roadmapId, {
+    dailyTasks,
+    weeklyTasks,
+    monthlyTasks,
+    completionPercentage
+  });
+
+  return {
+    id: updated!.id,
+    targetCompany: updated!.targetCompany || "Google",
+    targetRole: updated!.targetRole || "Software Engineer",
+    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    dailyTasks,
+    weeklyTasks,
+    monthlyTasks,
+    completionPercentage
+  };
+}
+
+export async function deleteRoadmapTask(
+  roadmapId: string,
+  period: "daily" | "weekly" | "monthly",
+  taskIndex: number
+): Promise<RoadmapResult> {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const store = await db.getLatestRoadmap(user.id);
+  if (!store || store.id !== roadmapId) {
+    throw new Error("Roadmap not found");
+  }
+
+  const dailyTasks = (store.dailyTasks as TaskItem[]) || [];
+  const weeklyTasks = (store.weeklyTasks as TaskItem[]) || [];
+  const monthlyTasks = (store.monthlyTasks as TaskItem[]) || [];
+
+  if (period === "daily") {
+    dailyTasks.splice(taskIndex, 1);
+  } else if (period === "weekly") {
+    weeklyTasks.splice(taskIndex, 1);
+  } else if (period === "monthly") {
+    monthlyTasks.splice(taskIndex, 1);
+  }
+
+  // Calculate completion percentage
+  const total = dailyTasks.length + weeklyTasks.length + monthlyTasks.length;
+  const done = 
+    dailyTasks.filter(t => t.completed).length +
+    weeklyTasks.filter(t => t.completed).length +
+    monthlyTasks.filter(t => t.completed).length;
   const completionPercentage = total > 0 ? Math.round((done / total) * 100) : 0;
 
   const updated = await db.updateRoadmap(roadmapId, {

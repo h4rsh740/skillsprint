@@ -42,7 +42,6 @@ export function DashboardNav() {
     { name: "Interviews", path: "/dashboard/mock-interview" },
     { name: "Coach", path: "/dashboard/chat" },
     { name: "Jobs", path: "/dashboard/jobs" },
-    { name: "Recruit", path: "/dashboard/search" },
   ];
 
   return (

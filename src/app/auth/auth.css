@@ -244,14 +244,17 @@
   gap: 15px;
 }
 
-.auth-form input:focus {
+.auth-form input:focus,
+.auth-form select:focus,
+.auth-form textarea:focus {
   outline: 1px solid #ffc85c;
   transform: scale(1.005);
 }
 
 .auth-form input[type="text"],
 .auth-form input[type="email"],
-.auth-form input[type="password"] {
+.auth-form input[type="password"],
+.auth-form select {
   line-height: 2.6;
   padding: 0 10px;
   font-size: 17px;
@@ -259,6 +262,35 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   min-width: 0;
+  background-color: #fff;
+  color: #000;
+  transition-duration: 0.2s;
+}
+
+.auth-form select {
+  height: 46px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.auth-form textarea {
+  line-height: 1.5;
+  padding: 12px 10px 10px 10px;
+  font-size: 17px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 0;
+  resize: none;
+  min-height: 90px;
+  background-color: #fff;
+  color: #000;
+  transition-duration: 0.2s;
 }
 
 .auth-form button[type="submit"] {
@@ -407,6 +439,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     margin-top: 10px;
   }
+  
   .vector-3 {
     top: 89%;
   }
@@ -495,10 +528,17 @@
   
   .auth-form input[type="text"],
   .auth-form input[type="email"],
-  .auth-form input[type="password"] {
+  .auth-form input[type="password"],
+  .auth-form select {
     line-height: 2.2;
     font-size: 15px;
     padding: 0 10px;
+    height: 35px;
+  }
+
+  .auth-form textarea {
+    font-size: 15px;
+    min-height: 80px;
   }
   
   .auth-label span {
@@ -538,5 +578,12 @@
   .social-btn {
     width: 48px;
     height: 48px;
+  }
+}
+
+/* Career Twin Page Specific Mobile Layout overrides */
+@media only screen and (max-width: 720px) {
+  .career-twin-page .social-login {
+    display: none !important;
   }
 }

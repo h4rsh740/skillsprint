@@ -41,7 +41,7 @@ export async function GET(request: Request) {
         if (finalRole === "STUDENT") {
           return NextResponse.redirect(`${requestUrl.origin}/onboarding`);
         } else {
-          return NextResponse.redirect(`${requestUrl.origin}/dashboard/search`);
+          return NextResponse.redirect(`${requestUrl.origin}/dashboard`);
         }
       }
     } catch (err) {

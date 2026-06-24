@@ -26,20 +26,30 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-5xl mx-auto w-full">
-      <div>
-        <h1 className="text-[clamp(1.75rem,4vw,2.5rem)] font-medium leading-[1.08] tracking-[-0.03em] text-gray-900 flex items-center gap-3">
-          <Sliders className="h-8 w-8 text-[#4f46e5]" /> Settings
-        </h1>
-        <p className="text-gray-600 mt-2 text-[15px]">Manage your account, recruiter visibility, and model preferences.</p>
+      <div className="bg-[#0f172a] rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-lg relative overflow-hidden mb-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/40 via-purple-950/25 to-slate-900/10 opacity-70 pointer-events-none" />
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="p-3 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-md shadow-inner flex-shrink-0">
+            <Sliders className="h-6 w-6 text-indigo-300" />
+          </div>
+          <div>
+            <h1 className="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight tracking-tight text-white flex items-center gap-3">
+              Settings
+            </h1>
+            <p className="text-slate-300 mt-1.5 text-[14.5px] font-medium">
+              Manage your account, recruiter visibility, and model preferences.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-[240px_1fr] gap-8">
-        {/* Sidebar tabs */}
-        <div className="flex flex-col gap-1 sticky top-8 self-start">
+        {/* Sidebar tabs (Horizontal scroll on mobile, vertical sidebar on desktop) */}
+        <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-visible gap-2 md:gap-1 sticky top-20 md:top-8 self-start scrollbar-none pb-3 md:pb-0 font-medium w-full">
           <TabButton id="profile" label="Profile Settings" active={activeTab === "profile"} onClick={setActiveTab} icon={<User className="h-4 w-4" />} />
           <TabButton id="notifications" label="Notifications" active={activeTab === "notifications"} onClick={setActiveTab} icon={<Bell className="h-4 w-4" />} />
           <TabButton id="recruiter" label="Recruiter Visibility" active={activeTab === "recruiter"} onClick={setActiveTab} icon={<Shield className="h-4 w-4" />} />
-          <div className="border-t border-gray-200 my-2" />
+          <div className="hidden md:block border-t border-gray-200 my-2" />
           <TabButton id="signout" label="Sign Out" active={activeTab === "signout"} onClick={setActiveTab} icon={<LogOut className="h-4 w-4" />} />
         </div>
 
@@ -166,7 +176,7 @@ function TabButton({ id, label, active, onClick, icon }: { id: string; label: st
   return (
     <button
       onClick={() => onClick(id)}
-      className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-[14px] font-medium transition-all ${
+      className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-[14px] font-medium transition-all whitespace-nowrap ${
         active 
           ? "bg-[#4f46e5]/10 text-[#4f46e5]" 
           : "text-gray-600 hover:text-gray-900 hover:bg-white/40"

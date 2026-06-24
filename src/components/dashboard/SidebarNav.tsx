@@ -72,7 +72,6 @@ export function SidebarNav() {
     { name: "Talent Leaderboard", path: "/dashboard/leaderboard", icon: Trophy },
     { name: "Portfolio Analyzer", path: "/dashboard/portfolio-analyzer", icon: Link2 },
     { name: "Hackathons", path: "/dashboard/hackathons", icon: Trophy },
-    { name: "Recruiter Search", path: "/dashboard/search", icon: Search },
     { name: "Admin Panel", path: "/dashboard/admin", icon: Shield },
   ];
 

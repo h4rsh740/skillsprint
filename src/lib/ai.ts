@@ -16,9 +16,49 @@ export const MODELS = {
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function generateAIResponse(prompt: string, model: string = MODELS.CAREER_TWIN) {
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+  if (geminiApiKey) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Gemini API Error details:", errorText);
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      return text || "No response generated.";
+    } catch (error) {
+      console.error("Gemini AI Response Error:", error);
+      throw error;
+    }
+  }
+
   if (!process.env.OPENROUTER_API_KEY) {
     await delay(1500);
-    return "This is a simulated AI response because the OPENROUTER_API_KEY is not set. In production, this would be a real response from " + model;
+    return "This is a simulated AI response because the API keys are not set. In production, this would be a real response from " + model;
   }
 
   try {
@@ -33,7 +73,78 @@ export async function generateAIResponse(prompt: string, model: string = MODELS.
   }
 }
 
-export async function generateStructuredAIResponse(prompt: string, systemPrompt: string, model: string, simulatedPayload?: any) {
+export async function generateStructuredAIResponse(
+  prompt: string, 
+  systemPrompt: string, 
+  model: string, 
+  simulatedPayload?: any,
+  fileBase64?: string,
+  fileMimeType?: string
+) {
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+
+  if (geminiApiKey) {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  ...(fileBase64 && fileMimeType ? [
+                    {
+                      inlineData: {
+                        mimeType: fileMimeType,
+                        data: fileBase64
+                      }
+                    }
+                  ] : []),
+                  {
+                    text: prompt,
+                  },
+                ],
+              },
+            ],
+            systemInstruction: {
+              parts: [
+                {
+                  text: systemPrompt,
+                },
+              ],
+            },
+            generationConfig: {
+              responseMimeType: "application/json",
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Gemini API Error details:", errorText);
+        throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        throw new Error("No text response from Gemini");
+      }
+      return JSON.parse(text);
+    } catch (error) {
+      console.error("Gemini Structured AI Error:", error);
+      if (simulatedPayload) {
+        return simulatedPayload;
+      }
+      throw error;
+    }
+  }
+
   if (!process.env.OPENROUTER_API_KEY && simulatedPayload) {
     await delay(3000); // Simulate processing time for heavy tasks like Resume Parsing
     return simulatedPayload;

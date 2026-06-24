@@ -355,7 +355,143 @@
       "createdAt": "2026-06-22T16:15:28.284Z"
     }
   ],
-  "interviews": [],
+  "interviews": [
+    {
+      "id": "a2x5d0spq6",
+      "userId": "0k0wx11xzgmq",
+      "mode": "Text Simulation",
+      "transcript": [
+        {
+          "question": "Explain the difference between useMemo and useCallback in React, and provide a scenario where using them incorrectly could negatively impact performance.",
+          "answer": "dont know"
+        },
+        {
+          "question": "Tell me about a time you had a technical disagreement with a teammate or designer regarding a UI/UX implementation. How did you resolve it?",
+          "answer": "dont know"
+        },
+        {
+          "question": "How would you design a highly performant, infinite-scrolling social media feed that handles real-time updates while maintaining a smooth user experience?",
+          "answer": "dont know"
+        }
+      ],
+      "communicationScore": 10,
+      "confidenceScore": 10,
+      "technicalScore": 0,
+      "leadershipScore": 80,
+      "overallScore": 0,
+      "improvementSuggestions": [
+        "Prepare for core React concepts like memoization hooks by building small projects and explaining their utility.",
+        "Develop a set of 'STAR' method (Situation, Task, Action, Result) stories to handle behavioral questions about conflict and collaboration.",
+        "Research system design fundamentals for front-end applications, specifically focusing on windowing, virtualization, and WebSocket integration.",
+        "Avoid giving 'I don't know' as a final answer; instead, try to reason through the problem based on your current knowledge or ask clarifying questions."
+      ],
+      "createdAt": "2026-06-24T18:55:37.475Z"
+    },
+    {
+      "id": "53dsaymhm06",
+      "userId": "0k0wx11xzgmq",
+      "mode": "Voice Conversation",
+      "transcript": [
+        {
+          "role": "interviewer",
+          "content": "That is a solid explanation of how the virtual DOM enhances performance in React. Moving on to state management, how would you handle data sharing between two deeply nested components that do not share a common parent?"
+        },
+        {
+          "role": "candidate",
+          "content": "Quit. With the interview. Quit the interview. "
+        },
+        {
+          "role": "interviewer",
+          "content": "I understand, we can conclude the interview here; thank you for your time today."
+        }
+      ],
+      "communicationScore": 0,
+      "confidenceScore": 0,
+      "technicalScore": 0,
+      "leadershipScore": 80,
+      "overallScore": 0,
+      "improvementSuggestions": [
+        "Maintain professionalism regardless of the question difficulty.",
+        "If a question is challenging, request clarification or offer an alternative approach instead of terminating the session.",
+        "Understand that interviewers evaluate not just technical knowledge, but also stress management and communication under pressure.",
+        "Consider utilizing techniques like React Context API, state management libraries (Zustand, Redux), or custom hooks to solve state lifting problems instead of abandoning the conversation."
+      ],
+      "createdAt": "2026-06-24T19:39:23.180Z"
+    },
+    {
+      "id": "rxmz6d087mi",
+      "userId": "0k0wx11xzgmq",
+      "mode": "Voice Conversation",
+      "transcript": [
+        {
+          "role": "interviewer",
+          "content": "That is a solid approach to managing component state in React. Could you explain how you would optimize a component that is suffering from unnecessary re-renders?"
+        },
+        {
+          "role": "candidate",
+          "content": "Skip this question. "
+        },
+        {
+          "role": "interviewer",
+          "content": "Understood, let's move on to the next topic; could you explain the differences between using a useMemo hook and a useCallback hook in React?"
+        },
+        {
+          "role": "candidate",
+          "content": "I don't know. "
+        },
+        {
+          "role": "interviewer",
+          "content": "No problem, let's shift gears: how would you describe the difference between 'let', 'const', and 'var' when declaring variables in JavaScript?"
+        },
+        {
+          "role": "candidate",
+          "content": "I don't know. "
+        }
+      ],
+      "communicationScore": 20,
+      "confidenceScore": 10,
+      "technicalScore": 5,
+      "leadershipScore": 80,
+      "overallScore": 11,
+      "improvementSuggestions": [
+        "Avoid skipping technical questions; even if you do not know the answer, explain your thought process or what you understand about the topic to show potential.",
+        "Review core React concepts, specifically performance optimization and the purpose of common hooks like useMemo and useCallback.",
+        "Master fundamental JavaScript variable scoping rules (let, const, var), as these are foundational for any front-end role.",
+        "Adopt a growth mindset during interviews; communicating an attempt to solve a problem is significantly better than a flat refusal to answer."
+      ],
+      "createdAt": "2026-06-24T19:41:04.387Z"
+    },
+    {
+      "id": "okzi7qyi3ze",
+      "userId": "0k0wx11xzgmq",
+      "mode": "Voice Conversation",
+      "transcript": [
+        {
+          "role": "interviewer",
+          "content": "That is a solid approach to handling closures. Could you explain the differences between using 'var', 'let', and 'const' in JavaScript, specifically regarding scope and hoisting?"
+        },
+        {
+          "role": "candidate",
+          "content": "Quit. "
+        },
+        {
+          "role": "interviewer",
+          "content": "I understand; thank you for your time, and we will conclude the interview here."
+        }
+      ],
+      "communicationScore": 78,
+      "confidenceScore": 85,
+      "technicalScore": 82,
+      "leadershipScore": 80,
+      "overallScore": 81,
+      "improvementSuggestions": [
+        "Explain the exact triggers of render cycle changes rather than just high-level descriptions.",
+        "In corporate conflicts, emphasize objective metrics (e.g. performance testing) rather than purely personal compromises.",
+        "Add explicit message queues (like RabbitMQ) to decouple your notification scheduler from the email sender worker."
+      ],
+      "createdAt": "2026-06-24T19:43:05.183Z"
+    }
+  ],
   "learningRoadmaps": [
     {
       "id": "bcjei9guftu",
@@ -395,7 +531,7 @@
         },
         {
           "text": "Review mock interview transcripts and fix suggested gaps",
-          "completed": false
+          "completed": true
         }
       ],
       "monthlyTasks": [
@@ -416,8 +552,70 @@
           "completed": false
         }
       ],
-      "completionPercentage": 0,
+      "completionPercentage": 8,
       "createdAt": "2026-06-22T17:12:48.151Z"
+    },
+    {
+      "id": "7ktjkc78wuj",
+      "userId": "0k0wx11xzgmq",
+      "targetCompany": "Google",
+      "targetRole": "Frontend Developer",
+      "dailyTasks": [
+        {
+          "text": "Solve 2 LeetCode problems (1 Medium, 1 Hard) focusing on trees and graphs.",
+          "completed": false
+        },
+        {
+          "text": "Contribute to an open-source project or maintain a personal GitHub repository.",
+          "completed": false
+        },
+        {
+          "text": "Study 30 minutes of System Design principles focusing on frontend scalability.",
+          "completed": false
+        },
+        {
+          "text": "Review Google-specific frontend interview questions and clean code principles.",
+          "completed": false
+        }
+      ],
+      "weeklyTasks": [
+        {
+          "text": "Deep dive into browser internals, event loop, and memory management optimizations.",
+          "completed": false
+        },
+        {
+          "text": "Implement a complex React component library feature using TypeScript and custom hooks.",
+          "completed": false
+        },
+        {
+          "text": "Optimize a Three.js scene for performance, achieving 60fps on mobile devices.",
+          "completed": false
+        },
+        {
+          "text": "Complete a full-stack mock interview focusing on algorithmic efficiency and CSS layout architecture.",
+          "completed": false
+        }
+      ],
+      "monthlyTasks": [
+        {
+          "text": "Month 1: Master advanced DSA and complete a full review of Google-specific frontend system design patterns.",
+          "completed": false
+        },
+        {
+          "text": "Month 2: Build and deploy a high-performance, Three.js-integrated React application demonstrating state management mastery.",
+          "completed": false
+        },
+        {
+          "text": "Month 3: Conduct 10+ mock technical interviews and polish resume for FAANG-level application submission.",
+          "completed": false
+        },
+        {
+          "text": "Final Milestone: Finalize application package, including a optimized portfolio showcasing performance metrics and complex UI engineering.",
+          "completed": false
+        }
+      ],
+      "completionPercentage": 0,
+      "createdAt": "2026-06-24T15:23:07.269Z"
     }
   ],
   "activityLogs": [

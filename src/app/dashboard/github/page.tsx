@@ -27,11 +27,21 @@ export default function GitHubIntelPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div>
-        <h1 className="text-[clamp(1.75rem,4vw,2.5rem)] font-medium leading-[1.08] tracking-[-0.03em] text-gray-900 flex items-center gap-3">
-          <Terminal className="h-8 w-8 text-[#4f46e5]" /> GitHub Intelligence
-        </h1>
-        <p className="text-gray-600 mt-2 text-[15px]">Project depth, consistency, contribution behavior, and engineering signal.</p>
+      <div className="bg-[#0f172a] rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-lg relative overflow-hidden mb-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/40 via-purple-950/25 to-slate-900/10 opacity-70 pointer-events-none" />
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="p-3 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-md shadow-inner flex-shrink-0">
+            <Terminal className="h-6 w-6 text-indigo-300" />
+          </div>
+          <div>
+            <h1 className="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight tracking-tight text-white flex items-center gap-3">
+              GitHub Intelligence
+            </h1>
+            <p className="text-slate-300 mt-1.5 text-[14.5px] font-medium">
+              Project depth, consistency, contribution behavior, and engineering signal.
+            </p>
+          </div>
+        </div>
       </div>
 
       {!result ? (
@@ -138,7 +148,8 @@ export default function GitHubIntelPage() {
               </div>
               
               <div className="overflow-hidden">
-                <table className="w-full text-left border-collapse">
+                {/* Desktop Table view */}
+                <table className="w-full text-left border-collapse hidden md:table">
                   <thead>
                     <tr>
                       <th className="pb-3 text-[12px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">Repository</th>
@@ -171,6 +182,30 @@ export default function GitHubIntelPage() {
                     ))}
                   </tbody>
                 </table>
+
+                {/* Mobile Cards view */}
+                <div className="block md:hidden space-y-4">
+                  {result.repositoryHealth.map((repo, i) => (
+                    <div key={i} className="bg-white/60 p-4 rounded-xl border border-gray-200/50 shadow-sm space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <GitBranch className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span className="font-bold text-[14px] text-gray-900 break-all">{repo.name}</span>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide flex-shrink-0 ${
+                          repo.signal === 'High' ? 'bg-[#4f46e5]/10 text-[#4f46e5]' :
+                          repo.signal === 'Medium' ? 'bg-amber-100 text-amber-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {repo.signal}
+                        </span>
+                      </div>
+                      <p className="text-[12.5px] text-gray-650 leading-relaxed bg-white/40 p-3 rounded-lg border border-gray-100 shadow-inner">
+                        {repo.insight}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <button 
