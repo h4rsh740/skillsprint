@@ -553,7 +553,7 @@ export default function ResumeIntelPage() {
                       <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-1.5">Skills</div>
                       <div className="flex flex-wrap gap-1">
                         {result.improvedResume.skills.map((s, i) => {
-                          const isNew = !result.originalResume.skills.includes(s);
+                          const isNew = !result.originalResume!.skills.includes(s);
                           return (
                             <span 
                               key={i} 
@@ -576,7 +576,7 @@ export default function ResumeIntelPage() {
                           </div>
                           <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-700">
                             {exp.bullets.map((b, i) => {
-                              const isModified = !result.originalResume.experience[idx]?.bullets.includes(b);
+                              const isModified = !result.originalResume!.experience[idx]?.bullets.includes(b);
                               return (
                                 <li 
                                   key={i} 
@@ -599,7 +599,7 @@ export default function ResumeIntelPage() {
                           <p className="text-slate-700 mt-0.5 font-medium">{proj.description}</p>
                           <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-700">
                             {proj.bullets.map((b, i) => {
-                              const isModified = !result.originalResume.projects[idx]?.bullets.includes(b);
+                              const isModified = !result.originalResume!.projects[idx]?.bullets.includes(b);
                               return (
                                 <li 
                                   key={i} 
