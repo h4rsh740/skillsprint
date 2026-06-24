@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Send, User, Copy, Check, FileDown, Download } from "lucide-react";
+import { Sparkles, Send, User, Copy, Check, FileDown } from "lucide-react";
 import { askCareerCoach, type ChatMessage } from "@/actions/chat";
 import React from "react";
 
@@ -338,30 +338,6 @@ function PDFButton({ text }: { text: string }) {
   );
 }
 
-// Inline Download Markdown Button Component
-function DownloadButton({ text }: { text: string }) {
-  const handleDownload = () => {
-    const blob = new Blob([text], { type: "text/markdown;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `skillsprint-career-advice-${new Date().toISOString().slice(0, 10)}.md`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <button
-      onClick={handleDownload}
-      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 border border-gray-300 transition-colors text-[11px] font-semibold cursor-pointer"
-      title="Download response as Markdown"
-    >
-      <Download className="w-3.5 h-3.5" />
-      <span>Download</span>
-    </button>
-  );
-}
 
 // Inline Markdown Parser Component
 function Markdown({ content }: { content: string }) {
@@ -606,10 +582,9 @@ export default function ChatPage() {
                             <Markdown content={m.content} />
                           </div>
                           {/* Action bar below assistant message */}
-                          <div className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity mt-1">
+                          <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                             <CopyButton text={m.content} />
                             <PDFButton text={m.content} />
-                            <DownloadButton text={m.content} />
                           </div>
                         </>
                       ) : (
