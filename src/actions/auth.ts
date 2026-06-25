@@ -23,15 +23,40 @@ async function isSecureOrigin(): Promise<boolean> {
 // Sync OAuth User from Supabase client to PostgreSQL via Prisma
 export async function syncOAuthUser(supabaseUserId: string, email: string, role: "STUDENT" | "RECRUITER" = "STUDENT") {
   try {
+    console.log(`[syncOAuthUser] --- START AUTH SYNC ---`);
+    console.log(`[syncOAuthUser] Firebase UID: "${supabaseUserId}"`);
+    console.log(`[syncOAuthUser] Email: "${email}"`);
+
     let user = await db.findUserByEmail(email);
+    console.log(`[syncOAuthUser] findUserByEmail result:`, user ? { id: user.id, email: user.email } : null);
+
+    let migrationOccurred = false;
+    let userCreationOccurred = false;
 
     if (!user) {
+      console.log(`[syncOAuthUser] User not found by email. Creating new user record with ID: "${supabaseUserId}"`);
       user = await db.createUser({
-        id: supabaseUserId, // use the same UUID from Supabase auth for matching consistency
+        id: supabaseUserId,
         email,
         role: role === "STUDENT" ? "STUDENT" : "RECRUITER",
       });
+      userCreationOccurred = true;
+    } else if (user.id !== supabaseUserId) {
+      console.log(`[syncOAuthUser] Mismatch detected: Database User ID "${user.id}" !== Firebase UID "${supabaseUserId}". Migrating record...`);
+      await db.migrateUserId(user.id, supabaseUserId);
+      migrationOccurred = true;
+
+      // Re-fetch the migrated user by the new ID
+      user = await db.findUserById(supabaseUserId);
+      console.log(`[syncOAuthUser] Re-fetched migrated user result:`, user ? { id: user.id, email: user.email } : null);
+      if (!user) {
+        throw new Error("User migration failed: migrated user not found in database.");
+      }
     }
+
+    console.log(`[syncOAuthUser] Final Database User ID: "${user.id}"`);
+    console.log(`[syncOAuthUser] Creation occurred: ${userCreationOccurred}`);
+    console.log(`[syncOAuthUser] Migration occurred: ${migrationOccurred}`);
 
     const cookieStore = await cookies();
     const secure = await isSecureOrigin();
@@ -43,9 +68,12 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
 
+    console.log(`[syncOAuthUser] Set session_user_id cookie to: "${user.id}"`);
+    console.log(`[syncOAuthUser] --- END AUTH SYNC ---`);
+
     return { success: true, user: { id: user.id, email: user.email, role: user.role } };
   } catch (error: any) {
-    console.error("Error syncing OAuth user:", error);
+    console.error("[syncOAuthUser] Error syncing OAuth user:", error);
     return { success: false, error: error.message };
   }
 }
@@ -58,18 +86,29 @@ export async function getSessionUser() {
   const allCookies = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join("; ");
   const userId = cookieStore.get("session_user_id")?.value;
 
+  console.log(`[getSessionUser] --- START SESSION CHECK ---`);
+  console.log(`[getSessionUser] Referer: "${referer}"`);
+  console.log(`[getSessionUser] Cookie session_user_id: "${userId}"`);
+  console.log(`[getSessionUser] All Cookies: [${allCookies}]`);
+
   if (!userId) {
-    console.warn(`[AUTH WARNING] getSessionUser: session_user_id cookie is missing. Referer: ${referer}. All Cookies: [${allCookies}]`);
+    console.warn(`[getSessionUser] session_user_id cookie is missing.`);
+    console.log(`[getSessionUser] --- END SESSION CHECK (FAILED) ---`);
     return null;
   }
 
   try {
     const user = await db.findUserById(userId);
+    console.log(`[getSessionUser] findUserById result:`, user ? { id: user.id, email: user.email } : null);
 
     if (!user) {
-      console.warn(`[AUTH WARNING] getSessionUser: User ID "${userId}" not found in database. Referer: ${referer}.`);
+      console.warn(`[getSessionUser] User ID "${userId}" not found in database.`);
+      console.log(`[getSessionUser] --- END SESSION CHECK (FAILED) ---`);
       return null;
     }
+
+    console.log(`[getSessionUser] Session check successful for user: "${user.id}"`);
+    console.log(`[getSessionUser] --- END SESSION CHECK ---`);
 
     return {
       id: user.id,
@@ -78,7 +117,8 @@ export async function getSessionUser() {
       profile: user.profile,
     };
   } catch (error: any) {
-    console.error(`[AUTH FAILURE] getSessionUser: Database error during lookup. User ID: "${userId}". Referer: ${referer}. Error: ${error.message}`, error);
+    console.error(`[getSessionUser] Database error during lookup. User ID: "${userId}". Error: ${error.message}`, error);
+    console.log(`[getSessionUser] --- END SESSION CHECK (ERROR) ---`);
     return null;
   }
 }

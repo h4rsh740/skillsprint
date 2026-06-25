@@ -618,5 +618,142 @@ export const db = {
     });
     saveLocalDB(store);
     return hackathons;
+  },
+
+  async migrateUserId(oldId: string, newId: string) {
+    if (!useLocalDB) {
+      try {
+        console.log(`[db] Starting Prisma migrateUserId transaction from "${oldId}" to "${newId}"`);
+        await prisma.$transaction(async (tx) => {
+          const oldUser = await tx.user.findUnique({ where: { id: oldId } });
+          if (!oldUser) {
+            console.log(`[db] Old user "${oldId}" not found in PostgreSQL. Aborting migration.`);
+            return;
+          }
+
+          // Check if new user already exists
+          const existingNewUser = await tx.user.findUnique({ where: { id: newId } });
+          if (!existingNewUser) {
+            console.log(`[db] Creating new user record with ID: "${newId}"`);
+            await tx.user.create({
+              data: {
+                id: newId,
+                email: oldUser.email,
+                passwordHash: oldUser.passwordHash,
+                role: oldUser.role,
+                createdAt: oldUser.createdAt,
+              }
+            });
+          }
+
+          console.log(`[db] Migrating relational tables from "${oldId}" to "${newId}"`);
+          // Update relations
+          await tx.profile.updateMany({
+            where: { userId: oldId },
+            data: { userId: newId }
+          });
+          await tx.resume.updateMany({
+            where: { userId: oldId },
+            data: { userId: newId }
+          });
+          await tx.careerTwin.updateMany({
+            where: { userId: oldId },
+            data: { userId: newId }
+          });
+          await tx.interview.updateMany({
+            where: { userId: oldId },
+            data: { userId: newId }
+          });
+          await tx.learningRoadmap.updateMany({
+            where: { userId: oldId },
+            data: { userId: newId }
+          });
+          await tx.activityLog.updateMany({
+            where: { userId: oldId },
+            data: { userId: newId }
+          });
+
+          // Delete old user
+          console.log(`[db] Deleting old user record "${oldId}"`);
+          await tx.user.delete({ where: { id: oldId } });
+        });
+        console.log(`[db] Prisma migrateUserId transaction from "${oldId}" to "${newId}" completed successfully.`);
+      } catch (err) {
+        console.error(`[db] Prisma migrateUserId failed, falling back to local JSON db:`, err);
+      }
+    }
+
+    // Always update the local JSON db in case we are running local or fell back
+    try {
+      console.log(`[db] Migrating local JSON DB from "${oldId}" to "${newId}"`);
+      const store = getLocalDB();
+      const userIndex = store.users.findIndex((u: any) => u.id === oldId);
+      if (userIndex !== -1) {
+        const oldUser = store.users[userIndex];
+        
+        // Remove old user
+        store.users.splice(userIndex, 1);
+
+        // Add new user if not already exists
+        if (!store.users.some((u: any) => u.id === newId)) {
+          store.users.push({
+            ...oldUser,
+            id: newId,
+          });
+        }
+
+        // Migrate profiles
+        store.profiles.forEach((p: any) => {
+          if (p.userId === oldId) p.userId = newId;
+        });
+
+        // Migrate resumes
+        store.resumes.forEach((r: any) => {
+          if (r.userId === oldId) r.userId = newId;
+        });
+
+        // Migrate careerTwins
+        store.careerTwins.forEach((c: any) => {
+          if (c.userId === oldId) c.userId = newId;
+        });
+
+        // Migrate learningRoadmaps
+        store.learningRoadmaps.forEach((l: any) => {
+          if (l.userId === oldId) l.userId = newId;
+        });
+
+        // Migrate interviews
+        store.interviews.forEach((i: any) => {
+          if (i.userId === oldId) i.userId = newId;
+        });
+
+        // Migrate activityLogs
+        store.activityLogs.forEach((a: any) => {
+          if (a.userId === oldId) a.userId = newId;
+        });
+
+        // Migrate scores
+        store.scores.forEach((s: any) => {
+          if (s.userId === oldId) s.userId = newId;
+        });
+
+        // Migrate portfolios
+        store.portfolios.forEach((p: any) => {
+          if (p.userId === oldId) p.userId = newId;
+        });
+
+        // Migrate hackathons
+        store.hackathons.forEach((h: any) => {
+          if (h.userId === oldId) h.userId = newId;
+        });
+
+        saveLocalDB(store);
+        console.log(`[db] Local JSON DB migration from "${oldId}" to "${newId}" completed successfully.`);
+      } else {
+        console.log(`[db] User "${oldId}" not found in local JSON DB users list.`);
+      }
+    } catch (err) {
+      console.error(`[db] Local JSON migrateUserId failed:`, err);
+    }
   }
 };
