@@ -1,8 +1,24 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import nodemailer from "nodemailer";
+
+async function isSecureOrigin(): Promise<boolean> {
+  const headersList = await headers();
+  const host = headersList.get("host") || "";
+  const xForwardedProto = headersList.get("x-forwarded-proto");
+  
+  // Local network / development hosts
+  const isLocal = 
+    host.includes("localhost") || 
+    host.includes("127.0.0.1") || 
+    host.startsWith("192.168.") || 
+    host.startsWith("10.") || 
+    host.startsWith("172.");
+    
+  return xForwardedProto === "https" || (!isLocal && process.env.NODE_ENV === "production");
+}
 
 // Sync OAuth User from Supabase client to PostgreSQL via Prisma
 export async function syncOAuthUser(supabaseUserId: string, email: string, role: "STUDENT" | "RECRUITER" = "STUDENT") {
@@ -18,9 +34,10 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
     }
 
     const cookieStore = await cookies();
+    const secure = await isSecureOrigin();
     cookieStore.set("session_user_id", user.id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure,
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
@@ -47,9 +64,10 @@ export async function signUpUser(email: string, passwordHash: string, role: "STU
     });
 
     const cookieStore = await cookies();
+    const secure = await isSecureOrigin();
     cookieStore.set("session_user_id", user.id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure,
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
@@ -70,9 +88,10 @@ export async function signInUser(email: string, passwordHash: string) {
     }
 
     const cookieStore = await cookies();
+    const secure = await isSecureOrigin();
     cookieStore.set("session_user_id", user.id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure,
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });

@@ -12,7 +12,9 @@ export async function GET(request: Request) {
   const errorDescription = searchParams.get("error_description");
 
   const host = request.headers.get("host") || "localhost:3000";
-  const protocol = host.includes("localhost") ? "http" : "https";
+  const xForwardedProto = request.headers.get("x-forwarded-proto");
+  const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.");
+  const protocol = xForwardedProto || (isLocal ? "http" : "https");
   const redirectUri = `${protocol}://${host}/api/auth/linkedin/callback`;
 
   const loginRedirectUrl = `${protocol}://${host}/auth/signin`;
