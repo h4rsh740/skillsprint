@@ -99,10 +99,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Sync user session to PostgreSQL server-side DB and set session cookie
-      await syncOAuthUser(firebaseUser.uid, firebaseUser.email || "", "STUDENT");
+      console.log("[AuthContext] Syncing user profile with PostgreSQL for Firebase UID:", firebaseUser.uid);
+      const result = await syncOAuthUser(firebaseUser.uid, firebaseUser.email || "", "STUDENT");
+      console.log("[AuthContext] syncOAuthUser result:", result);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
     } catch (err: any) {
       console.error("Error syncing user profile:", err);
       setError(err.message || "Failed to sync user profile");
+      throw err;
     }
   };
 
@@ -130,8 +137,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       if (firebaseUser) {
-        await syncUserProfile(firebaseUser);
-        setLoading(false);
+        try {
+          await syncUserProfile(firebaseUser);
+          setLoading(false);
+        } catch (err: any) {
+          console.error("Critical error during user profile sync:", err);
+          setError(err.message || "Authentication synchronization failed. Please try logging in again.");
+          setUser(null);
+          setLoading(false);
+        }
       } else {
         // If not authenticated via Firebase, check if there is a LinkedIn session
         const hasLinkedIn = await checkLinkedInSession();

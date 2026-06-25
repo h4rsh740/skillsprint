@@ -38,6 +38,7 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
     cookieStore.set("session_user_id", user.id, {
       httpOnly: true,
       secure,
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
@@ -49,69 +50,26 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
   }
 }
 
-// Standard Email/Password Sign Up
-export async function signUpUser(email: string, passwordHash: string, role: "STUDENT" | "RECRUITER") {
-  try {
-    const existing = await db.findUserByEmail(email);
-    if (existing) {
-      return { success: false, error: "User already exists" };
-    }
-
-    const user = await db.createUser({
-      email,
-      passwordHash, // Store password hash
-      role: role === "STUDENT" ? "STUDENT" : "RECRUITER",
-    });
-
-    const cookieStore = await cookies();
-    const secure = await isSecureOrigin();
-    cookieStore.set("session_user_id", user.id, {
-      httpOnly: true,
-      secure,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-    });
-
-    return { success: true, user: { id: user.id, email: user.email, role: user.role } };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
-
-// Standard Email/Password Sign In
-export async function signInUser(email: string, passwordHash: string) {
-  try {
-    const user = await db.findUserByEmail(email);
-
-    if (!user || user.passwordHash !== passwordHash) {
-      return { success: false, error: "Invalid email or password" };
-    }
-
-    const cookieStore = await cookies();
-    const secure = await isSecureOrigin();
-    cookieStore.set("session_user_id", user.id, {
-      httpOnly: true,
-      secure,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-    });
-
-    return { success: true, user: { id: user.id, email: user.email, role: user.role } };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
-
 // Get the currently authenticated session user
 export async function getSessionUser() {
-  try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("session_user_id")?.value;
-    if (!userId) return null;
+  const headersList = await headers();
+  const referer = headersList.get("referer") || "Unknown Path";
+  const cookieStore = await cookies();
+  const allCookies = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join("; ");
+  const userId = cookieStore.get("session_user_id")?.value;
 
+  if (!userId) {
+    console.warn(`[AUTH WARNING] getSessionUser: session_user_id cookie is missing. Referer: ${referer}. All Cookies: [${allCookies}]`);
+    return null;
+  }
+
+  try {
     const user = await db.findUserById(userId);
 
-    if (!user) return null;
+    if (!user) {
+      console.warn(`[AUTH WARNING] getSessionUser: User ID "${userId}" not found in database. Referer: ${referer}.`);
+      return null;
+    }
 
     return {
       id: user.id,
@@ -119,7 +77,8 @@ export async function getSessionUser() {
       role: user.role,
       profile: user.profile,
     };
-  } catch (e) {
+  } catch (error: any) {
+    console.error(`[AUTH FAILURE] getSessionUser: Database error during lookup. User ID: "${userId}". Referer: ${referer}. Error: ${error.message}`, error);
     return null;
   }
 }
