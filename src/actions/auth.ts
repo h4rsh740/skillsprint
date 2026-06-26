@@ -3,6 +3,9 @@
 import { db } from "@/lib/db";
 import { cookies, headers } from "next/headers";
 import nodemailer from "nodemailer";
+import { encrypt } from "@/lib/encryption";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db as firestoreDb } from "@/lib/firebase";
 
 async function isSecureOrigin(): Promise<boolean> {
   const headersList = await headers();
@@ -52,7 +55,6 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
         if (migratedUser) {
           user = migratedUser;
         } else {
-          console.warn("[syncOAuthUser] Re-fetching migrated user returned null. Using in-memory fallback user object.");
           user = {
             id: supabaseUserId,
             email: user.email,
@@ -73,9 +75,8 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
       }
     }
 
-    console.log(`[syncOAuthUser] Final Database User ID: "${user.id}"`);
-    console.log(`[syncOAuthUser] Creation occurred: ${userCreationOccurred}`);
-    console.log(`[syncOAuthUser] Migration occurred: ${migrationOccurred}`);
+    // Resolve details to send back to client auth context
+    const details = await resolveUserSessionDetails(user.id, user.email, user.role);
 
     // Encode session info into cookie
     const sessionPayload = {
@@ -98,28 +99,29 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
     console.log(`[syncOAuthUser] Set session_user_id cookie (encoded)`);
     console.log(`[syncOAuthUser] --- END AUTH SYNC ---`);
 
-    return { success: true, user: { id: user.id, email: user.email, role: user.role } };
+    return { 
+      success: true, 
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,
+        ...details
+      } 
+    };
   } catch (error: any) {
     console.error("[syncOAuthUser] Error syncing OAuth user:", error);
     return { success: false, error: error.message };
   }
 }
 
-// Get the currently authenticated session user
+// Get the currently authenticated session user with full details resolved
 export async function getSessionUser() {
   const headersList = await headers();
   const referer = headersList.get("referer") || "Unknown Path";
   const cookieStore = await cookies();
-  const allCookies = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join("; ");
   const sessionVal = cookieStore.get("session_user_id")?.value;
 
-  console.log(`[getSessionUser] --- START SESSION CHECK ---`);
-  console.log(`[getSessionUser] Referer: "${referer}"`);
-  console.log(`[getSessionUser] Cookie session_user_id: "${sessionVal}"`);
-
   if (!sessionVal) {
-    console.warn(`[getSessionUser] session_user_id cookie is missing.`);
-    console.log(`[getSessionUser] --- END SESSION CHECK (FAILED) ---`);
     return null;
   }
 
@@ -131,7 +133,6 @@ export async function getSessionUser() {
         ? Buffer.from(sessionVal, 'base64').toString('utf8')
         : sessionVal;
       sessionData = JSON.parse(decoded);
-      console.log(`[getSessionUser] Decoded session cookie data:`, sessionData);
     } catch (e: any) {
       console.warn(`[getSessionUser] Failed to parse session cookie:`, e.message);
     }
@@ -141,10 +142,8 @@ export async function getSessionUser() {
 
   try {
     let user = await db.findUserById(userId);
-    console.log(`[getSessionUser] findUserById result:`, user ? { id: user.id, email: user.email } : null);
 
     if (!user && sessionData) {
-      console.warn(`[getSessionUser] User ID "${userId}" not found in database. Using cookie session fallback data.`);
       user = {
         id: sessionData.id,
         email: sessionData.email,
@@ -155,8 +154,6 @@ export async function getSessionUser() {
     }
 
     if (!user) {
-      console.warn(`[getSessionUser] User ID "${userId}" not found in database and no session fallback available.`);
-      console.log(`[getSessionUser] --- END SESSION CHECK (FAILED) ---`);
       return null;
     }
 
@@ -166,17 +163,22 @@ export async function getSessionUser() {
       profile = await db.getProfileByUserId(userId);
     }
 
-    console.log(`[getSessionUser] Session check successful for user: "${user.id}"`);
-    console.log(`[getSessionUser] --- END SESSION CHECK ---`);
+    const details = await resolveUserSessionDetails(user.id, user.email, user.role, profile);
 
     return {
       id: user.id,
       email: user.email,
       role: user.role,
+      name: details.name,
+      githubConnected: details.githubConnected,
+      linkedinConnected: details.linkedinConnected,
+      resumeUploaded: details.resumeUploaded,
+      careerTwinGenerated: details.careerTwinGenerated,
+      onboardingCompleted: details.onboardingCompleted,
       profile: profile || {
         id: "fallback-profile",
         userId: user.id,
-        fullName: "SkillSprint Student",
+        fullName: details.name,
         targetRole: "Software Developer",
         college: "N/A",
         cgpa: 8.5,
@@ -186,9 +188,54 @@ export async function getSessionUser() {
     };
   } catch (error: any) {
     console.error(`[getSessionUser] Database error during lookup. User ID: "${userId}". Error: ${error.message}`, error);
-    console.log(`[getSessionUser] --- END SESSION CHECK (ERROR) ---`);
     return null;
   }
+}
+
+/**
+ * Helper to resolve prioritized welcome back name, connection statuses and onboarding state
+ */
+async function resolveUserSessionDetails(userId: string, email: string, role: string, profileInput?: any) {
+  const profile = profileInput || await db.getProfileByUserId(userId);
+  const githubAccount = await db.getGitHubAccountByUserId(userId);
+  const linkedinAccount = await db.getLinkedInAccountByUserId(userId);
+  const resume = await db.getLatestResumeFile(userId);
+  const twin = await db.getLatestCareerTwin(userId);
+
+  // Welcome Username Priorities:
+  // 1. LinkedIn Full Name
+  // 2. GitHub Name
+  // 3. Google/Profile Full Name
+  // 4. Email Username
+  let name = "";
+  if (linkedinAccount?.displayName) {
+    name = linkedinAccount.displayName;
+  } else if (githubAccount?.displayName) {
+    name = githubAccount.displayName;
+  } else if (githubAccount?.username) {
+    name = githubAccount.username;
+  } else if (profile?.fullName) {
+    name = profile.fullName;
+  } else if (email) {
+    name = email.split("@")[0];
+  }
+
+  const githubConnected = !!githubAccount;
+  const linkedinConnected = !!linkedinAccount;
+  const resumeUploaded = !!resume;
+  const careerTwinGenerated = !!twin;
+
+  // Onboarding completed only if profile fields are filled and a career twin exists
+  const onboardingCompleted = !!(profile?.targetRole && profile?.college && careerTwinGenerated);
+
+  return {
+    name,
+    githubConnected,
+    linkedinConnected,
+    resumeUploaded,
+    careerTwinGenerated,
+    onboardingCompleted
+  };
 }
 
 // Sign Out User
@@ -286,3 +333,101 @@ export async function sendVerificationEmail(email: string, code: string) {
   }
 }
 
+// Link GitHub account and trigger automatic analysis upon sign-in
+export async function linkGitHubAccountOnSignIn(
+  userId: string,
+  accessToken: string,
+  username: string,
+  displayName: string,
+  avatarUrl: string
+) {
+  try {
+    console.log(`[linkGitHubAccountOnSignIn] Linking GitHub account for User ID: "${userId}", Username: "${username}"`);
+
+    // 1. Save GitHub account details to database
+    await db.saveGitHubAccount(userId, {
+      username,
+      displayName: displayName || username,
+      avatarUrl: avatarUrl || "",
+      email: ""
+    });
+
+    // 2. Save encrypted access token
+    await db.saveOAuthToken(userId, "github", {
+      accessToken: encrypt(accessToken),
+      scopes: ["read:user", "user:email", "repo", "read:org"]
+    });
+
+    // 3. Update profile to set githubUsername
+    await db.updateProfile(userId, {
+      githubUsername: username
+    });
+
+    // 4. Update Firestore connected status
+    try {
+      const userRef = doc(firestoreDb, "users", userId);
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        await updateDoc(userRef, { githubConnected: true });
+      }
+    } catch (fErr) {
+      console.warn("Firestore update skipped during link (offline/test mode):", fErr);
+    }
+
+    // 5. Create sync history log
+    await db.createSyncHistory(userId, {
+      provider: "github",
+      status: "success",
+      details: { username, message: "GitHub account linked on sign-in successfully" }
+    });
+
+    // 6. Trigger repository analysis in background asynchronously
+    import("./github").then(({ analyzeGitHub }) => {
+      analyzeGitHub(username).catch(err => console.error("Auto GitHub analysis failed:", err));
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to link GitHub account on sign-in:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Disconnect GitHub account and clear references
+export async function disconnectGitHub() {
+  try {
+    const user = await getSessionUser();
+    if (!user) throw new Error("Unauthorized");
+
+    // 1. Delete GitHub account and tokens from database
+    await db.deleteGitHubAccount(user.id);
+
+    // 2. Clear githubUsername from profile
+    await db.updateProfile(user.id, {
+      githubUsername: null
+    });
+
+    // 3. Clear firebase status if available
+    try {
+      const userRef = doc(firestoreDb, "users", user.id);
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        await updateDoc(userRef, { githubConnected: false });
+      }
+    } catch (fErr) {
+      console.warn("Firestore update skipped during disconnect (offline/test mode):", fErr);
+    }
+
+    // 4. Create sync history log
+    await db.createSyncHistory(user.id, {
+      provider: "github",
+      status: "failed",
+      details: { message: "GitHub account disconnected by user" }
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to disconnect GitHub account:", error);
+    return { success: false, error: error.message };
+  }
+}

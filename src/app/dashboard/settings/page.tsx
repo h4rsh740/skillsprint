@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Bell, Shield, Sliders, Check, LogOut, ArrowRight } from "lucide-react";
 import { signOutUser } from "@/actions/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SettingsPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [visibility, setVisibility] = useState(true);
   const [modelPref, setModelPref] = useState("auto");
@@ -61,11 +63,11 @@ export default function SettingsPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Full Name</label>
-                  <input type="text" defaultValue="Alex Rivera" className="w-full bg-white/60 border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4f46e5] focus:border-transparent transition-all shadow-sm" />
+                  <input type="text" defaultValue={user?.name || ""} className="w-full bg-white/60 border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4f46e5] focus:border-transparent transition-all shadow-sm" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email Address</label>
-                  <input type="email" defaultValue="alex.rivera@skillsprint.ai" disabled className="w-full bg-gray-100/60 border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-gray-500 cursor-not-allowed shadow-sm" />
+                  <input type="email" defaultValue={user?.email || ""} disabled className="w-full bg-gray-100/60 border border-gray-200 rounded-xl px-4 py-2.5 text-[14px] text-gray-500 cursor-not-allowed shadow-sm" />
                 </div>
               </div>
 

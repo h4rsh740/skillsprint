@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getSessionUser } from "@/actions/auth";
+import { db } from "@/lib/db";
+import { encrypt } from "@/lib/encryption";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { db as firestoreDb } from "@/lib/firebase";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +20,7 @@ export async function GET(request: Request) {
   const protocol = xForwardedProto || (isLocal ? "http" : "https");
   const redirectUri = `${protocol}://${host}/api/auth/linkedin/callback`;
 
+  const onboardingRedirectUrl = `${protocol}://${host}/onboarding`;
   const loginRedirectUrl = `${protocol}://${host}/auth/signin`;
 
   if (error) {
@@ -24,46 +28,109 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${loginRedirectUrl}?error=${encodeURIComponent(errorDescription || "LinkedIn login failed")}`);
   }
 
-  // FALLBACK: If client keys are not set, log in a mock LinkedIn user for local testing
-  if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_SECRET) {
-    console.warn("LinkedIn client credentials not configured. Logging in with mock LinkedIn profile...");
-    
-    const mockUid = "linkedin-mock-sub-123456";
-    const userRef = doc(db, "users", mockUid);
-    
-    try {
-      const userSnap = await getDoc(userRef);
-      let onboardingCompleted = false;
+  // Get current logged-in user session if available
+  const currentUser = await getSessionUser();
 
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          uid: mockUid,
-          name: "Alex Rivera (LinkedIn)",
+  // FALLBACK: If client keys are not set, log in a mock LinkedIn user
+  if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_SECRET || code === "mock-linkedin-code") {
+    console.warn("LinkedIn client credentials not configured. Logging in/connecting mock LinkedIn profile...");
+    
+    let targetUserId = currentUser?.id;
+    let onboardingCompleted = false;
+
+    if (!targetUserId) {
+      // Legacy behavior: If not logged in, sign in with a mock LinkedIn user
+      targetUserId = "linkedin-mock-sub-123456";
+      
+      const userRef = doc(firestoreDb, "users", targetUserId);
+      try {
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) {
+          await setDoc(userRef, {
+            uid: targetUserId,
+            name: "Alex Rivera (LinkedIn)",
+            email: "alex.rivera@linkedin.com",
+            photoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop",
+            provider: "linkedin",
+            createdAt: new Date().toISOString(),
+            githubConnected: false,
+            linkedinConnected: true,
+            careerTwinGenerated: false,
+            onboardingCompleted: false,
+            role: "STUDENT"
+          });
+        } else {
+          const data = userSnap.data();
+          onboardingCompleted = !!data?.onboardingCompleted;
+        }
+
+        // Write user to Postgres/local DB
+        await db.createUser({
+          id: targetUserId,
           email: "alex.rivera@linkedin.com",
-          photoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop",
-          provider: "linkedin",
-          createdAt: new Date().toISOString(),
-          githubConnected: false,
-          linkedinConnected: true,
-          careerTwinGenerated: false,
-          onboardingCompleted: false,
           role: "STUDENT"
         });
-      } else {
-        const data = userSnap.data();
-        onboardingCompleted = !!data.onboardingCompleted;
+      } catch (e) {
+        console.error("Firestore check failed:", e);
       }
 
+      // Set cookie
       const cookieStore = await cookies();
-      cookieStore.set("session_user_id", mockUid, {
+      cookieStore.set("session_user_id", targetUserId, {
         httpOnly: true,
         secure: protocol === "https",
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 1 week
       });
+    }
+
+    try {
+      // Connect LinkedIn details to the target user (current or mock)
+      await db.saveLinkedInAccount(targetUserId, {
+        username: currentUser ? (currentUser.profile?.fullName || "candidate").toLowerCase().replace(/\s+/g, "-") : "linkedin-candidate",
+        displayName: currentUser ? currentUser.profile?.fullName || "SkillSprint Candidate" : "LinkedIn Profile",
+        headline: "Software Engineer III at Google | Tech Lead",
+        about: "Passionate engineer focusing on microservices, caching, cloud architectures, and AI Twin pipelines.",
+        avatarUrl: currentUser?.profile?.avatarUrl || currentUser?.profile?.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop",
+        skills: ["React", "TypeScript", "Node.js", "Docker", "AWS", "System Design"],
+        experience: [
+          { company: "Google", role: "Software Engineer III", date: "2024 - Present" },
+          { company: "Tech Solutions", role: "SDE II", date: "2022 - 2024" }
+        ],
+        education: [
+          { institution: "University of Washington", degree: "M.S. Computer Science", date: "2020 - 2022" }
+        ],
+        certificates: [
+          { title: "AWS Solutions Architect Associate", issuer: "Amazon" }
+        ]
+      });
+
+      await db.saveOAuthToken(targetUserId, "linkedin", {
+        accessToken: encrypt("mock-linkedin-access-token-xyz"),
+        scopes: ["openid", "profile", "email"]
+      });
+
+      // Update connectivity
+      await db.updateProfile(targetUserId, {
+        linkedinUrl: "https://linkedin.com/in/alex-rivera-sde"
+      });
+
+      try {
+        const userRef = doc(firestoreDb, "users", targetUserId);
+        await updateDoc(userRef, { linkedinConnected: true });
+      } catch (fErr) {
+        console.warn("Firestore update skipped:", fErr);
+      }
+
+      // Sync history track
+      await db.createSyncHistory(targetUserId, {
+        provider: "linkedin",
+        status: "success",
+        details: { message: "Mock LinkedIn profile linked successfully" }
+      });
 
       return NextResponse.redirect(
-        onboardingCompleted ? `${protocol}://${host}/dashboard` : `${protocol}://${host}/onboarding`
+        currentUser ? `${onboardingRedirectUrl}` : (onboardingCompleted ? `${protocol}://${host}/dashboard` : `${protocol}://${host}/onboarding`)
       );
     } catch (e: any) {
       console.error("Failed to authenticate mock LinkedIn user:", e);
@@ -79,7 +146,7 @@ export async function GET(request: Request) {
     // 1. Exchange code for LinkedIn access token
     const tokenRes = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
       method: "POST",
-      headers: { "Content-Type": "application-x-www-form-urlencoded" },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code,
@@ -94,7 +161,7 @@ export async function GET(request: Request) {
       throw new Error(errData.error_description || "Failed to exchange authorization code for access token");
     }
 
-    const { access_token } = await tokenRes.json();
+    const { access_token, expires_in } = await tokenRes.json();
 
     // 2. Fetch LinkedIn OpenID Connect profile info
     const profileRes = await fetch("https://api.linkedin.com/v2/userinfo", {
@@ -106,47 +173,93 @@ export async function GET(request: Request) {
     }
 
     const profile = await profileRes.json();
-    const linkedinUid = `linkedin-${profile.sub}`;
     
-    // 3. Sync profile to Firestore
-    const userRef = doc(db, "users", linkedinUid);
-    const userSnap = await getDoc(userRef);
+    // Determine the user ID to bind to
+    let targetUserId = currentUser?.id;
     let onboardingCompleted = false;
 
-    if (!userSnap.exists()) {
-      await setDoc(userRef, {
-        uid: linkedinUid,
-        name: profile.name || `${profile.given_name} ${profile.family_name}` || "LinkedIn User",
+    if (!targetUserId) {
+      // Legacy behavior: If not logged in, sign in with LinkedIn sub as primary ID
+      targetUserId = `linkedin-${profile.sub}`;
+      const userRef = doc(firestoreDb, "users", targetUserId);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: targetUserId,
+          name: profile.name || `${profile.given_name} ${profile.family_name}` || "LinkedIn User",
+          email: profile.email || "",
+          photoURL: profile.picture || "",
+          provider: "linkedin",
+          createdAt: new Date().toISOString(),
+          githubConnected: false,
+          linkedinConnected: true,
+          careerTwinGenerated: false,
+          onboardingCompleted: false,
+          role: "STUDENT"
+        });
+      } else {
+        const data = userSnap.data();
+        onboardingCompleted = !!data?.onboardingCompleted;
+      }
+
+      // Sync with Postgres/local DB
+      await db.createUser({
+        id: targetUserId,
         email: profile.email || "",
-        photoURL: profile.picture || "",
-        provider: "linkedin",
-        createdAt: new Date().toISOString(),
-        githubConnected: false,
-        linkedinConnected: true,
-        careerTwinGenerated: false,
-        onboardingCompleted: false,
         role: "STUDENT"
       });
-    } else {
-      const data = userSnap.data();
-      onboardingCompleted = !!data.onboardingCompleted;
+
+      // Set cookie
+      const cookieStore = await cookies();
+      cookieStore.set("session_user_id", targetUserId, {
+        httpOnly: true,
+        secure: protocol === "https",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+      });
     }
 
-    // 4. Set HTTP-Only Session Cookie
-    const cookieStore = await cookies();
-    cookieStore.set("session_user_id", linkedinUid, {
-      httpOnly: true,
-      secure: protocol === "https",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+    // 3. Save LinkedIn Account details and encrypted token
+    await db.saveLinkedInAccount(targetUserId, {
+      username: profile.sub,
+      displayName: profile.name || `${profile.given_name} ${profile.family_name}`,
+      avatarUrl: profile.picture || "",
+      headline: "Software Engineer Candidate",
+      about: "SkillSprint candidate seeking new opportunities.",
+      skills: ["React", "JavaScript", "TypeScript"],
+      experience: [],
+      education: [],
+      projects: []
     });
 
-    // 5. Redirect user based on onboarding status
+    await db.saveOAuthToken(targetUserId, "linkedin", {
+      accessToken: encrypt(access_token),
+      expiresAt: expires_in ? new Date(Date.now() + expires_in * 1000).toISOString() : undefined,
+      scopes: ["openid", "profile", "email"]
+    });
+
+    // Update connection status
+    try {
+      const userRef = doc(firestoreDb, "users", targetUserId);
+      await updateDoc(userRef, { linkedinConnected: true });
+    } catch (fErr) {
+      console.warn("Firestore update skipped:", fErr);
+    }
+
+    // Sync history log
+    await db.createSyncHistory(targetUserId, {
+      provider: "linkedin",
+      status: "success",
+      details: { username: profile.name }
+    });
+
+    // 4. Redirect user based on context
     return NextResponse.redirect(
-      onboardingCompleted ? `${protocol}://${host}/dashboard` : `${protocol}://${host}/onboarding`
+      currentUser ? `${onboardingRedirectUrl}` : (onboardingCompleted ? `${protocol}://${host}/dashboard` : `${protocol}://${host}/onboarding`)
     );
   } catch (err: any) {
     console.error("LinkedIn exchange/profile error:", err);
-    return NextResponse.redirect(`${loginRedirectUrl}?error=${encodeURIComponent(err.message || "Authentication failed")}`);
+    return NextResponse.redirect(`${loginRedirectUrl}?error=${encodeURIComponent(err.message || "LinkedIn connection failed")}`);
   }
 }

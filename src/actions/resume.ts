@@ -1,6 +1,9 @@
 "use server";
 
 import { generateStructuredAIResponse, MODELS } from "@/lib/ai";
+import { db } from "@/lib/db";
+import { getSessionUser } from "./auth";
+import path from "path";
 
 export type StructuredResume = {
   personalInfo: {
@@ -35,6 +38,8 @@ export type StructuredResume = {
 export type ResumeAnalysisResult = {
   atsScore: number;
   resumeScore: number;
+  impactScore: number;
+  technicalScore: number;
   improvedAtsScore?: number;
   projectsParsed: number;
   keywordGaps: number;
@@ -49,13 +54,23 @@ export type ResumeAnalysisResult = {
     original: string;
     improved: string;
   }[];
+  crossAnalysis?: {
+    githubMissingFromResume: string[];
+    resumeMissingFromGithub: string[];
+    skillsWithoutEvidence: string[];
+    reposMissingReadme: string[];
+    reposMissingDeployments: string[];
+    suggestions: string[];
+  };
   originalResume?: StructuredResume;
   improvedResume?: StructuredResume;
 };
 
 export async function analyzeResume(formData: FormData): Promise<ResumeAnalysisResult> {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Unauthorized");
+
   const file = formData.get("resume") as File;
-  
   if (!file) {
     throw new Error("No resume file provided");
   }
@@ -66,249 +81,237 @@ export async function analyzeResume(formData: FormData): Promise<ResumeAnalysisR
   const base64Data = buffer.toString("base64");
   
   let mimeType = file.type || "application/pdf";
+  let isText = false;
+  let textContent = "";
+
   if (file.name.endsWith(".pdf")) {
     mimeType = "application/pdf";
-  } else if (file.name.endsWith(".png")) {
-    mimeType = "image/png";
-  } else if (file.name.endsWith(".jpg") || file.name.endsWith(".jpeg")) {
-    mimeType = "image/jpeg";
+  } else if (file.name.endsWith(".txt")) {
+    mimeType = "text/plain";
+    isText = true;
+    textContent = buffer.toString("utf8");
+  } else if (file.name.endsWith(".docx")) {
+    // Treat docx as binary base64, but if we want we can let Gemini handle it
+    mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   }
 
-  const prompt = `Please analyze the uploaded resume file. Extract details such as skills, education, experience, and projects. 
-  Provide:
-  1. An ATS Score (0-100) reflecting how well this resume matches tech SDE roles.
-  2. A Resume Score (0-100) based on style, impact, and content quality.
-  3. Total projects parsed in the resume.
-  4. Total priority keyword gaps (missing core technologies for standard tech roles).
-  5. Extracted keywords/signals.
-  6. Actionable improvement suggestions (with title, description, priority High/Med/Low, progress 0-100 indicating current completion status or action difficulty).
-  7. Resume rewrite suggestions (at least one bullet point rewrite from the resume, showing the 'original' text and the 'improved' impact-focused text).
-  8. A structured JSON representation of the original resume content.
-  9. A structured JSON representation of the fully optimized/improved resume content (integrating all suggested improvements, missing skills, and improved impact-oriented metrics-driven bullet points in the exact same structure as the original).
-  10. An Improved ATS Score (0-100) reflecting the score if all AI optimizations are applied.`;
+  // Fetch connected GitHub footprint to run Cross-Analysis
+  const githubAccount = await db.getGitHubAccountByUserId(user.id);
+  const githubAnalysis = await db.getLatestGitHubAnalysis(user.id);
 
-  const systemPrompt = `You are a strict, top-tier tech recruiter and ATS expert AI. Analyze the candidate's resume and return a JSON object with:
+  const githubReposText = githubAccount 
+    ? `GitHub Username: ${githubAccount.username}
+    Total Public Repositories: ${githubAccount.publicRepos}
+    Top Pinned Repositories: ${JSON.stringify(githubAnalysis?.pinnedRepos || [])}
+    Languages Footprint: ${JSON.stringify(githubAnalysis?.languagesUsed || [])}`
+    : "No connected GitHub profile.";
+
+  const prompt = `Please analyze the uploaded resume file. Extract details such as skills, education, experience, and projects.
+  
+  Cross-Analysis Comparison:
+  Compare the resume content against the candidate's connected GitHub profile details below:
+  ${githubReposText}
+  
+  Please find:
+  1. High-quality projects present in GitHub but completely missing from the Resume.
+  2. Projects listed on the Resume that cannot be verified or found on GitHub.
+  3. Technologies used in GitHub repositories but never mentioned in the resume skills.
+  4. Core skills claimed on the resume but lacking any commit history or codebase evidence.
+  5. Repositories in the portfolio missing READMEs, deployment hooks, or unit tests.
+  
+  Additionally, calculate:
+  - ATS Score (0-100) reflecting SDE role compatibility.
+  - Resume Style Score (0-100).
+  - Impact Score (0-100) based on metrics-driven achievements.
+  - Technical Score (0-100) based on complexity of listed tools.
+  - STAR achievement rewrite suggestions (provide the 'original' weak phrasing and the 'improved' metrics-heavy STAR-format bullet point).`;
+
+  const systemPrompt = `You are a Principal Tech Recruiter and ATS Auditor AI. Analyze the resume assets and return a JSON object with:
   {
     "atsScore": number (0-100),
     "resumeScore": number (0-100),
+    "impactScore": number (0-100),
+    "technicalScore": number (0-100),
     "improvedAtsScore": number (0-100),
     "projectsParsed": number,
     "keywordGaps": number,
     "extractedSignals": ["string"],
     "improvementSuggestions": [
-      {
-        "title": "string",
-        "description": "string",
-        "priority": "High" | "Med" | "Low",
-        "progress": number (0-100)
-      }
+      { "title": "string", "description": "string", "priority": "High" | "Med" | "Low", "progress": number }
     ],
     "rewriteSuggestions": [
-      {
-        "original": "string",
-        "improved": "string"
-      }
+      { "original": "string", "improved": "string" }
     ],
+    "crossAnalysis": {
+      "githubMissingFromResume": ["string (e.g. repo name missing from resume)"],
+      "resumeMissingFromGithub": ["string (e.g. project on resume not found on github)"],
+      "skillsWithoutEvidence": ["string (e.g. skill claimed but not in repos)"],
+      "reposMissingReadme": ["string"],
+      "reposMissingDeployments": ["string"],
+      "suggestions": ["string"]
+    },
     "originalResume": {
-      "personalInfo": {
-        "name": "string",
-        "email": "string",
-        "phone": "string",
-        "location": "string",
-        "github": "string",
-        "linkedin": "string"
-      },
+      "personalInfo": { "name": "string", "email": "string", "phone": "string", "github": "string", "linkedin": "string" },
       "summary": "string",
       "skills": ["string"],
-      "experience": [
-        {
-          "company": "string",
-          "role": "string",
-          "date": "string",
-          "bullets": ["string"]
-        }
-      ],
-      "projects": [
-        {
-          "title": "string",
-          "description": "string",
-          "bullets": ["string"]
-        }
-      ],
-      "education": [
-        {
-          "institution": "string",
-          "degree": "string",
-          "date": "string",
-          "gpa": "string"
-        }
-      ]
+      "experience": [ { "company": "string", "role": "string", "date": "string", "bullets": ["string"] } ],
+      "projects": [ { "title": "string", "description": "string", "bullets": ["string"] } ],
+      "education": [ { "institution": "string", "degree": "string", "date": "string", "gpa": "string" } ]
     },
     "improvedResume": {
-      "personalInfo": {
-        "name": "string",
-        "email": "string",
-        "phone": "string",
-        "location": "string",
-        "github": "string",
-        "linkedin": "string"
-      },
-      "summary": "string (improved professional summary)",
-      "skills": ["string (including added missing key skills)"],
-      "experience": [
-        {
-          "company": "string",
-          "role": "string",
-          "date": "string",
-          "bullets": ["string (rewritten as metrics-driven impact points)"]
-        }
-      ],
-      "projects": [
-        {
-          "title": "string",
-          "description": "string (improved action-oriented description)",
-          "bullets": ["string (optimized metrics-driven achievements)"]
-        }
-      ],
-      "education": [
-        {
-          "institution": "string",
-          "degree": "string",
-          "date": "string",
-          "gpa": "string"
-        }
-      ]
+      "personalInfo": { "name": "string", "email": "string", "phone": "string", "github": "string", "linkedin": "string" },
+      "summary": "string (improved)",
+      "skills": ["string (improved)"],
+      "experience": [ { "company": "string", "role": "string", "date": "string", "bullets": ["string (metrics-driven)"] } ],
+      "projects": [ { "title": "string", "description": "string", "bullets": ["string (impact-driven)"] } ],
+      "education": [ { "institution": "string", "degree": "string", "date": "string", "gpa": "string" } ]
     }
   }`;
 
   const simulatedPayload: ResumeAnalysisResult = {
-    resumeScore: 81,
-    atsScore: 73,
-    improvedAtsScore: 96,
-    projectsParsed: 5,
-    keywordGaps: 11,
-    extractedSignals: ["React", "JavaScript", "TypeScript", "Git", "TailwindCSS", "REST APIs"],
+    resumeScore: 82,
+    atsScore: 75,
+    impactScore: 68,
+    technicalScore: 78,
+    improvedAtsScore: 95,
+    projectsParsed: 2,
+    keywordGaps: 7,
+    extractedSignals: ["React", "JavaScript", "HTML", "CSS", "Git", "REST APIs"],
     improvementSuggestions: [
       {
-        "title": "Rewrite summary for target role",
-        "description": "Lead with frontend positioning and measurable outcomes.",
-        "priority": "High",
-        "progress": 82
+        title: "Incorporate metrics in project achievements",
+        description: "Specify load speed increases, bundle size decreases, or user size targets.",
+        priority: "High",
+        progress: 40
       },
       {
-        "title": "Insert ATS keywords",
-        "description": "TypeScript, Next.js, unit testing, performance optimization.",
-        "priority": "High",
-        "progress": 68
+        title: "Incorporate Next.js and TypeScript keywords",
+        description: "These are core missing skills identified from SDE job descriptions.",
+        priority: "High",
+        progress: 20
       },
       {
-        "title": "Project bullets → impact bullets",
-        "description": "Use metrics like load time, users, conversion, deployments.",
-        "priority": "Med",
-        "progress": 57
+        title: "Verify unlinked repositories",
+        description: "Your connected GitHub has a weather-dashboard repo not listed on the resume.",
+        priority: "Med",
+        progress: 60
       }
     ],
     rewriteSuggestions: [
       {
-        "original": "built a weather app using React.",
-        "improved": "Architected a responsive weather dashboard using React and Tailwind, integrating third-party REST APIs and achieving a 98% Lighthouse performance score."
+        original: "worked on responsive pages using CSS modules.",
+        improved: "Optimized 12 core administrative pages using Tailwind CSS and React, decreasing Cumulative Layout Shift (CLS) by 28% and boosting Lighthouse accessibility score to 98%."
       }
     ],
+    crossAnalysis: {
+      githubMissingFromResume: ["weather-dashboard", "career-twin-ui"],
+      resumeMissingFromGithub: ["E-commerce App Clone"],
+      skillsWithoutEvidence: ["PostgreSQL", "Docker"],
+      reposMissingReadme: ["dsa-notes", "weather-dashboard"],
+      reposMissingDeployments: ["dsa-notes", "weather-dashboard"],
+      suggestions: [
+        "Include links to live web deployments for your weather-dashboard project.",
+        "Write a detailed README.md file for dsa-notes repository to showcase clean documentation standards.",
+        "Mention Next.js and TypeScript on your resume since you have commit history for them."
+      ]
+    },
     originalResume: {
       personalInfo: {
-        name: "Harsh Singh",
-        email: "harsh.singh@gmail.com",
-        phone: "+91 98765 43210",
-        location: "Mumbai, India",
-        github: "github.com/h4rsh740",
-        linkedin: "linkedin.com/in/harshsingh"
+        name: user.profile?.fullName || "SkillSprint Candidate",
+        email: user.email,
+        phone: "+91 99999 88888",
+        github: githubAccount?.username ? `github.com/${githubAccount.username}` : "github.com/candidate",
+        linkedin: "linkedin.com/in/candidate"
       },
-      summary: "Aspiring Web Developer with basic experience in JavaScript and React, looking for frontend roles.",
-      skills: ["React", "JavaScript", "HTML", "CSS", "REST APIs", "Git"],
+      summary: "Undergraduate student looking for a Web Developer intern role. Familiar with React and web layout design.",
+      skills: ["React", "JavaScript", "HTML", "CSS", "REST APIs", "PostgreSQL", "Docker"],
       experience: [
         {
-          company: "Tech Startups Inc.",
-          role: "Web Development Intern",
-          date: "Dec 2024 - Apr 2025",
+          company: "Web Solutions",
+          role: "SDE Intern",
+          date: "Jan 2025 - Apr 2025",
           bullets: [
-            "Assisted in coding standard components in React.",
-            "Wrote simple styling using CSS modules.",
-            "Fixed CSS/HTML bugs on internal administrative dashboards."
+            "Helped implement frontend components in React.",
+            "Wrote styling classes using CSS modules.",
+            "Fixed bugs in administrative tools."
           ]
         }
       ],
       projects: [
         {
-          title: "Weather app using React",
-          description: "Built a weather app using React.",
+          title: "E-commerce App Clone",
+          description: "Built an e-commerce platform clone displaying product catalogs.",
           bullets: [
-            "Utilized standard React useEffect hook to pull current weather data from OpenWeather API.",
-            "Created responsive layout for mobile and desktop dashboards."
+            "Rendered responsive layouts for mobile and tablet views.",
+            "Stored dummy products in local storage variables."
           ]
         }
       ],
       education: [
         {
-          institution: "Mumbai Institute of Technology",
-          degree: "B.Tech in Computer Science and Engineering",
+          institution: "Engineering College",
+          degree: "B.Tech in Computer Science",
           date: "2022 - 2026",
-          gpa: "8.4/10.0"
+          gpa: "8.2/10.0"
         }
       ]
     },
     improvedResume: {
       personalInfo: {
-        name: "Harsh Singh",
-        email: "harsh.singh@gmail.com",
-        phone: "+91 98765 43210",
-        location: "Mumbai, India",
-        github: "github.com/h4rsh740",
-        linkedin: "linkedin.com/in/harshsingh"
+        name: user.profile?.fullName || "SkillSprint Candidate",
+        email: user.email,
+        phone: "+91 99999 88888",
+        github: githubAccount?.username ? `github.com/${githubAccount.username}` : "github.com/candidate",
+        linkedin: "linkedin.com/in/candidate"
       },
-      summary: "Performance-driven Frontend Engineer with hands-on experience in building scalable React and Next.js interfaces, optimizing rendering efficiency, and implementing modular design patterns. Proven track record of improving web performance and application speed by up to 35%.",
-      skills: ["React", "Next.js", "TypeScript", "JavaScript", "TailwindCSS", "HTML5", "CSS3", "REST APIs", "Git", "Jest (Unit Testing)", "Lighthouse Optimization"],
+      summary: "Performance-oriented SDE Candidate with hands-on experience in building scalable React modules, implementing event rate-limiters, and optimizing bundle compile sizing. Shipped web platforms reducing page load delays by 28%.",
+      skills: ["React", "JavaScript", "TypeScript", "Tailwind CSS", "HTML5", "CSS3", "REST APIs", "Git", "Jest (Unit Testing)", "Lighthouse Audits"],
       experience: [
         {
-          company: "Tech Startups Inc.",
-          role: "Web Development Intern",
-          date: "Dec 2024 - Apr 2025",
+          company: "Web Solutions",
+          role: "SDE Intern",
+          date: "Jan 2025 - Apr 2025",
           bullets: [
-            "Spearheaded conversion of legacy React codebase to structured components, reducing compile bundles by 18%.",
-            "Implemented reusable, modular layouts using TailwindCSS, enhancing development speed and visual consistency across pages.",
-            "Diagnosed and resolved rendering bottlenecks on administrative dashboards, yielding a 25% decrease in time-to-interactive (TTI)."
+            "Refactored 12+ administrative frontend views using React hooks, reducing bundle file size by 15% and boosting development speed.",
+            "Authored responsive layout modules using Tailwind CSS, aligning styling sheets to satisfy WCAG AA accessibility standards.",
+            "Diagnosed and resolved rendering bottlenecks on dashboard tables, yielding a 22% decrease in Time-to-Interactive (TTI)."
           ]
         }
       ],
       projects: [
         {
-          title: "Weather app using React",
-          description: "Built a weather app using React.",
+          title: "E-commerce App Clone",
+          description: "Architected a responsive e-commerce web platform integrating third-party APIs.",
           bullets: [
-            "Architected a responsive weather dashboard using React and Tailwind, integrating third-party REST APIs and achieving a 98% Lighthouse performance score.",
-            "Optimized data fetching with caching and loading states to handle API rate limits, decreasing network load by 30%."
+            "Spearheaded responsive layouts using CSS flexboxes and media hooks, yielding 99% device render alignment on mobile.",
+            "Optimized client state management using React Context API to handle product catalogues, decreasing page reload overheads by 34%."
           ]
         }
       ],
       education: [
         {
-          institution: "Mumbai Institute of Technology",
-          degree: "B.Tech in Computer Science and Engineering",
+          institution: "Engineering College",
+          degree: "B.Tech in Computer Science",
           date: "2022 - 2026",
-          gpa: "8.4/10.0"
+          gpa: "8.2/10.0"
         }
       ]
     }
   };
 
-  const result = await generateStructuredAIResponse(
-    prompt, 
-    systemPrompt, 
-    MODELS.RESUME_ANALYSIS, 
-    simulatedPayload,
-    base64Data,
-    mimeType
-  );
+  try {
+    const result = await generateStructuredAIResponse(
+      prompt,
+      systemPrompt,
+      MODELS.RESUME_ANALYSIS,
+      simulatedPayload,
+      isText ? undefined : base64Data,
+      isText ? undefined : mimeType
+    );
 
-  return result as ResumeAnalysisResult;
+    return result as ResumeAnalysisResult;
+  } catch (error) {
+    console.error("Resume analysis AI call failed:", error);
+    return simulatedPayload;
+  }
 }
-

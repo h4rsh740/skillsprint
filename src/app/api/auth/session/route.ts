@@ -1,25 +1,31 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getSessionUser } from "@/actions/auth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionUserId = cookieStore.get("session_user_id")?.value;
-
-    if (!sessionUserId) {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser) {
       return NextResponse.json({ user: null });
     }
 
-    const userRef = doc(db, "users", sessionUserId);
-    const userSnap = await getDoc(userRef);
+    const clientUser = {
+      uid: sessionUser.id,
+      name: sessionUser.name,
+      email: sessionUser.email,
+      photoURL: sessionUser.profile?.avatarUrl || sessionUser.profile?.photoURL || "",
+      provider: sessionUser.githubConnected ? "github" : "google",
+      githubConnected: sessionUser.githubConnected,
+      linkedinConnected: sessionUser.linkedinConnected,
+      resumeUploaded: sessionUser.resumeUploaded,
+      careerTwinGenerated: sessionUser.careerTwinGenerated,
+      onboardingCompleted: sessionUser.onboardingCompleted,
+      role: sessionUser.role
+    };
 
-    if (!userSnap.exists()) {
-      return NextResponse.json({ user: null });
-    }
-
-    return NextResponse.json({ user: userSnap.data() });
+    return NextResponse.json({ user: clientUser });
   } catch (err: any) {
     console.error("Error reading session:", err);
     return NextResponse.json({ user: null, error: err.message }, { status: 500 });

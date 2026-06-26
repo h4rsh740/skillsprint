@@ -10,7 +10,8 @@ import {
   User as FirebaseUser,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  getAdditionalUserInfo
 } from "firebase/auth";
 import { 
   doc, 
@@ -20,7 +21,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useRouter, usePathname } from "next/navigation";
-import { syncOAuthUser, signOutUser } from "@/actions/auth";
+import { syncOAuthUser, signOutUser, linkGitHubAccountOnSignIn } from "@/actions/auth";
 
 export interface UserProfile {
   uid: string;
@@ -31,6 +32,7 @@ export interface UserProfile {
   createdAt: string;
   githubConnected: boolean;
   linkedinConnected: boolean;
+  resumeUploaded?: boolean;
   careerTwinGenerated: boolean;
   onboardingCompleted: boolean;
   role?: "STUDENT" | "RECRUITER";
@@ -48,6 +50,7 @@ interface AuthContextType {
   registerWithEmail: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   updateOnboarding: (data: Partial<UserProfile>) => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,73 +64,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Sync / create user profile in Firestore
-  const syncUserProfile = async (firebaseUser: FirebaseUser) => {
-    try {
-      const userRef = doc(db, "users", firebaseUser.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        // Create new user profile in Firestore
-        const isGitHub = firebaseUser.providerData.some(
-          (p) => p.providerId === "github.com"
-        );
-        
-        const newProfile: UserProfile = {
-          uid: firebaseUser.uid,
-          name: firebaseUser.displayName || "SkillSprint User",
-          email: firebaseUser.email || "",
-          photoURL: firebaseUser.photoURL || "",
-          provider: isGitHub ? "github" : "google",
-          createdAt: new Date().toISOString(),
-          githubConnected: isGitHub,
-          linkedinConnected: false,
-          careerTwinGenerated: false,
-          onboardingCompleted: false,
-          role: "STUDENT"
-        };
-        await setDoc(userRef, newProfile);
-        setUser(newProfile);
-      } else {
-        // Update profile photo if changed, and load existing profile
-        const existingData = userSnap.data() as UserProfile;
-        if (firebaseUser.photoURL && firebaseUser.photoURL !== existingData.photoURL) {
-          await updateDoc(userRef, { photoURL: firebaseUser.photoURL });
-          existingData.photoURL = firebaseUser.photoURL;
-        }
-        setUser(existingData);
-      }
-
-      // Sync user session to PostgreSQL server-side DB and set session cookie
-      console.log("[AuthContext] Syncing user profile with PostgreSQL for Firebase UID:", firebaseUser.uid);
-      const result = await syncOAuthUser(firebaseUser.uid, firebaseUser.email || "", "STUDENT");
-      console.log("[AuthContext] syncOAuthUser result:", result);
-
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-    } catch (err: any) {
-      console.error("Error syncing user profile:", err);
-      setError(err.message || "Failed to sync user profile");
-      throw err;
-    }
-  };
-
-  // Check LinkedIn session from Next.js cookie
-  const checkLinkedInSession = async () => {
+  // Load session from PostgreSQL session endpoint
+  const refreshSession = async () => {
     try {
       const res = await fetch("/api/auth/session");
       if (res.ok) {
         const data = await res.json();
         if (data.user) {
           setUser(data.user);
-          return true;
+          return;
         }
       }
+      setUser(null);
     } catch (err) {
-      console.error("Error checking LinkedIn session:", err);
+      console.error("Error refreshing session:", err);
     }
-    return false;
+  };
+
+  // Sync / create user profile in Firestore and PostgreSQL
+  const syncUserProfile = async (firebaseUser: FirebaseUser) => {
+    try {
+      // Sync user session to PostgreSQL server-side DB and set session cookie
+      console.log("[AuthContext] Syncing user profile with PostgreSQL for Firebase UID:", firebaseUser.uid);
+      const result = await syncOAuthUser(firebaseUser.uid, firebaseUser.email || "", "STUDENT");
+      console.log("[AuthContext] syncOAuthUser result:", result);
+
+      if (!result.success || !result.user) {
+        throw new Error(result.error || "Failed to sync user payload");
+      }
+
+      const pgUser = result.user;
+
+      // Sync Firestore profile
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      const clientProfile: UserProfile = {
+        uid: firebaseUser.uid,
+        name: pgUser.name || firebaseUser.displayName || "SkillSprint Candidate",
+        email: firebaseUser.email || "",
+        photoURL: firebaseUser.photoURL || (pgUser as any).avatarUrl || "",
+        provider: firebaseUser.providerData.some((p) => p.providerId === "github.com") ? "github" : "google",
+        createdAt: new Date().toISOString(),
+        githubConnected: pgUser.githubConnected,
+        linkedinConnected: pgUser.linkedinConnected,
+        resumeUploaded: pgUser.resumeUploaded,
+        careerTwinGenerated: pgUser.careerTwinGenerated,
+        onboardingCompleted: pgUser.onboardingCompleted,
+        role: pgUser.role as any
+      };
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          uid: clientProfile.uid,
+          name: clientProfile.name,
+          email: clientProfile.email,
+          photoURL: clientProfile.photoURL,
+          provider: clientProfile.provider,
+          createdAt: clientProfile.createdAt,
+          githubConnected: clientProfile.githubConnected,
+          linkedinConnected: clientProfile.linkedinConnected,
+          careerTwinGenerated: clientProfile.careerTwinGenerated,
+          onboardingCompleted: clientProfile.onboardingCompleted,
+          role: clientProfile.role
+        });
+      } else {
+        // Update photo URL if changed
+        if (firebaseUser.photoURL && firebaseUser.photoURL !== userSnap.data().photoURL) {
+          await updateDoc(userRef, { photoURL: firebaseUser.photoURL });
+        }
+      }
+
+      setUser(clientProfile);
+    } catch (err: any) {
+      console.error("Error syncing user profile:", err);
+      setError(err.message || "Failed to sync user profile");
+      throw err;
+    }
   };
 
   useEffect(() => {
@@ -136,22 +149,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
 
-      if (firebaseUser) {
-        try {
+      // Safety: never stay stuck in loading more than 6 seconds
+      const safetyTimeout = setTimeout(() => setLoading(false), 6000);
+
+      try {
+        if (firebaseUser) {
           await syncUserProfile(firebaseUser);
-          setLoading(false);
-        } catch (err: any) {
-          console.error("Critical error during user profile sync:", err);
-          setError(err.message || "Authentication synchronization failed. Please try logging in again.");
-          setUser(null);
-          setLoading(false);
+        } else {
+          await refreshSession();
         }
-      } else {
-        // If not authenticated via Firebase, check if there is a LinkedIn session
-        const hasLinkedIn = await checkLinkedInSession();
-        if (!hasLinkedIn) {
-          setUser(null);
-        }
+      } catch (err: any) {
+        console.error("Critical error during auth sync:", err);
+        setError(err.message || "Authentication failed. Please try logging in again.");
+        setUser(null);
+      } finally {
+        clearTimeout(safetyTimeout);
         setLoading(false);
       }
     });
@@ -161,10 +173,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Sync video ended state with loading transitions
   useEffect(() => {
+    const shouldShowLoader = pathname !== "/" && !pathname.startsWith("/auth/") && pathname !== "/onboarding";
     if (loading) {
-      setVideoEnded(false);
-    } else if (pathname === "/") {
-      setVideoEnded(true);
+      if (shouldShowLoader) {
+        setVideoEnded(false);
+      } else {
+        setVideoEnded(true);
+      }
+    } else {
+      if (!shouldShowLoader) {
+        setVideoEnded(true);
+      }
     }
   }, [loading, pathname]);
 
@@ -178,7 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [videoEnded]);
 
-  // Attempt to play the video programmatically and catch autoplay restrictions (e.g. mobile battery saver mode)
+  // Attempt to play the video programmatically and catch autoplay restrictions
   useEffect(() => {
     if (!videoEnded && videoRef.current) {
       const playPromise = videoRef.current.play();
@@ -192,29 +211,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [videoEnded]);
 
   const loginWithGoogle = async () => {
-    setLoading(true);
     setError(null);
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+      // onAuthStateChanged handles loading state automatically
     } catch (err: any) {
       console.error("Google sign-in error:", err);
       setError(err.message || "Failed to sign in with Google");
-      setLoading(false);
       throw err;
     }
   };
 
   const loginWithGitHub = async () => {
-    setLoading(true);
     setError(null);
     try {
       const provider = new GithubAuthProvider();
-      await signInWithPopup(auth, provider);
+      provider.addScope("repo");
+      provider.addScope("read:user");
+      provider.addScope("user:email");
+      provider.addScope("read:org");
+      const result = await signInWithPopup(auth, provider);
+      
+      const credential = GithubAuthProvider.credentialFromResult(result);
+      const accessToken = credential?.accessToken;
+      
+      if (accessToken && result.user) {
+        const additionalInfo = getAdditionalUserInfo(result);
+        const profile = additionalInfo?.profile as any;
+        const username = profile?.login || "";
+        const displayName = result.user.displayName || profile?.name || username;
+        const avatarUrl = result.user.photoURL || profile?.avatar_url || "";
+        
+        await linkGitHubAccountOnSignIn(result.user.uid, accessToken, username, displayName, avatarUrl);
+      }
     } catch (err: any) {
       console.error("GitHub sign-in error:", err);
       setError(err.message || "Failed to sign in with GitHub");
-      setLoading(false);
       throw err;
     }
   };
@@ -246,7 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userRef = doc(db, "users", userCredential.user.uid);
       await setDoc(userRef, { name }, { merge: true });
       
-      setUser((prev) => prev ? { ...prev, name } : null);
+      await syncUserProfile(userCredential.user);
     } catch (err: any) {
       console.error("Email registration error:", err);
       setError(err.message || "Failed to register with email");
@@ -258,11 +291,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setLoading(true);
     try {
-      // Sign out of Firebase Auth
       await firebaseSignOut(auth);
-      // Clear session cookie
       await signOutUser();
-      // Clear LinkedIn server session cookie
       await fetch("/api/auth/session", { method: "POST" });
       setUser(null);
       router.push("/auth/signin");
@@ -286,7 +316,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const showGlobalLoader = (loading || !videoEnded) && pathname !== "/";
+  const showGlobalLoader = (loading || !videoEnded) && pathname !== "/" && !pathname.startsWith("/auth/") && pathname !== "/onboarding";
 
   return (
     <AuthContext.Provider
@@ -302,6 +332,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         registerWithEmail,
         logout,
         updateOnboarding,
+        refreshSession
       }}
     >
       {showGlobalLoader && (

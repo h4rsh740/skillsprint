@@ -17,7 +17,7 @@ export async function askCareerCoach(chatHistory: ChatMessage[]): Promise<string
   const resume = await db.getLatestResumeByUserId(user.id);
   const careerTwin = await db.getLatestCareerTwin(user.id);
 
-  const contextPrompt = `You are a world-class tech career coach AI at SkillSprint. You are speaking to a student named ${profile?.fullName || "Alex"}.
+  const contextPrompt = `You are a world-class tech career coach AI at SkillSprint. You are speaking to a student named ${profile?.fullName || "Candidate"}.
   
   Student Context:
   - Email: ${user.email}
@@ -61,12 +61,12 @@ To hit this velocity:
 What specific role or company are you preparing for?`;
     }
 
-    return `Hey ${profile?.fullName?.split(" ")[0] || "Alex"}, as your SkillSprint coach, I'm analyzing your current target role of *${profile?.targetRole || "Software Developer"}*. 
-Your placement probability is at **${resume?.placementProbability || 65}%**. 
-How can I help you today? We can discuss:
-1. Optimizing your Resume ATS Score.
-2. Reviewing your Career Twin projections.
-3. Practicing for a specific target company.`;
+    return `Hey ${profile?.fullName?.split(" ")[0] || "Candidate"}, as your SkillSprint coach, I'm analyzing your current target role of *${profile?.targetRole || "Software Developer"}*. 
+    Your placement probability is at **${resume?.placementProbability || 65}%**. 
+    How can I help you today? We can discuss:
+    1. Optimizing your Resume ATS Score.
+    2. Reviewing your Career Twin projections.
+    3. Practicing for a specific target company.`;
   }
 
   try {

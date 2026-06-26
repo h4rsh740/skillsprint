@@ -36,7 +36,7 @@ export async function auditPortfolio(formData: FormData): Promise<PortfolioAudit
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const portfolioUrl = (formData.get("portfolioUrl") as string) || "https://alexrivera.dev";
+  const portfolioUrl = (formData.get("portfolioUrl") as string) || "https://yourportfolio.dev";
 
   const prompt = `Analyze this developer portfolio URL: ${portfolioUrl}. Audit design, performance, SEO, and return improvement recommendations.`;
   const systemPrompt = `You are a web auditor. Review the portfolio URL and return scores (0-100) and suggestions. Return a JSON object matching this schema:

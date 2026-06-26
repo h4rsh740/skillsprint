@@ -19,11 +19,22 @@ model User {
   role             Role              @default(STUDENT)
   createdAt        DateTime          @default(now())
   profile          Profile?
-  resumes          Resume[]
+  githubAccount    GitHubAccount?
+  linkedinAccount  LinkedInAccount?
+  oauthTokens      OAuthToken[]
+  resumes          ResumeFile[]
+  resumeAnalyses   ResumeAnalysis[]
+  githubAnalyses   GitHubAnalysis[]
+  linkedinAnalyses LinkedInAnalysis[]
+  careerScores     CareerScore[]
   careerTwins      CareerTwin[]
-  interviews       Interview[]
-  learningRoadmaps LearningRoadmap[]
+  recommendedProj  RecommendedProject[]
+  roadmaps         Roadmap[]
+  learningProgress LearningProgress[]
   activityLogs     ActivityLog[]
+  mentorSessions   MentorSession[]
+  notifications    Notification[]
+  syncHistories    SyncHistory[]
 
   @@map("users")
 }
@@ -47,68 +58,266 @@ model Profile {
   @@map("profiles")
 }
 
-model Resume {
-  id                   String   @id @default(uuid())
-  userId               String
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  fileUrl              String
-  parsedContent        Json?
-  atsScore             Int?
-  skillsprintScore     Int?
-  placementProbability Float?
-  weakAreas            String[]
-  missingSkills        String[]
-  suggestions          Json?
-  createdAt            DateTime @default(now())
+model GitHubAccount {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username       String
+  displayName    String?
+  avatarUrl      String?
+  email          String?
+  publicRepos    Int             @default(0)
+  privateRepos   Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  analyses       GitHubAnalysis[]
 
-  @@map("resumes")
+  @@map("github_accounts")
+}
+
+model LinkedInAccount {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username       String?
+  displayName    String?
+  headline       String?
+  about          String?
+  avatarUrl      String?
+  experience     Json?
+  education      Json?
+  projects       Json?
+  skills         String[]
+  certificates   Json?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  analyses       LinkedInAnalysis[]
+
+  @@map("linkedin_accounts")
+}
+
+model OAuthToken {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String   // "github" or "linkedin"
+  accessToken  String   // Encrypted
+  refreshToken String?  // Encrypted
+  expiresAt    DateTime?
+  scopes       String[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("oauth_tokens")
+}
+
+model ResumeFile {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName       String
+  fileUrl        String
+  fileSize       Int
+  fileType       String
+  createdAt      DateTime         @default(now())
+  analyses       ResumeAnalysis[]
+
+  @@map("resume_files")
+}
+
+model ResumeAnalysis {
+  id                 String      @id @default(uuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeFileId       String?
+  resumeFile         ResumeFile? @relation(fields: [resumeFileId], references: [id], onDelete: SetNull)
+  atsScore           Int         @default(0)
+  resumeScore        Int         @default(0)
+  impactScore        Int         @default(0)
+  technicalScore     Int         @default(0)
+  formattingScore    Int         @default(0)
+  grammarScore       Int         @default(0)
+  weakBulletPoints   Json?
+  missingMetrics     Json?
+  duplicateContent   Json?
+  missingActionVerbs Json?
+  suggestions        Json?
+  createdAt          DateTime    @default(now())
+
+  @@map("resume_analysis")
+}
+
+model GitHubAnalysis {
+  id                   String        @id @default(uuid())
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  githubAccountId      String?
+  githubAccount        GitHubAccount? @relation(fields: [githubAccountId], references: [id], onDelete: SetNull)
+  publicReposCount     Int           @default(0)
+  privateReposCount    Int           @default(0)
+  pinnedRepos          Json?
+  languagesUsed        Json?
+  commitHistory        Json?
+  stars                Int           @default(0)
+  forks                Int           @default(0)
+  openIssues           Int           @default(0)
+  closedIssues         Int           @default(0)
+  pullRequests         Int           @default(0)
+  readmeQuality        String?       // "High" | "Med" | "Low"
+  docsQuality          String?       // "High" | "Med" | "Low"
+  branchStrategy       String?
+  deploymentStatus     String?
+  cicdStatus           String?
+  codeOwnership        String?
+  contributionStreak   Int           @default(0)
+  portfolioCompleteness Int          @default(0)
+  suggestions          Json?
+  createdAt            DateTime      @default(now())
+
+  @@map("github_analysis")
+}
+
+model LinkedInAnalysis {
+  id                 String           @id @default(uuid())
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  linkedinAccountId  String?
+  linkedinAccount    LinkedInAccount? @relation(fields: [linkedinAccountId], references: [id], onDelete: SetNull)
+  headlineQuality    Int              @default(0)
+  aboutQuality       Int              @default(0)
+  experienceQuality  Int              @default(0)
+  keywordDensity     Json?
+  networkingScore    Int              @default(0)
+  suggestions        Json?
+  createdAt          DateTime         @default(now())
+
+  @@map("linkedin_analysis")
+}
+
+model CareerScore {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  overallScore        Int      @default(0)
+  resumeScore         Int      @default(0)
+  githubScore         Int      @default(0)
+  linkedinScore       Int      @default(0)
+  portfolioScore      Int      @default(0)
+  openSourceScore     Int      @default(0)
+  frontendScore       Int      @default(0)
+  backendScore        Int      @default(0)
+  problemSolvingScore Int      @default(0)
+  systemDesignScore   Int      @default(0)
+  aiReadiness         Int      @default(0)
+  interviewReadiness  Int      @default(0)
+  atsScore            Int      @default(0)
+  hiringScore         Int      @default(0)
+  details             Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("career_scores")
 }
 
 model CareerTwin {
-  id                 String   @id @default(uuid())
-  userId             String
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  prediction3m       Json?
-  prediction6m       Json?
-  prediction12m      Json?
-  salaryProjection   String?
-  riskFactors        String[]
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentSkills       String[]
+  strongSkills        String[]
+  weakSkills          String[]
+  preferredStack      String[]
+  careerGoal          String?
+  dreamCompanies      String[]
+  learningHistory     Json?
+  codingActivity      Json?
+  resumeQuality       Json?
+  portfolioQuality    Json?
+  githubQuality       Json?
+  linkedinQuality     Json?
+  hackathons          Json?
+  openSource          Json?
+  experience          Json?
+  prediction3m        Json?
+  prediction6m        Json?
+  prediction12m       Json?
+  salaryProjection    String?
+  riskFactors         String[]
   growthOpportunities Json?
-  createdAt          DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  @@map("career_twins")
+  @@map("career_twin")
 }
 
-model Interview {
-  id                     String   @id @default(uuid())
-  userId                 String
-  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mode                   String
-  transcript             Json?
-  communicationScore     Int?
-  confidenceScore        Int?
-  technicalScore         Int?
-  leadershipScore        Int?
-  overallScore           Int?
-  improvementSuggestions String[]
-  createdAt              DateTime @default(now())
+model RecommendedProject {
+  id                        String   @id @default(uuid())
+  userId                    String
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectName               String
+  difficulty                String   // "Beginner" | "Intermediate" | "Advanced"
+  timeRequired              String
+  technologies              String[]
+  resumeValue               Int      @default(0)
+  portfolioValue            Int      @default(0)
+  githubValue               Int      @default(0)
+  hiringImpact              Int      @default(0)
+  companiesWhereUseful      String[]
+  skillsGained              String[]
+  expectedInterviewQuestions Json?
+  learningOutcome           String?
+  businessValue             String?
+  estimatedCompletionTime   String?
+  createdAt                 DateTime @default(now())
+  roadmaps                  Roadmap[]
 
-  @@map("interviews")
+  @@map("recommended_projects")
 }
 
-model LearningRoadmap {
-  id                   String   @id @default(uuid())
-  userId               String
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  targetCompany        String?
-  targetRole           String?
-  dailyTasks           Json?
-  weeklyTasks          Json?
-  monthlyTasks         Json?
-  completionPercentage Int      @default(0)
-  createdAt            DateTime @default(now())
+model Roadmap {
+  id                  String             @id @default(uuid())
+  userId              String
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId           String?
+  project             RecommendedProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  projectName         String
+  architecture        Json?
+  folderStructure     Json?
+  databaseDesign      Json?
+  apiDesign           Json?
+  authStrategy        Json?
+  weeklyRoadmap       Json?
+  dailyTasks          Json?
+  milestones          Json?
+  resources           Json?
+  commonMistakes      Json?
+  expectedDeliverables Json?
+  templates           Json?
+  interviewPrep       Json?
+  createdAt           DateTime           @default(now())
+  progress            LearningProgress[]
 
-  @@map("learning_roadmaps")
+  @@map("roadmaps")
+}
+
+model LearningProgress {
+  id                      String   @id @default(uuid())
+  userId                  String
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roadmapId               String   @unique
+  roadmap                 Roadmap  @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  dailyGoals              Json?
+  weeklyGoals             Json?
+  completedTasks          String[]
+  milestones              Json?
+  estimatedHours          Int      @default(0)
+  difficultyProgression   Json?
+  learningRecommendations Json?
+  revisionSchedule        Json?
+  codeReviewSuggestions   Json?
+  updatedAt               DateTime @updatedAt
+
+  @@map("learning_progress")
 }
 
 model ActivityLog {
@@ -121,3 +330,40 @@ model ActivityLog {
 
   @@map("activity_logs")
 }
+
+model MentorSession {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionType String   // "Mock Interview" | "Career Q&A"
+  transcripts Json?
+  feedback    Json?
+  createdAt   DateTime @default(now())
+
+  @@map("mentor_sessions")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+model SyncHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider  String   // "github" | "linkedin" | "resume"
+  status    String   // "success" | "failed"
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@map("sync_history")
+}
+

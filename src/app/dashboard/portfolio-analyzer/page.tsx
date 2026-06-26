@@ -83,7 +83,7 @@ export default function PortfolioAnalyzerPage() {
                 required
                 name="portfolioUrl"
                 type="url"
-                placeholder="https://alexrivera.dev"
+                placeholder="https://yourportfolio.dev"
                 className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/20 focus:border-transparent transition-all shadow-sm"
               />
             </div>
