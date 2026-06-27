@@ -1,0 +1,1072 @@
+diff --git a/src/app/onboarding/page.tsx b/src/app/onboarding/page.tsx
+index 3f20fb8..92c72a4 100644
+--- a/src/app/onboarding/page.tsx
++++ b/src/app/onboarding/page.tsx
+@@ -11,21 +11,58 @@ import {
+   Check, 
+   ArrowRight, 
+   Sparkles, 
+-  AlertCircle
++  AlertCircle,
++  FileText
+ } from "lucide-react";
+ import "../auth/auth.css";
+ 
++// Inline custom SVG replacements for missing Lucide icons in package.json version
++function Github(props: React.SVGProps<SVGSVGElement>) {
++  return (
++    <svg
++      viewBox="0 0 24 24"
++      stroke="currentColor"
++      strokeWidth="2"
++      fill="none"
++      strokeLinecap="round"
++      strokeLinejoin="round"
++      {...props}
++    >
++      <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
++      <path d="M9 18c-4.51 2-5-2-7-2" />
++    </svg>
++  );
++}
++
++function Linkedin(props: React.SVGProps<SVGSVGElement>) {
++  return (
++    <svg
++      viewBox="0 0 24 24"
++      stroke="currentColor"
++      strokeWidth="2"
++      fill="none"
++      strokeLinecap="round"
++      strokeLinejoin="round"
++      {...props}
++    >
++      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
++      <rect x="2" y="9" width="4" height="12" />
++      <circle cx="4" cy="4" r="2" />
++    </svg>
++  );
++}
++
+ const careerSkillsMap: Record<string, string[]> = {
+-  "Frontend Developer": ["React", "TypeScript", "CSS", "HTML", "Next.js", "Tailwind CSS", "JavaScript"],
+-  "Backend Developer": ["Node.js", "Python", "Go", "Java", "PostgreSQL", "MongoDB", "Docker", "REST APIs"],
+-  "Full Stack Developer": ["React", "Node.js", "TypeScript", "Next.js", "PostgreSQL", "MongoDB", "Docker", "AWS"],
+-  "Data Analyst": ["SQL", "Python", "Tableau", "Power BI", "Excel", "Pandas", "Statistics"],
+-  "AI Engineer": ["Python", "PyTorch", "TensorFlow", "OpenAI API", "Hugging Face", "LLMs", "Machine Learning"],
++  "Frontend Developer": ["React", "TypeScript", "CSS", "HTML", "Next.js", "Tailwind CSS", "JavaScript", "Redux"],
++  "Backend Developer": ["Node.js", "Python", "Go", "Java", "PostgreSQL", "MongoDB", "Docker", "REST APIs", "Redis"],
++  "Full Stack Developer": ["React", "Node.js", "TypeScript", "Next.js", "PostgreSQL", "MongoDB", "Docker", "AWS", "GraphQL"],
++  "Data Analyst": ["SQL", "Python", "Tableau", "Power BI", "Excel", "Pandas", "Statistics", "R"],
++  "AI Engineer": ["Python", "PyTorch", "TensorFlow", "OpenAI API", "Hugging Face", "LLMs", "Machine Learning", "LangChain"],
+   "Product Manager": ["Product Roadmap", "Agile/Scrum", "SQL", "A/B Testing", "Market Research", "User Analytics"]
+ };
+ 
+ export default function OnboardingPage() {
+-  const { user, loading, updateOnboarding } = useAuth();
++  const { user, loading, updateOnboarding, refreshSession } = useAuth();
+   const [step, setStep] = useState(1);
+   const [saving, setSaving] = useState(false);
+   const [error, setError] = useState("");
+@@ -36,7 +73,7 @@ export default function OnboardingPage() {
+   const eyes1Ref = useRef<HTMLDivElement>(null);
+   const eyes2Ref = useRef<HTMLDivElement>(null);
+ 
+-  // Form states
++  // Form states (Step 1)
+   const [fullName, setFullName] = useState("");
+   const [college, setCollege] = useState("");
+   const [branch, setBranch] = useState("");
+@@ -45,20 +82,11 @@ export default function OnboardingPage() {
+   const [targetRole, setTargetRole] = useState("Frontend Developer");
+   const [skills, setSkills] = useState("");
+ 
+-  // Step 2 Resume states
++  // Resume state (Step 4)
+   const [resumeFile, setResumeFile] = useState<File | null>(null);
+   const [uploadingResume, setUploadingResume] = useState(false);
+ 
+-  // Step 3 GitHub states
+-  const [githubUsername, setGithubUsername] = useState("");
+-  const [connectingGithub, setConnectingGithub] = useState(false);
+-  const [githubConnected, setGithubConnected] = useState(false);
+-
+-  // Step 4 LinkedIn states
+-  const [connectingLinkedin, setConnectingLinkedin] = useState(false);
+-  const [linkedinConnected, setLinkedinConnected] = useState(false);
+-
+-  // Step 5 Generating states
++  // Twin generation progress (Step 5)
+   const [generationProgress, setGenerationProgress] = useState(0);
+   const [generationLogs, setGenerationLogs] = useState<string[]>([]);
+ 
+@@ -83,20 +111,22 @@ export default function OnboardingPage() {
+     return () => window.removeEventListener("mousemove", handleMouseMove);
+   }, []);
+ 
+-  // Initialize fields once user is loaded
++  // Initialize fields once user is loaded, and auto-navigate steps based on connection status
+   useEffect(() => {
+     if (user) {
+       setFullName(user.name || "");
+-      if (user.githubConnected) {
+-        setGithubConnected(true);
+-      }
+-      if (user.linkedinConnected) {
+-        setLinkedinConnected(true);
++      
++      // Auto-step routing based on connectivity status
++      if (user.githubConnected && step === 2) {
++        setStep(3);
++      } else if (user.githubConnected && user.resumeUploaded && step === 3) {
++        setStep(4);
++        startTwinGeneration();
+       }
+     }
+   }, [user]);
+ 
+-  // If already onboarded, redirect
++  // If onboarding completed, redirect to dashboard
+   useEffect(() => {
+     if (!loading && user?.onboardingCompleted) {
+       router.push("/dashboard");
+@@ -112,89 +142,101 @@ export default function OnboardingPage() {
+         setTimeout(() => setAuthStatus("idle"), 1500);
+         return;
+       }
++      
+       setAuthStatus("success");
+-      setTimeout(() => {
+-        setAuthStatus("idle");
+-        setStep(2);
+-      }, 600);
++      setSaving(true);
++      
++      // Save profile details to PostgreSQL / JSON DB
++      const skillsArray = skills.split(",").map(s => s.trim()).filter(Boolean);
++      
++      const formData = new FormData();
++      formData.append("fullName", fullName);
++      formData.append("college", college);
++      formData.append("branch", branch);
++      formData.append("graduationYear", graduationYear);
++      formData.append("cgpa", cgpa);
++      formData.append("targetRole", targetRole);
++      formData.append("skills", skillsArray.join(","));
++      formData.append("githubUsername", user?.email.split("@")[0] || "candidate");
++
++      // We call the server action onboardStudent or API
++      fetch("/api/onboard", {
++        method: "POST",
++        body: formData
++      })
++      .then(res => res.json())
++      .then(async (data) => {
++        setSaving(false);
++        if (data.success) {
++          await refreshSession();
++          setStep(2);
++        } else {
++          setError(data.error || "Failed to save profile details");
++        }
++      })
++      .catch(err => {
++        setSaving(false);
++        setError("Connection error. Failed to save profile.");
++        console.error(err);
++      });
+     } else if (step === 2) {
+-      if (!resumeFile) {
+-        setError("Please upload your PDF resume to continue");
+-        setAuthStatus("error");
+-        setTimeout(() => setAuthStatus("idle"), 1500);
+-        return;
+-      }
+-      setAuthStatus("success");
+-      setTimeout(() => {
+-        setAuthStatus("idle");
+-        setStep(3);
+-      }, 600);
++      // Connect GitHub completed or skipped
++      setStep(3);
+     } else if (step === 3) {
+-      if (!githubConnected && !githubUsername) {
+-        setError("Please connect your GitHub profile to continue");
+-        setAuthStatus("error");
+-        setTimeout(() => setAuthStatus("idle"), 1500);
+-        return;
+-      }
+-      setAuthStatus("success");
+-      setTimeout(() => {
+-        setAuthStatus("idle");
+-        setStep(4);
+-      }, 600);
+-    } else if (step === 4) {
+-      setAuthStatus("success");
+-      setTimeout(() => {
+-        setAuthStatus("idle");
+-        setStep(5);
+-        startTwinGeneration();
+-      }, 600);
++      // Resume upload completed or skipped
++      setStep(4);
++      startTwinGeneration();
+     }
+   };
+ 
+-  const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
++  const handleResumeChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+     const file = e.target.files?.[0];
+-    if (file && file.type === "application/pdf") {
++    if (!file) return;
++
++    const allowedTypes = [
++      "application/pdf", 
++      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
++      "text/plain" // txt
++    ];
++
++    if (allowedTypes.includes(file.type) || file.name.endsWith(".pdf") || file.name.endsWith(".docx") || file.name.endsWith(".txt")) {
+       setUploadingResume(true);
+       setError("");
+-      setTimeout(() => {
+-        setResumeFile(file);
++      
++      try {
++        const formData = new FormData();
++        formData.append("resume", file);
++        
++        const res = await fetch("/api/resume/upload", {
++          method: "POST",
++          body: formData
++        });
++        
++        const data = await res.json();
+         setUploadingResume(false);
+-        setAuthStatus("success");
+-        setTimeout(() => setAuthStatus("idle"), 1000);
+-      }, 1500);
+-    } else {
+-      setError("Please upload a valid PDF file");
+-      setAuthStatus("error");
+-      setTimeout(() => setAuthStatus("idle"), 1500);
+-    }
+-  };
+ 
+-  const handleConnectGithub = () => {
+-    if (!githubUsername) {
+-      setError("Please enter a valid GitHub username");
++        if (data.success) {
++          setResumeFile(file);
++          setAuthStatus("success");
++          setTimeout(() => {
++            setAuthStatus("idle");
++            setStep(5);
++            startTwinGeneration();
++          }, 800);
++        } else {
++          setError(data.error || "Failed to analyze resume. Try another file.");
++          setAuthStatus("error");
++        }
++      } catch (err) {
++        setUploadingResume(false);
++        setError("Resume scanner API failed. Please try again.");
++        setAuthStatus("error");
++      }
++    } else {
++      setError("Please upload a valid PDF, DOCX, or TXT file");
+       setAuthStatus("error");
+       setTimeout(() => setAuthStatus("idle"), 1500);
+-      return;
+     }
+-    setConnectingGithub(true);
+-    setError("");
+-    setTimeout(() => {
+-      setGithubConnected(true);
+-      setConnectingGithub(false);
+-      setAuthStatus("success");
+-      setTimeout(() => setAuthStatus("idle"), 1500);
+-    }, 1500);
+-  };
+-
+-  const handleConnectLinkedin = () => {
+-    setConnectingLinkedin(true);
+-    setError("");
+-    setTimeout(() => {
+-      setLinkedinConnected(true);
+-      setConnectingLinkedin(false);
+-      setAuthStatus("success");
+-      setTimeout(() => setAuthStatus("idle"), 1500);
+-    }, 1500);
+   };
+ 
+   const startTwinGeneration = () => {
+@@ -217,7 +259,6 @@ export default function OnboardingPage() {
+       setGenerationProgress((prev) => {
+         const next = prev + 10;
+         
+-        // Add log messages at certain milestones
+         if (next % 15 === 0 && currentLogIndex < logs.length) {
+           setGenerationLogs((l) => [...l, logs[currentLogIndex]]);
+           currentLogIndex++;
+@@ -236,36 +277,32 @@ export default function OnboardingPage() {
+   const completeOnboarding = async () => {
+     setSaving(true);
+     try {
+-      const skillsArray = skills
+-        .split(",")
+-        .map((s) => s.trim())
+-        .filter(Boolean);
+-
+-      await updateOnboarding({
+-        name: fullName,
+-        githubConnected: githubConnected,
+-        linkedinConnected: linkedinConnected,
+-        careerTwinGenerated: true,
+-        onboardingCompleted: true,
+-        ...({
+-          college,
+-          branch,
+-          graduationYear: parseInt(graduationYear) || 2026,
+-          cgpa: parseFloat(cgpa) || 0,
+-          targetRole,
+-          skills: skillsArray,
+-          resumeName: resumeFile?.name || "",
+-        } as any)
+-      });
+-      setAuthStatus("success");
+-      setTimeout(() => {
+-        router.push("/dashboard");
+-        router.refresh();
+-      }, 1000);
++      // Trigger Career Twin build endpoint
++      const res = await fetch("/api/career-twin/build", { method: "POST" });
++      const data = await res.json();
++      
++      if (data.success) {
++        // Mark onboardCompleted in Firestore
++        await updateOnboarding({
++          onboardingCompleted: true,
++          careerTwinGenerated: true
++        });
++
++        // Trigger refresh
++        await refreshSession();
++
++        setAuthStatus("success");
++        setTimeout(() => {
++          router.push("/dashboard");
++          router.refresh();
++        }, 1000);
++      } else {
++        setError(data.error || "Failed to generate career twin.");
++        setSaving(false);
++      }
+     } catch (err: any) {
+       setError(err.message || "Failed to save onboarding details");
+       setAuthStatus("error");
+-      setTimeout(() => setAuthStatus("idle"), 2000);
+       setSaving(false);
+     }
+   };
+@@ -281,69 +318,61 @@ export default function OnboardingPage() {
+     }
+   };
+ 
+-  if (loading) return null;
++  // Local loading guard — never block UI for more than 3 seconds
++  const [localLoading, setLocalLoading] = useState(true);
++  useEffect(() => {
++    const t = setTimeout(() => setLocalLoading(false), 3000);
++    if (!loading) { clearTimeout(t); setLocalLoading(false); }
++    return () => clearTimeout(t);
++  }, [loading]);
++
++  if (localLoading) {
++    return (
++      <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-4 text-white">
++        <Loader2 className="w-8 h-8 animate-spin text-[#ee7344]" />
++        <span className="font-semibold text-sm tracking-wider">Syncing Career OS...</span>
++      </div>
++    );
++  }
+ 
+   const stepsList = [
+     { id: 1, label: "Profile Details" },
+-    { id: 2, label: "Resume Upload" },
+-    { id: 3, label: "Connect GitHub" },
+-    { id: 4, label: "Connect LinkedIn" },
+-    { id: 5, label: "Generate Twin" }
++    { id: 2, label: "Connect GitHub" },
++    { id: 3, label: "Resume Upload" },
++    { id: 4, label: "Synthesize Twin" }
+   ];
+ 
+   const availableSkills = careerSkillsMap[targetRole] || [];
+ 
+   return (
+     <div className="auth-wrapper" style={{ padding: "15px 10px", minHeight: "100vh", display: "flex", alignItems: "center" }}>
+-      {/* Stylesheet rule for compact form sizing and display behavior */}
+       <style>{`
+-        /* Mobile responsive override */
+-        @media only screen and (max-width: 720px) {
+-          .login-container {
+-            flex-direction: column !important;
+-          }
+-          .social-login {
+-            display: none !important;
+-          }
+-          .email-login {
+-            padding: 20px 16px !important;
+-          }
+-        }
+-
+-        /* Compact form overrides to fit screen without scrolling */
+         .auth-form {
+           gap: 16px !important;
+         }
+         .auth-form input[type="text"],
+-        .auth-form input[type="email"],
+-        .auth-form input[type="password"] {
+-          line-height: 2.1 !important;
+-          font-size: 15px !important;
+-          padding: 0 10px !important;
++        .auth-form select {
++          height: 42px !important;
++          font-size: 14px !important;
++          padding: 0 12px !important;
++          border-radius: 12px !important;
++          border: 1px solid rgba(0, 0, 0, 0.1) !important;
++          background: rgba(255, 255, 255, 0.6) !important;
++          width: 100%;
+         }
+         .auth-label span {
+-          font-size: 15px !important;
+-          top: 7px !important;
+-          padding: 2px 8px !important;
+-          white-space: nowrap !important;
+-          overflow: hidden !important;
+-          text-overflow: ellipsis !important;
+-          max-width: calc(100% - 24px) !important;
+-          transition: all 0.2s ease-in-out !important;
++          font-size: 14px !important;
++          top: 10px !important;
+         }
+         .auth-label:focus-within span,
+         .auth-label .focus-span {
+-          max-width: none !important;
+-          overflow: visible !important;
+-          text-overflow: clip !important;
+-          white-space: nowrap !important;
+-          transform: translate(0.27rem, -90%) scale(0.8) !important;
++          transform: translate(0.27rem, -95%) scale(0.8) !important;
+         }
+-        .auth-form button[type="submit"] {
+-          font-size: 16px !important;
+-          padding: 10px !important;
+-          margin-top: 16px !important;
+-          margin-bottom: 4px !important;
++        .glass-box {
++          background: rgba(255, 255, 255, 0.7);
++          backdrop-filter: blur(12px);
++          border: 1px solid rgba(255, 255, 255, 0.5);
++          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+         }
+       `}</style>
+ 
+@@ -363,18 +392,18 @@ export default function OnboardingPage() {
+             </div>
+ 
+             {/* Main Form Box */}
+-            <div className="login-container" style={{ width: "100%", maxWidth: "980px", marginTop: "10px" }}>
++            <div className="login-container glass-box rounded-3xl" style={{ width: "100%", maxWidth: "980px", marginTop: "10px" }}>
+               
+               {/* Left Panel: Step progress checklist */}
+-              <div className="social-login" style={{ flex: "1.1", padding: "30px 25px", gap: "28px" }}>
++              <div className="social-login" style={{ flex: "1.1", padding: "30px 25px", gap: "28px", borderTopLeftRadius: "24px", borderBottomLeftRadius: "24px" }}>
+                 <Link href="/" className="auth-logo cursor-pointer hover:opacity-90 transition-opacity">
+                   <BrainCircuit className="text-[#ffc85c]" />
+                   <p style={{ fontSize: "20px" }}>SkillSprint AI</p>
+                 </Link>
+                 
+                 <div>
+-                  <h2 className="text-lg font-bold text-white mb-1.5" style={{ fontFamily: "Unbounded, sans-serif" }}>Onboarding</h2>
+-                  <p className="text-[12.5px] text-white/80 leading-relaxed">Configure your digital twin model parameters in 5 quick steps.</p>
++                  <h2 className="text-lg font-bold text-white mb-1.5" style={{ fontFamily: "Unbounded, sans-serif" }}>Redesigning Career</h2>
++                  <p className="text-[12.5px] text-white/80 leading-relaxed">Initialize your AI career operating system twin in 4 steps.</p>
+                 </div>
+ 
+                 <div className="flex flex-col gap-4.5 py-3 border-t border-white/10 mt-1">
+@@ -413,18 +442,9 @@ export default function OnboardingPage() {
+               {/* Right Panel: Content Form */}
+               <div className="email-login" style={{ flex: "2", padding: "28px 40px" }}>
+                 
+-                {/* Mobile-Only Header */}
+-                <div className="sm:hidden flex items-center justify-between mb-3">
+-                  <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+-                    <BrainCircuit className="text-[#ee7344] w-5.5 h-5.5" />
+-                    <span className="font-bold text-[15px] text-black" style={{ fontFamily: "Unbounded, sans-serif" }}>SkillSprint AI</span>
+-                  </Link>
+-                  <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Step {step} of 5</span>
+-                </div>
+-
+                 {/* Mobile-Only Progress Bar */}
+                 <div className="sm:hidden w-full flex gap-1 mb-4">
+-                  {[1, 2, 3, 4, 5].map((s) => (
++                  {[1, 2, 3, 4].map((s) => (
+                     <div 
+                       key={s} 
+                       className={`h-1 flex-1 rounded-full transition-all duration-500 ${
+@@ -441,22 +461,20 @@ export default function OnboardingPage() {
+                 <div className="login-h-container" style={{ marginBottom: "20px" }}>
+                   <h1 className="text-[23px] font-bold text-black mb-1" style={{ letterSpacing: "-0.5px" }}>
+                     {step === 1 && "Profile Details"}
+-                    {step === 2 && "Resume Upload"}
+-                    {step === 3 && "Connect GitHub"}
+-                    {step === 4 && "Connect LinkedIn"}
+-                    {step === 5 && "Launching Twin"}
++                    {step === 2 && "Connect GitHub"}
++                    {step === 3 && "Resume Analyzer"}
++                    {step === 4 && "Synthesize Digital Twin"}
+                   </h1>
+                   <p className="text-[13px] text-gray-500 leading-relaxed">
+-                    {step === 1 && "Academic details and career direction."}
+-                    {step === 2 && "Upload your resume in PDF format."}
+-                    {step === 3 && "Integrate repository statistics to track metrics."}
+-                    {step === 4 && "Link LinkedIn profile to verify career details."}
+-                    {step === 5 && "Generating your interactive career twin projection."}
++                    {step === 1 && "Basic profile settings and career direction."}
++                    {step === 2 && "Synchronize repository footprint to analyze commits, streak, and technologies."}
++                    {step === 3 && "Scan PDF, DOCX, or TXT resume for ATS scoring and improvement recommendations."}
++                    {step === 4 && "Aggregating code streaks and resume scores to spawn your Digital Career Twin."}
+                   </p>
+                 </div>
+ 
+                 {error && (
+-                  <div className="bg-red-50 border border-red-200 text-red-600 px-3.5 py-2.5 rounded-md text-[13px] mb-5 flex items-start gap-2 font-sans font-semibold animate-in fade-in duration-300">
++                  <div className="bg-red-50 border border-red-200 text-red-600 px-3.5 py-2.5 rounded-xl text-[13px] mb-5 flex items-start gap-2 font-sans font-semibold animate-in fade-in duration-300">
+                     <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                     <span>{error}</span>
+                   </div>
+@@ -472,7 +490,7 @@ export default function OnboardingPage() {
+                     }}
+                   >
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+-                      <label className="auth-label" htmlFor="fullName">
++                      <label className="auth-label relative" htmlFor="fullName">
+                         <input
+                           id="fullName"
+                           type="text"
+@@ -484,7 +502,7 @@ export default function OnboardingPage() {
+                         <span className={fullName ? "focus-span" : ""}>Full Name</span>
+                       </label>
+ 
+-                      <label className="auth-label" htmlFor="college">
++                      <label className="auth-label relative" htmlFor="college">
+                         <input
+                           id="college"
+                           type="text"
+@@ -493,7 +511,7 @@ export default function OnboardingPage() {
+                           onChange={(e) => setCollege(e.target.value)}
+                           required
+                         />
+-                        <span className={college ? "focus-span" : ""}>College</span>
++                        <span className={college ? "focus-span" : ""}>College / University</span>
+                       </label>
+                     </div>
+ 
+@@ -503,7 +521,8 @@ export default function OnboardingPage() {
+                           value={branch}
+                           onChange={(e) => setBranch(e.target.value)}
+                           className="w-full bg-white border border-[#ccc] rounded-[4px] px-3 text-[15px] text-black focus:outline-none focus:ring-1 focus:ring-[#ffc85c] focus:border-[#ffc85c] transition-all"
+-                          style={{ height: "39px", appearance: "none", paddingTop: "0px", paddingBottom: "0px" }}
++                          style={{ height: "42px", appearance: "none" }}
++                          required
+                         >
+                           <option value="">Select Branch</option>
+                           <option>Computer Science</option>
+@@ -511,13 +530,10 @@ export default function OnboardingPage() {
+                           <option>Electronics Engineering</option>
+                           <option>Electrical Engineering</option>
+                           <option>Mechanical Engineering</option>
+-                          <option>Civil Engineering</option>
+                           <option>Mathematics & Computing</option>
+-                          <option>Business Administration</option>
+                           <option>Other</option>
+                         </select>
+-                        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">▼</span>
+-                        <span className="absolute left-2.5 -top-2 px-1 bg-white text-[11px] text-gray-500 font-semibold">Branch / Field of Study</span>
++                        <span className="absolute left-2.5 -top-2 px-1 bg-white text-[11px] text-gray-500 font-semibold">Branch</span>
+                       </div>
+ 
+                       <div className="relative">
+@@ -525,22 +541,21 @@ export default function OnboardingPage() {
+                           value={graduationYear}
+                           onChange={(e) => setGraduationYear(e.target.value)}
+                           className="w-full bg-white border border-[#ccc] rounded-[4px] px-3 text-[15px] text-black focus:outline-none focus:ring-1 focus:ring-[#ffc85c] focus:border-[#ffc85c] transition-all"
+-                          style={{ height: "39px", appearance: "none", paddingTop: "0px", paddingBottom: "0px" }}
++                          style={{ height: "42px", appearance: "none" }}
++                          required
+                         >
+                           <option>2024</option>
+                           <option>2025</option>
+                           <option>2026</option>
+                           <option>2027</option>
+                           <option>2028</option>
+-                          <option>2029</option>
+                         </select>
+-                        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">▼</span>
+                         <span className="absolute left-2.5 -top-2 px-1 bg-white text-[11px] text-gray-500 font-semibold">Graduation Year</span>
+                       </div>
+                     </div>
+ 
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+-                      <label className="auth-label" htmlFor="cgpa">
++                      <label className="auth-label relative" htmlFor="cgpa">
+                         <input
+                           id="cgpa"
+                           type="text"
+@@ -549,7 +564,7 @@ export default function OnboardingPage() {
+                           onChange={(e) => setCgpa(e.target.value)}
+                           required
+                         />
+-                        <span className={cgpa ? "focus-span" : ""}>Current CGPA (out of 10.0)</span>
++                        <span className={cgpa ? "focus-span" : ""}>Current CGPA (e.g. 8.5)</span>
+                       </label>
+ 
+                       <div className="relative">
+@@ -560,7 +575,8 @@ export default function OnboardingPage() {
+                             setSkills("");
+                           }}
+                           className="w-full bg-white border border-[#ccc] rounded-[4px] px-3 text-[15px] text-black focus:outline-none focus:ring-1 focus:ring-[#ffc85c] focus:border-[#ffc85c] transition-all"
+-                          style={{ height: "39px", appearance: "none", paddingTop: "0px", paddingBottom: "0px" }}
++                          style={{ height: "42px", appearance: "none" }}
++                          required
+                         >
+                           <option>Frontend Developer</option>
+                           <option>Backend Developer</option>
+@@ -569,13 +585,12 @@ export default function OnboardingPage() {
+                           <option>AI Engineer</option>
+                           <option>Product Manager</option>
+                         </select>
+-                        <span className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-xs">▼</span>
+-                        <span className="absolute left-2.5 -top-2 px-1 bg-white text-[12px] text-gray-500 font-semibold">Target Career Goal</span>
++                        <span className="absolute left-2.5 -top-2 px-1 bg-white text-[11px] text-gray-500 font-semibold">Target Career Goal</span>
+                       </div>
+                     </div>
+ 
+                     <div className="space-y-2">
+-                      <label className="auth-label" htmlFor="skills">
++                      <label className="auth-label relative" htmlFor="skills">
+                         <input
+                           id="skills"
+                           type="text"
+@@ -584,10 +599,9 @@ export default function OnboardingPage() {
+                           onChange={(e) => setSkills(e.target.value)}
+                           required
+                         />
+-                        <span className={skills ? "focus-span" : ""}>Current Skills (Comma separated)</span>
++                        <span className={skills ? "focus-span" : ""}>Skills (comma separated)</span>
+                       </label>
+                       
+-                      {/* Skill Pills Selection container */}
+                       <div className="flex flex-wrap gap-2 pt-1">
+                         {availableSkills.map((skill) => {
+                           const isSelected = skills.split(",").map(s => s.trim()).includes(skill);
+@@ -596,10 +610,10 @@ export default function OnboardingPage() {
+                               key={skill}
+                               type="button"
+                               onClick={() => toggleSkill(skill)}
+-                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer ${
++                              className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer ${
+                                 isSelected
+-                                  ? "bg-[#ee7344] border-[#ee7344] text-white shadow-sm"
+-                                  : "bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100"
++                                  ? "bg-[#4f46e5] border-[#4f46e5] text-white shadow-sm"
++                                  : "bg-white/60 border-gray-200 text-gray-700 hover:bg-white"
+                               }`}
+                             >
+                               {isSelected ? "✓ " : "+ "}
+@@ -610,111 +624,126 @@ export default function OnboardingPage() {
+                       </div>
+                     </div>
+ 
+-                    <button type="submit">
+-                      Continue to Resume Upload <ArrowRight className="w-4 h-4 ml-2" />
++                    <button 
++                      type="submit" 
++                      disabled={saving}
++                      className="w-full bg-[#4f46e5] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-[#4338ca] transition-all cursor-pointer disabled:opacity-50"
++                    >
++                      {saving ? (
++                        <>
++                          <Loader2 className="w-4 h-4 animate-spin text-white" />
++                          Saving...
++                        </>
++                      ) : (
++                        <>
++                          Continue to Integrations
++                          <ArrowRight className="w-4 h-4" />
++                        </>
++                      )}
+                     </button>
+                   </form>
+                 )}
+ 
+-                {/* STEP 2: Resume Upload */}
++                {/* STEP 2: Connect GitHub */}
+                 {step === 2 && (
+-                  <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
++                  <div className="space-y-6 animate-in fade-in duration-500">
++                    <div className="bg-white/60 border border-gray-200 rounded-2xl p-6 text-center space-y-4 flex flex-col items-center shadow-sm">
++                      <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center">
++                        <Github className="w-6 h-6 text-white" />
++                      </div>
++                      
++                      {user?.githubConnected ? (
++                        <div className="space-y-2">
++                          <div className="text-emerald-600 font-bold flex items-center justify-center gap-1.5 text-[15px]">
++                            <Check className="w-5 h-5 text-emerald-500" />
++                            GitHub Footprint Synced
++                          </div>
++                          <p className="text-xs text-gray-500">Repositories statistics are successfully connected.</p>
++                        </div>
++                      ) : (
++                        <div className="space-y-2">
++                          <h3 className="font-bold text-gray-900">Synchronize repositories</h3>
++                          <p className="text-xs text-gray-500 max-w-sm">We will analyze commit frequencies, stars, README qualities, and languages to calibrate SDE scores.</p>
++                        </div>
++                      )}
++
++                      {!user?.githubConnected && (
++                        <button
++                          type="button"
++                          onClick={() => router.push("/api/auth/github")}
++                          className="flex items-center justify-center gap-2.5 bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl transition-all w-full max-w-xs cursor-pointer shadow-md"
++                        >
++                          <Github className="w-5 h-5" />
++                          Connect GitHub footprint
++                        </button>
++                      )}
++                    </div>
++
++                    {!user?.githubConnected && (
++                      <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-[11px] leading-relaxed flex gap-2">
++                        <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
++                        <span>**Limited Analysis Mode Active:** If you proceed without connecting GitHub, SkillSprint cannot audit repository quality or code streaks. GitHub scores will fall back to zero.</span>
++                      </div>
++                    )}
++
++                    <div className="flex gap-4 pt-2">
++                      <button
++                        type="button"
++                        onClick={() => setStep(1)}
++                        className="flex-1 py-3 text-[14px] font-bold text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-all text-center cursor-pointer shadow-sm"
++                      >
++                        Back
++                      </button>
++                      <button
++                        type="button"
++                        onClick={handleNextStep}
++                        className="flex-1 py-3 text-[14px] font-bold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl transition-all text-center cursor-pointer shadow"
++                      >
++                        {user?.githubConnected ? "Continue" : "Skip Connection"}
++                      </button>
++                    </div>
++                  </div>
++                )}
++
++                {/* STEP 3: Resume Scanner */}
++                {step === 3 && (
++                  <div className="space-y-6 animate-in fade-in duration-500">
+                     <div className="space-y-3">
+-                      <div className="border-2 border-dashed border-gray-300 hover:border-[#74959a] rounded-xl p-6 flex flex-col items-center justify-center bg-gray-50 text-center relative hover:bg-gray-100/80 transition-all duration-300 cursor-pointer">
++                      <div className="border-2 border-dashed border-gray-300 hover:border-[#4f46e5] rounded-2xl p-8 flex flex-col items-center justify-center bg-white/60 text-center relative hover:bg-white transition-all duration-300 cursor-pointer shadow-sm">
+                         <input
+                           type="file"
+-                          accept=".pdf"
++                          accept=".pdf,.docx,.txt"
+                           onChange={handleResumeChange}
+                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                           disabled={uploadingResume}
+                         />
+                         {uploadingResume ? (
+                           <div className="flex flex-col items-center py-3">
+-                            <Loader2 className="h-9 w-9 animate-spin text-[#ee7344] mb-3" />
+-                            <span className="text-[13px] font-bold text-gray-600 animate-pulse">Scanning PDF...</span>
++                            <Loader2 className="h-9 w-9 animate-spin text-[#4f46e5] mb-3" />
++                            <span className="text-[13px] font-bold text-gray-600 animate-pulse">Scanning Resume with Gemini AI...</span>
+                           </div>
+-                        ) : resumeFile ? (
++                        ) : user?.resumeUploaded || resumeFile ? (
+                           <div className="flex flex-col items-center py-2 text-emerald-600">
+                             <div className="w-11 h-11 bg-emerald-100 border border-emerald-200 rounded-full flex items-center justify-center mb-2">
+                               <Check className="h-5 w-5 text-emerald-600" />
+                             </div>
+-                            <span className="text-[14px] font-bold text-gray-700">{resumeFile.name}</span>
+-                            <span className="text-xs text-emerald-600 mt-1 font-semibold">✓ Uploaded & Parsed</span>
++                            <span className="text-[14px] font-bold text-gray-700">{resumeFile?.name || "resume.pdf"}</span>
++                            <span className="text-xs text-emerald-600 mt-1 font-semibold">✓ Uploaded & AI Scanned</span>
+                           </div>
+                         ) : (
+                           <div className="flex flex-col items-center py-3">
+                             <Upload className="h-9 w-9 text-gray-400 mb-2.5" />
+-                            <span className="text-[14px] font-bold text-gray-700">Click or drag PDF here to upload</span>
+-                            <span className="text-xs text-gray-500 mt-1 font-medium">PDF documents up to 5MB</span>
++                            <span className="text-[14px] font-bold text-gray-700">Click or drag resume here to upload</span>
++                            <span className="text-xs text-gray-500 mt-1 font-medium">Supports PDF, DOCX, and TXT (Max 5MB)</span>
+                           </div>
+                         )}
+                       </div>
+                     </div>
+ 
+-                    <div className="flex gap-4 pt-2">
+-                      <button
+-                        type="button"
+-                        onClick={() => setStep(1)}
+-                        className="flex-1 py-2 text-[15px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-[3px] transition-all text-center cursor-pointer"
+-                        style={{ boxShadow: "0.2rem 0.2rem #111827" }}
+-                      >
+-                        Back
+-                      </button>
+-                      <button
+-                        type="button"
+-                        onClick={handleNextStep}
+-                        disabled={!resumeFile}
+-                        className="flex-1 py-2 text-[15px] font-bold text-white bg-[#ea5455] hover:brightness-95 rounded-[3px] transition-all text-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+-                        style={{ boxShadow: "0.2rem 0.2rem #111827" }}
+-                      >
+-                        Continue
+-                      </button>
+-                    </div>
+-                  </div>
+-                )}
+-
+-                {/* STEP 3: Connect GitHub */}
+-                {step === 3 && (
+-                  <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
+-                    {githubConnected ? (
+-                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-5 text-center flex flex-col items-center gap-2.5 animate-in zoom-in-95 duration-300">
+-                        <div className="w-10 h-10 bg-emerald-100 border border-emerald-200 rounded-full flex items-center justify-center">
+-                          <Check className="h-5 w-5 text-emerald-600" />
+-                        </div>
+-                        <div>
+-                          <div className="font-bold text-[14px]">GitHub Profile Synced</div>
+-                          <div className="text-xs text-emerald-600 mt-1 font-semibold">Connected as {githubUsername || user?.email}</div>
+-                        </div>
+-                      </div>
+-                    ) : (
+-                      <div className="space-y-4">
+-                        <div className="flex gap-3 items-end">
+-                          <div className="flex-1">
+-                            <label className="auth-label" htmlFor="githubUsername">
+-                              <input
+-                                id="githubUsername"
+-                                type="text"
+-                                value={githubUsername}
+-                                onChange={(e) => setGithubUsername(e.target.value)}
+-                                required
+-                                style={{ paddingLeft: "42px" }}
+-                              />
+-                              <svg className="absolute left-3.5 top-[11px] w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+-                                <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/>
+-                              </svg>
+-                              <span className={githubUsername ? "focus-span" : ""} style={{ left: "32px" }}>GitHub Username</span>
+-                            </label>
+-                          </div>
+-                          <button
+-                            type="button"
+-                            onClick={handleConnectGithub}
+-                            disabled={connectingGithub}
+-                            className="px-5 py-2 bg-[#74959a] hover:brightness-95 text-white text-[14px] font-bold rounded-[3px] transition-all cursor-pointer disabled:opacity-50"
+-                            style={{ height: "39px", boxShadow: "0.2rem 0.2rem #111827", minWidth: "110px" }}
+-                          >
+-                            {connectingGithub ? <Loader2 className="w-4 h-4 animate-spin mx-auto text-black" /> : "Connect"}
+-                          </button>
+-                        </div>
++                    {!user?.resumeUploaded && (
++                      <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-[11px] leading-relaxed flex gap-2">
++                        <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
++                        <span>**Limited Analysis Mode Active:** Uploading your resume is highly recommended to compute ATS matching score and cross-analyze project claims against GitHub commits.</span>
+                       </div>
+                     )}
+ 
+@@ -722,128 +751,84 @@ export default function OnboardingPage() {
+                       <button
+                         type="button"
+                         onClick={() => setStep(2)}
+-                        className="flex-1 py-2 text-[15px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-[3px] transition-all text-center cursor-pointer"
+-                        style={{ boxShadow: "0.2rem 0.2rem #111827" }}
++                        className="flex-1 py-3 text-[14px] font-bold text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-all text-center cursor-pointer shadow-sm"
+                       >
+                         Back
+                       </button>
+                       <button
+                         type="button"
+                         onClick={handleNextStep}
+-                        disabled={!githubConnected}
+-                        className="flex-1 py-2 text-[15px] font-bold text-white bg-[#ea5455] hover:brightness-95 rounded-[3px] transition-all text-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+-                        style={{ boxShadow: "0.2rem 0.2rem #111827" }}
++                        className="flex-1 py-3 text-[14px] font-bold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl transition-all text-center cursor-pointer shadow"
+                       >
+-                        Continue
++                        {user?.resumeUploaded ? "Synthesize Digital Twin" : "Skip & Synthesize"}
+                       </button>
+                     </div>
+                   </div>
+                 )}
+ 
+-                {/* STEP 4: Connect LinkedIn */}
++                {/* STEP 4: Launching digital twin */}
+                 {step === 4 && (
+-                  <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
+-                    {linkedinConnected ? (
+-                      <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl p-5 text-center flex flex-col items-center gap-2.5 animate-in zoom-in-95 duration-300">
+-                        <div className="w-10 h-10 bg-emerald-100 border border-emerald-200 rounded-full flex items-center justify-center">
+-                          <Check className="h-5 w-5 text-emerald-600" />
+-                        </div>
+-                        <div>
+-                          <div className="font-bold text-[14px]">LinkedIn Profile Synced</div>
+-                          <div className="text-xs text-emerald-600 mt-1 font-semibold">Connected as {user?.email}</div>
+-                        </div>
+-                      </div>
+-                    ) : (
+-                      <div className="flex flex-col items-center justify-center py-6 text-center bg-gray-50 border border-gray-200 rounded-xl p-4">
+-                        <button
+-                          type="button"
+-                          onClick={handleConnectLinkedin}
+-                          disabled={connectingLinkedin}
+-                          className="flex items-center justify-center gap-2 bg-[#0077b5] hover:bg-[#00669c] text-white text-[14px] font-bold py-2.5 px-6 rounded-[3px] transition-all cursor-pointer"
+-                          style={{ boxShadow: "0.2rem 0.2rem #111827", width: "100%", maxWidth: "260px" }}
+-                        >
+-                          {connectingLinkedin ? (
+-                            <Loader2 className="w-4 h-4 animate-spin" />
+-                          ) : (
+-                            <>
+-                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+-                                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+-                              </svg>
+-                              <span>Connect LinkedIn Profile</span>
+-                            </>
+-                          )}
+-                        </button>
+-                        <span className="text-xs text-gray-500 mt-3 font-semibold">Verify details directly via LinkedIn</span>
+-                      </div>
+-                    )}
+-
+-                    <div className="flex gap-4 pt-2">
+-                      <button
+-                        type="button"
+-                        onClick={() => setStep(3)}
+-                        className="flex-1 py-2 text-[15px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-[3px] transition-all text-center cursor-pointer"
+-                        style={{ boxShadow: "0.2rem 0.2rem #111827" }}
+-                      >
+-                        Back
+-                      </button>
+-                      <button
+-                        type="button"
+-                        onClick={handleNextStep}
+-                        className="flex-1 py-2 text-[15px] font-bold text-white bg-[#ea5455] hover:brightness-95 rounded-[3px] transition-all text-center cursor-pointer"
+-                        style={{ boxShadow: "0.2rem 0.2rem #111827" }}
+-                      >
+-                        {linkedinConnected ? "Continue" : "Skip & Continue"}
+-                      </button>
+-                    </div>
+-                  </div>
+-                )}
+-
+-                {/* STEP 5: Generate Career Twin */}
+-                {step === 5 && (
+-                  <div className="space-y-4 py-2 flex flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
++                  <div className="space-y-6 py-2 flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
+                     <div className="relative w-16 h-16 flex items-center justify-center mb-1">
+-                      <div className="absolute inset-0 rounded-full border-4 border-[#ee7344]/20 animate-pulse"></div>
+-                      <div className="absolute inset-0 rounded-full border-4 border-t-[#ee7344] animate-spin duration-1000"></div>
+-                      <BrainCircuit className="w-8 h-8 text-[#ee7344] animate-pulse" />
++                      <div className="absolute inset-0 rounded-full border-4 border-[#4f46e5]/20 animate-pulse"></div>
++                      <div className="absolute inset-0 rounded-full border-4 border-t-[#4f46e5] animate-spin duration-1000"></div>
++                      <BrainCircuit className="w-8 h-8 text-[#4f46e5] animate-pulse" />
+                     </div>
+ 
+                     <div className="space-y-1">
+                       <h3 className="text-lg font-bold text-gray-900 flex items-center justify-center gap-1.5" style={{ fontFamily: "Unbounded, sans-serif" }}>
+-                        <Sparkles className="w-4 h-4 text-[#ffc85c] animate-spin" />
+-                        Projecting Twin
++                        <Sparkles className="w-4 h-4 text-[#ffc85c] animate-pulse" />
++                        Calibrating Twin
+                       </h3>
+-                      <p className="text-[11.5px] text-gray-500 max-w-[300px] mx-auto font-semibold">
+-                        Aggregating parameters to render your model.
++                      <p className="text-[12px] text-gray-500 max-w-[340px] mx-auto font-medium">
++                        Running cross-analyses to map SDE growth trajectories.
+                       </p>
+                     </div>
+ 
++                    {/* Connection Checklist status boxes */}
++                    <div className="w-full max-w-xs grid gap-2 text-left bg-white/40 p-4 rounded-2xl border border-gray-150 shadow-inner text-xs">
++                      <div className="flex justify-between items-center">
++                        <span className="text-gray-600">1. Google Authentication</span>
++                        <span className="text-emerald-600 font-bold flex items-center gap-1">✅ Connected</span>
++                      </div>
++                      <div className="flex justify-between items-center">
++                        <span className="text-gray-600">2. GitHub Repositories</span>
++                        {user?.githubConnected ? (
++                          <span className="text-emerald-600 font-bold flex items-center gap-1">✅ Connected</span>
++                        ) : (
++                          <span className="text-amber-600 font-semibold flex items-center gap-1">⚠️ Limited Mode</span>
++                        )}
++                      </div>
++                      <div className="flex justify-between items-center">
++                        <span className="text-gray-600">3. Professional Resume</span>
++                        {user?.resumeUploaded ? (
++                          <span className="text-emerald-600 font-bold flex items-center gap-1">✅ Scanned</span>
++                        ) : (
++                          <span className="text-amber-600 font-semibold flex items-center gap-1">⚠️ Not Scanned</span>
++                        )}
++                      </div>
++                    </div>
++
+                     {/* Progress bar */}
+-                    <div className="w-full max-w-xs bg-gray-100 border border-gray-200 h-2.5 rounded-full overflow-hidden p-0.5">
++                    <div className="w-full max-w-xs bg-gray-200/60 border border-gray-300/30 h-3 rounded-full overflow-hidden p-0.5 shadow-inner">
+                       <div 
+-                        className="bg-gradient-to-r from-[#ee7344] to-[#ffc85c] h-full rounded-full transition-all duration-500" 
++                        className="bg-gradient-to-r from-[#4f46e5] to-[#06b6d4] h-full rounded-full transition-all duration-500" 
+                         style={{ width: `${generationProgress}%` }}
+                       />
+                     </div>
+ 
+-                    {/* Generating Logs */}
+-                    <div className="w-full max-w-xs bg-gray-900 border border-gray-800 rounded-xl p-4 h-28 overflow-y-auto text-left font-mono text-[10px] text-[#ffc85c] space-y-1 shadow-inner">
+-                      <div className="text-gray-500">&gt; Initializing synthesis core...</div>
++                    {/* Generating Logs console */}
++                    <div className="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-xl p-4 h-28 overflow-y-auto text-left font-mono text-[10px] text-emerald-400 space-y-1 shadow-2xl">
++                      <div className="text-gray-500">&gt; Starting digital twin calibration...</div>
+                       {generationLogs.map((log, i) => (
+                         <div key={i} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                           <span className="text-gray-500">&gt;</span> {log}
+                         </div>
+                       ))}
+                       {generationProgress === 100 && (
+-                        <div className="text-emerald-400 font-bold animate-pulse">&gt; Twin generated successfully. Launching...</div>
++                        <div className="text-emerald-400 font-bold animate-pulse">&gt; Calibration completed. Synchronizing session...</div>
+                       )}
+                     </div>
+-
+-                    {saving && (
+-                      <div className="flex items-center gap-2 text-[11px] text-gray-500 animate-pulse font-semibold">
+-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#ee7344]" />
+-                        Finalizing parameters...
+-                      </div>
+-                    )}
+                   </div>
+                 )}
+ 
+@@ -852,7 +837,6 @@ export default function OnboardingPage() {
+ 
+           </section>
+ 
+-          {/* Decorative Vectors */}
+           <div className="vector-1" style={{ top: "8%", left: "8%" }}></div>
+           <div className="vector-2" style={{ top: "6%", left: "80%" }}></div>
+           <div className="vector-3" style={{ top: "82%", left: "45%" }}></div>

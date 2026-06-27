@@ -1,13 +1,6 @@
 {
   "users": [
     {
-      "id": "0k0wx11xzgmq",
-      "email": "harshsingh3989@gmail.com",
-      "passwordHash": "testtest",
-      "role": "STUDENT",
-      "createdAt": "2026-06-22T16:00:00.625Z"
-    },
-    {
       "id": "8afxqtmc0os",
       "email": "priya.sharma@skillsprint.ai",
       "passwordHash": null,
@@ -41,29 +34,39 @@
       "passwordHash": null,
       "role": "STUDENT",
       "createdAt": "2026-06-22T18:18:23.505Z"
+    },
+    {
+      "id": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "email": "harshsingh3989@gmail.com",
+      "passwordHash": "testtest",
+      "role": "STUDENT",
+      "createdAt": "2026-06-22T16:00:00.625Z"
+    },
+    {
+      "id": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "email": "hs95801438@gmail.com",
+      "passwordHash": null,
+      "role": "STUDENT",
+      "createdAt": "2026-06-26T19:26:03.494Z"
     }
   ],
   "profiles": [
     {
       "id": "rfhbmvw568l",
-      "userId": "0k0wx11xzgmq",
-      "fullName": "Harsh",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "fullName": "Harsh Singh",
       "college": "aktu",
-      "branch": "Computer science",
-      "graduationYear": 2028,
+      "branch": "Computer Science",
+      "graduationYear": 2026,
       "cgpa": 8.5,
-      "githubUsername": "@h4rsh740",
+      "githubUsername": "h4rsh740",
       "targetRole": "Frontend Developer",
       "skills": [
         "React",
-        ".three.js",
-        "TypeScript",
-        "JavaScript",
-        "HTML",
         "CSS"
       ],
       "studyHoursPerWeek": 10,
-      "updatedAt": "2026-06-22T17:12:18.220Z"
+      "updatedAt": "2026-06-27T06:36:02.359Z"
     },
     {
       "id": "lai41gde7nb",
@@ -106,6 +109,24 @@
       ],
       "studyHoursPerWeek": 10,
       "updatedAt": "2026-06-22T16:15:28.283Z"
+    },
+    {
+      "id": "7v9a86kbkvn",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "fullName": "hs95801438",
+      "college": "aktu",
+      "branch": "Computer Science",
+      "graduationYear": 2026,
+      "cgpa": 8,
+      "githubUsername": "h4rsh740",
+      "targetRole": "Frontend Developer",
+      "skills": [
+        "TypeScript",
+        "React",
+        "JavaScript"
+      ],
+      "studyHoursPerWeek": 10,
+      "updatedAt": "2026-06-26T19:32:32.938Z"
     }
   ],
   "resumes": [
@@ -747,20 +768,1784 @@
   ],
   "portfolios": [
     {
-      "id": "tkrzweuvqf",
-      "userId": "0k0wx11xzgmq",
+      "id": "qstv327eyp",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
       "portfolioUrl": "https://my-profile-r222.vercel.app/",
-      "designScore": 84,
-      "performanceScore": 78,
-      "seoScore": 82,
+      "designScore": 75,
+      "performanceScore": 92,
+      "seoScore": 65,
       "suggestions": [
-        "Compress hero banner image assets to improve Initial Input Delay from 2.8s to under 1.2s.",
-        "Add description and keyword meta tags to optimize crawling indices on Google and Bing.",
-        "Adjust body contrast ratios on dark mode layouts to satisfy WCAG AA accessibility standards.",
-        "Include a clickable link pointing directly to your AI Career Twin timeline validation page."
+        "Improve semantic HTML structure to better support screen readers and search crawlers.",
+        "Add meta tags for Open Graph and Twitter cards to improve social media link previews.",
+        "Increase text contrast ratios in specific sections to meet WCAG accessibility standards.",
+        "Implement lazy loading for portfolio project images to further optimize initial load time.",
+        "Include a formal 'Contact Me' section with a functional form or direct email link."
       ],
-      "createdAt": "2026-06-22T16:04:04.208Z"
+      "createdAt": "2026-06-26T20:35:51.045Z"
     }
   ],
-  "hackathons": []
+  "hackathons": [],
+  "github_accounts": [
+    {
+      "id": "jvjy699cn9",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "username": "h4rsh740",
+      "displayName": "Harsh Singh",
+      "avatarUrl": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=256&auto=format&fit=crop",
+      "email": "hs95801438@gmail.com",
+      "publicRepos": 18,
+      "privateRepos": 2,
+      "updatedAt": "2026-06-26T19:32:32.930Z"
+    },
+    {
+      "id": "p5a7y2105c",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "username": "h4rsh740",
+      "displayName": "h4rsh740",
+      "avatarUrl": "https://avatars.githubusercontent.com/u/166715720?v=4",
+      "email": "harshsingh3989@gmail.com",
+      "publicRepos": 19,
+      "privateRepos": 2,
+      "updatedAt": "2026-06-27T06:36:45.936Z"
+    }
+  ],
+  "linkedin_accounts": [],
+  "oauth_tokens": [
+    {
+      "id": "c7095sskf6f",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "provider": "github",
+      "accessToken": "ef0619f8eb6192e0f660faed:bd3353d91b58df501441cf458ab753739d7b7cb90330cfac37b2781f:5f3a002604b206adae29eef1153bed55",
+      "scopes": [
+        "read:user",
+        "repo"
+      ],
+      "updatedAt": "2026-06-26T19:32:32.938Z"
+    },
+    {
+      "id": "uyj2n4rgz1k",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "accessToken": "75be037708450886db8df9c2:40dab0f9da8b91e20ebf20365c0a25f2579e1e6f70a8f3ade2149413cc6bf872f4289237a4d8461e:451dc9e5f9b4341f68ee5876c2ae19b2",
+      "scopes": [
+        "read:org",
+        "read:user",
+        "repo",
+        "user:email"
+      ],
+      "updatedAt": "2026-06-27T06:36:02.357Z"
+    }
+  ],
+  "resume_files": [
+    {
+      "id": "pbjt0otz1dt",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "fileName": "My_Resume.pdf",
+      "fileUrl": "/uploads/X1bU4VlSIcOoiX2lGRLYWfBnkiy2/1782501453922_My_Resume.pdf",
+      "fileSize": 74602,
+      "fileType": "application/pdf",
+      "createdAt": "2026-06-26T19:17:33.923Z"
+    },
+    {
+      "id": "g2wblk6obur",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "fileName": "My_Resume.pdf",
+      "fileUrl": "/uploads/95yduvdn6rXyDMCvYp56aIQF2UW2/1782503000404_My_Resume.pdf",
+      "fileSize": 74602,
+      "fileType": "application/pdf",
+      "createdAt": "2026-06-26T19:43:20.405Z"
+    }
+  ],
+  "resume_analysis": [
+    {
+      "id": "x1s2za5ei9",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "atsScore": 55,
+      "resumeScore": 60,
+      "impactScore": 50,
+      "technicalScore": 57,
+      "formattingScore": 85,
+      "grammarScore": 90,
+      "weakBulletPoints": [
+        "Quantify Impact",
+        "ATS Formatting",
+        "Deepen Project Details"
+      ],
+      "missingMetrics": [
+        "Missing specific KPIs in projects"
+      ],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "atsScore": 55,
+        "resumeScore": 60,
+        "impactScore": 25,
+        "technicalScore": 65,
+        "improvedAtsScore": 88,
+        "projectsParsed": 3,
+        "keywordGaps": 8,
+        "extractedSignals": [
+          "Frontend Developer",
+          "WebXR",
+          "Three.js",
+          "UI Architecture",
+          "WordPress",
+          "Performance Optimization"
+        ],
+        "improvementSuggestions": [
+          {
+            "title": "Quantify Impact",
+            "description": "Add metrics (e.g., 'reduced load time by 30%', 'increased user engagement by 20%') to your experience bullets.",
+            "priority": "High",
+            "progress": 0
+          },
+          {
+            "title": "ATS Formatting",
+            "description": "The resume lacks clear sections for core languages (JavaScript, React, CSS) which are essential for ATS keyword matching.",
+            "priority": "High",
+            "progress": 20
+          },
+          {
+            "title": "Deepen Project Details",
+            "description": "Expand on the 'how' for your projects. Mention specific tech stacks used, API integrations, and challenges overcome.",
+            "priority": "Med",
+            "progress": 10
+          }
+        ],
+        "rewriteSuggestions": [
+          {
+            "original": "Leading frontend development and UI architecture for web products",
+            "improved": "Spearheaded frontend architecture for 3+ web products using React and Tailwind, reducing component render time by 25%."
+          },
+          {
+            "original": "Built an immersive augmented reality website using WebXR technologies",
+            "improved": "Developed an immersive AR web experience using WebXR and Three.js, achieving a 95+ Lighthouse accessibility score."
+          }
+        ],
+        "crossAnalysis": {
+          "githubMissingFromResume": [
+            "Portfolio site structure",
+            "CSS animation libraries",
+            "React/Next.js specific components"
+          ],
+          "resumeMissingFromGithub": [
+            "AR-based Website (WebXR)",
+            "Canon Camera Website",
+            "Aviator Game (Three.js)"
+          ],
+          "skillsWithoutEvidence": [
+            "WordPress (No visible themes or plugins in public repos)",
+            "Anime.js (No animation-heavy projects visible in repo history)"
+          ],
+          "reposMissingReadme": [
+            "Most repositories lack comprehensive documentation for local setup or contribution."
+          ],
+          "reposMissingDeployments": [
+            "Majority of repositories lack GitHub Pages or Vercel link configuration."
+          ],
+          "suggestions": [
+            "Pin your best projects to your GitHub profile.",
+            "Ensure every project repository includes a README.md with screenshots and a live demo link."
+          ]
+        },
+        "originalResume": {
+          "personalInfo": {
+            "name": "Harsh Singh",
+            "email": "harshsingh3989@gmail.com",
+            "phone": "9839429068",
+            "github": "github.com/h4rsh740",
+            "linkedin": "linkedin.com/in/cyphervrsn"
+          },
+          "summary": "Passionate Frontend Developer with 2 years of experience building modern, responsive web applications.",
+          "skills": [
+            "Web Development",
+            "Frontend",
+            "Wordpress",
+            "Three.js",
+            "Anime.js",
+            "WebXR"
+          ],
+          "experience": [
+            {
+              "company": "BrandScalar",
+              "role": "Freelancer & Frontend Developer",
+              "date": "2024 – Present",
+              "bullets": [
+                "Leading frontend development and UI architecture for web products",
+                "Building responsive and scalable user interfaces"
+              ]
+            }
+          ],
+          "projects": [
+            {
+              "title": "AR-based Website (WebXR)",
+              "description": "Built an immersive augmented reality website using WebXR technologies",
+              "bullets": [
+                "Built an immersive augmented reality website using WebXR technologies"
+              ]
+            }
+          ],
+          "education": [
+            {
+              "institution": "R.R. Institute of Modern Technology, Lucknow",
+              "degree": "B.Tech (Pursuing)",
+              "date": "Present",
+              "gpa": "N/A"
+            }
+          ]
+        },
+        "improvedResume": {
+          "personalInfo": {
+            "name": "Harsh Singh",
+            "email": "harshsingh3989@gmail.com",
+            "phone": "9839429068",
+            "github": "github.com/h4rsh740",
+            "linkedin": "linkedin.com/in/cyphervrsn"
+          },
+          "summary": "Results-driven Frontend Developer with 2+ years of experience specializing in high-performance UI architecture, 3D web visualizations (Three.js), and responsive web applications.",
+          "skills": [
+            "JavaScript (ES6+)",
+            "React.js",
+            "Three.js",
+            "WebXR",
+            "CSS3/Tailwind",
+            "WordPress",
+            "UI/UX Design",
+            "Performance Optimization"
+          ],
+          "experience": [
+            {
+              "company": "BrandScalar",
+              "role": "Frontend Developer",
+              "date": "2024 – Present",
+              "bullets": [
+                "Architected core UI components, improving site load times by 30% through code splitting and asset optimization.",
+                "Engineered responsive interfaces for client-facing products, resulting in a 15% increase in mobile conversion rates."
+              ]
+            }
+          ],
+          "projects": [
+            {
+              "title": "Immersive AR Web Experience (WebXR)",
+              "description": "Advanced augmented reality implementation using WebXR",
+              "bullets": [
+                "Engineered a browser-based AR interaction layer, reducing user friction for product visualization by 40%."
+              ]
+            }
+          ],
+          "education": {
+            "institution": "R.R. Institute of Modern Technology, Lucknow",
+            "degree": "B.Tech in Computer Science (In-Progress)",
+            "date": "Expected 2026",
+            "gpa": "N/A"
+          }
+        }
+      },
+      "createdAt": "2026-06-26T19:17:33.926Z"
+    },
+    {
+      "id": "ktno4mzz0ki",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "atsScore": 75,
+      "resumeScore": 82,
+      "impactScore": 68,
+      "technicalScore": 78,
+      "formattingScore": 85,
+      "grammarScore": 90,
+      "weakBulletPoints": [
+        "Incorporate metrics in project achievements",
+        "Incorporate Next.js and TypeScript keywords",
+        "Verify unlinked repositories"
+      ],
+      "missingMetrics": [
+        "Missing specific KPIs in projects"
+      ],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "resumeScore": 82,
+        "atsScore": 75,
+        "impactScore": 68,
+        "technicalScore": 78,
+        "improvedAtsScore": 95,
+        "projectsParsed": 2,
+        "keywordGaps": 7,
+        "extractedSignals": [
+          "React",
+          "JavaScript",
+          "HTML",
+          "CSS",
+          "Git",
+          "REST APIs"
+        ],
+        "improvementSuggestions": [
+          {
+            "title": "Incorporate metrics in project achievements",
+            "description": "Specify load speed increases, bundle size decreases, or user size targets.",
+            "priority": "High",
+            "progress": 40
+          },
+          {
+            "title": "Incorporate Next.js and TypeScript keywords",
+            "description": "These are core missing skills identified from SDE job descriptions.",
+            "priority": "High",
+            "progress": 20
+          },
+          {
+            "title": "Verify unlinked repositories",
+            "description": "Your connected GitHub has a weather-dashboard repo not listed on the resume.",
+            "priority": "Med",
+            "progress": 60
+          }
+        ],
+        "rewriteSuggestions": [
+          {
+            "original": "worked on responsive pages using CSS modules.",
+            "improved": "Optimized 12 core administrative pages using Tailwind CSS and React, decreasing Cumulative Layout Shift (CLS) by 28% and boosting Lighthouse accessibility score to 98%."
+          }
+        ],
+        "crossAnalysis": {
+          "githubMissingFromResume": [
+            "weather-dashboard",
+            "career-twin-ui"
+          ],
+          "resumeMissingFromGithub": [
+            "E-commerce App Clone"
+          ],
+          "skillsWithoutEvidence": [
+            "PostgreSQL",
+            "Docker"
+          ],
+          "reposMissingReadme": [
+            "dsa-notes",
+            "weather-dashboard"
+          ],
+          "reposMissingDeployments": [
+            "dsa-notes",
+            "weather-dashboard"
+          ],
+          "suggestions": [
+            "Include links to live web deployments for your weather-dashboard project.",
+            "Write a detailed README.md file for dsa-notes repository to showcase clean documentation standards.",
+            "Mention Next.js and TypeScript on your resume since you have commit history for them."
+          ]
+        },
+        "originalResume": {
+          "personalInfo": {
+            "name": "hs95801438",
+            "email": "hs95801438@gmail.com",
+            "phone": "+91 99999 88888",
+            "github": "github.com/h4rsh740",
+            "linkedin": "linkedin.com/in/candidate"
+          },
+          "summary": "Undergraduate student looking for a Web Developer intern role. Familiar with React and web layout design.",
+          "skills": [
+            "React",
+            "JavaScript",
+            "HTML",
+            "CSS",
+            "REST APIs",
+            "PostgreSQL",
+            "Docker"
+          ],
+          "experience": [
+            {
+              "company": "Web Solutions",
+              "role": "SDE Intern",
+              "date": "Jan 2025 - Apr 2025",
+              "bullets": [
+                "Helped implement frontend components in React.",
+                "Wrote styling classes using CSS modules.",
+                "Fixed bugs in administrative tools."
+              ]
+            }
+          ],
+          "projects": [
+            {
+              "title": "E-commerce App Clone",
+              "description": "Built an e-commerce platform clone displaying product catalogs.",
+              "bullets": [
+                "Rendered responsive layouts for mobile and tablet views.",
+                "Stored dummy products in local storage variables."
+              ]
+            }
+          ],
+          "education": [
+            {
+              "institution": "Engineering College",
+              "degree": "B.Tech in Computer Science",
+              "date": "2022 - 2026",
+              "gpa": "8.2/10.0"
+            }
+          ]
+        },
+        "improvedResume": {
+          "personalInfo": {
+            "name": "hs95801438",
+            "email": "hs95801438@gmail.com",
+            "phone": "+91 99999 88888",
+            "github": "github.com/h4rsh740",
+            "linkedin": "linkedin.com/in/candidate"
+          },
+          "summary": "Performance-oriented SDE Candidate with hands-on experience in building scalable React modules, implementing event rate-limiters, and optimizing bundle compile sizing. Shipped web platforms reducing page load delays by 28%.",
+          "skills": [
+            "React",
+            "JavaScript",
+            "TypeScript",
+            "Tailwind CSS",
+            "HTML5",
+            "CSS3",
+            "REST APIs",
+            "Git",
+            "Jest (Unit Testing)",
+            "Lighthouse Audits"
+          ],
+          "experience": [
+            {
+              "company": "Web Solutions",
+              "role": "SDE Intern",
+              "date": "Jan 2025 - Apr 2025",
+              "bullets": [
+                "Refactored 12+ administrative frontend views using React hooks, reducing bundle file size by 15% and boosting development speed.",
+                "Authored responsive layout modules using Tailwind CSS, aligning styling sheets to satisfy WCAG AA accessibility standards.",
+                "Diagnosed and resolved rendering bottlenecks on dashboard tables, yielding a 22% decrease in Time-to-Interactive (TTI)."
+              ]
+            }
+          ],
+          "projects": [
+            {
+              "title": "E-commerce App Clone",
+              "description": "Architected a responsive e-commerce web platform integrating third-party APIs.",
+              "bullets": [
+                "Spearheaded responsive layouts using CSS flexboxes and media hooks, yielding 99% device render alignment on mobile.",
+                "Optimized client state management using React Context API to handle product catalogues, decreasing page reload overheads by 34%."
+              ]
+            }
+          ],
+          "education": [
+            {
+              "institution": "Engineering College",
+              "degree": "B.Tech in Computer Science",
+              "date": "2022 - 2026",
+              "gpa": "8.2/10.0"
+            }
+          ]
+        }
+      },
+      "createdAt": "2026-06-26T19:43:20.406Z"
+    }
+  ],
+  "github_analysis": [
+    {
+      "id": "lyakoeo04cl",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "githubAccountId": "xq5vmxtsts",
+      "publicReposCount": 19,
+      "privateReposCount": 2,
+      "pinnedRepos": [
+        {
+          "name": "skillsprint",
+          "signal": "Medium",
+          "insight": "The project shows recent development activity and documentation, but the lack of CI/CD and zero community engagement suggests it is in an early or experimental stage; implementation of automated testing and deployment pipelines is recommended to improve project reliability."
+        },
+        {
+          "name": "my-github-activity",
+          "signal": "Low",
+          "insight": "The repository shows low community engagement with zero stars and forks, and the large README relative to its unknown language suggests it may be a personal utility or learning project."
+        },
+        {
+          "name": "AI-Bias-Inspector",
+          "signal": "Low",
+          "insight": "The project is in an early-stage development phase with minimal community adoption; verify the quality of the bias-detection methodology and documentation before integrating it into critical pipelines."
+        },
+        {
+          "name": "VoiceBridge",
+          "signal": "Low",
+          "insight": "The project lacks basic documentation, engagement, and automated testing, suggesting it is currently an early-stage or abandoned experimental codebase."
+        },
+        {
+          "name": "Household-Energy-Advisor",
+          "signal": "Low",
+          "insight": "The repository shows minimal community activity and lacks automated testing or CI/CD pipelines, suggesting it is likely a personal project or an early-stage prototype requiring more robust engineering practices for production use."
+        }
+      ],
+      "languagesUsed": [
+        {
+          "name": "TypeScript",
+          "percentage": 66
+        },
+        {
+          "name": "JavaScript",
+          "percentage": 23
+        },
+        {
+          "name": "CSS",
+          "percentage": 4
+        },
+        {
+          "name": "Python",
+          "percentage": 4
+        },
+        {
+          "name": "HTML",
+          "percentage": 3
+        },
+        {
+          "name": "Dockerfile",
+          "percentage": 0
+        }
+      ],
+      "commitHistory": {
+        "streak": 27,
+        "prCount": 0,
+        "resolvedIssues": 0,
+        "totalCommits": 27
+      },
+      "stars": 1,
+      "forks": 0,
+      "openIssues": 0,
+      "closedIssues": 0,
+      "pullRequests": 0,
+      "readmeQuality": "Medium",
+      "docsQuality": "Medium",
+      "branchStrategy": "GitFlow Standard",
+      "deploymentStatus": "Active Integrations",
+      "cicdStatus": "Active GitHub Actions",
+      "codeOwnership": "100% Owner",
+      "contributionStreak": 27,
+      "portfolioCompleteness": 44,
+      "suggestions": [
+        "Ensure all repositories have custom README.md document guides.",
+        "Review CI/CD deployment outputs for any warning signals.",
+        "Archive inactive and duplicate learning/note repositories to clean portfolio footprint."
+      ],
+      "createdAt": "2026-06-27T06:36:30.732Z"
+    },
+    {
+      "id": "ep95j53j7pi",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "githubAccountId": "9opd0lycprw",
+      "publicReposCount": 19,
+      "privateReposCount": 2,
+      "pinnedRepos": [
+        {
+          "name": "skillsprint",
+          "signal": "Medium",
+          "insight": "The repository shows consistent recent activity and documentation, but the lack of CI/CD and zero community metrics suggest it is in an early-stage or experimental phase."
+        },
+        {
+          "name": "my-github-activity",
+          "signal": "Low",
+          "insight": "The repository shows low community engagement with zero stars and forks, and lacks standard CI/CD practices despite recent activity, suggesting it is likely a personal or experimental project."
+        },
+        {
+          "name": "AI-Bias-Inspector",
+          "signal": "Low",
+          "insight": "The repository shows minimal community adoption and activity despite having CI/CD and a detailed README. It likely serves as a personal project or an early-stage tool, requiring further development and outreach to establish credibility."
+        },
+        {
+          "name": "VoiceBridge",
+          "signal": "Low",
+          "insight": "The repository lacks basic documentation, automated testing, and community traction, suggesting it is currently an early-stage or experimental project that may not be production-ready."
+        },
+        {
+          "name": "Household-Energy-Advisor",
+          "signal": "Low",
+          "insight": "The repository shows minimal activity and lacks standard DevOps practices like CI/CD, suggesting it is likely a stagnant personal project or an abandoned prototype."
+        }
+      ],
+      "languagesUsed": [
+        {
+          "name": "TypeScript",
+          "percentage": 66
+        },
+        {
+          "name": "JavaScript",
+          "percentage": 23
+        },
+        {
+          "name": "CSS",
+          "percentage": 4
+        },
+        {
+          "name": "Python",
+          "percentage": 4
+        },
+        {
+          "name": "HTML",
+          "percentage": 3
+        },
+        {
+          "name": "Dockerfile",
+          "percentage": 0
+        }
+      ],
+      "commitHistory": {
+        "streak": 27,
+        "prCount": 0,
+        "resolvedIssues": 0,
+        "totalCommits": 27
+      },
+      "stars": 1,
+      "forks": 0,
+      "openIssues": 0,
+      "closedIssues": 0,
+      "pullRequests": 0,
+      "readmeQuality": "Medium",
+      "docsQuality": "Medium",
+      "branchStrategy": "GitFlow Standard",
+      "deploymentStatus": "Active Integrations",
+      "cicdStatus": "Active GitHub Actions",
+      "codeOwnership": "100% Owner",
+      "contributionStreak": 27,
+      "portfolioCompleteness": 44,
+      "suggestions": [
+        "Ensure all repositories have custom README.md document guides.",
+        "Review CI/CD deployment outputs for any warning signals.",
+        "Archive inactive and duplicate learning/note repositories to clean portfolio footprint."
+      ],
+      "createdAt": "2026-06-27T06:36:45.940Z"
+    }
+  ],
+  "linkedin_analysis": [],
+  "career_scores": [
+    {
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "overallScore": 64,
+      "resumeScore": 60,
+      "githubScore": 75,
+      "portfolioScore": 75,
+      "interviewReadiness": 60,
+      "hiringScore": 49,
+      "details": {
+        "history": [
+          {
+            "month": "April",
+            "score": 58
+          },
+          {
+            "month": "May",
+            "score": 67
+          },
+          {
+            "month": "June",
+            "score": 64
+          }
+        ]
+      },
+      "updatedAt": "2026-06-27T06:39:35.480Z"
+    },
+    {
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "overallScore": 69,
+      "resumeScore": 82,
+      "githubScore": 75,
+      "portfolioScore": 75,
+      "interviewReadiness": 60,
+      "hiringScore": 54,
+      "details": {
+        "history": [
+          {
+            "month": "April",
+            "score": 58
+          },
+          {
+            "month": "May",
+            "score": 67
+          },
+          {
+            "month": "June",
+            "score": 69
+          }
+        ]
+      },
+      "updatedAt": "2026-06-26T19:43:45.353Z"
+    }
+  ],
+  "career_twins": [
+    {
+      "id": "zl33yf6ndxl",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "currentSkills": [
+        "React",
+        "CSS"
+      ],
+      "strongSkills": [
+        "React",
+        "CSS/SCSS",
+        "JavaScript",
+        "Responsive Web Design"
+      ],
+      "weakSkills": [
+        "TypeScript",
+        "State Management (Redux/Zustand)",
+        "Unit Testing (Jest/Cypress)",
+        "API Integration/Async handling"
+      ],
+      "preferredStack": [
+        "React",
+        "Tailwind CSS",
+        "Next.js",
+        "Vite"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Meta",
+        "Vercel",
+        "Atlassian"
+      ],
+      "prediction3m": {
+        "title": "Portfolio Consolidation",
+        "subtitle": "Refining GitHub repositories and addressing ATS gaps to improve score above 75"
+      },
+      "prediction6m": {
+        "title": "Junior Frontend Developer Hire",
+        "subtitle": "Securing a mid-market entry-level role after building a professional LinkedIn presence"
+      },
+      "prediction12m": {
+        "title": "Product Engineer Transition",
+        "subtitle": "Contributing to large-scale production codebases with mastery in Next.js and Testing"
+      },
+      "salaryProjection": "₹6L - ₹10L / yr",
+      "riskFactors": [
+        "Low ATS score indicates poor resume formatting and keyword density",
+        "Lack of LinkedIn presence limits networking and recruiter reach",
+        "Limited exposure to enterprise-grade state management tools",
+        "Potential over-reliance on CSS without sufficient JavaScript logic skills"
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Open Source Contributions",
+          "impact": "High: Demonstrates collaborative coding and real-world project debugging skills to recruiters"
+        },
+        {
+          "title": "TypeScript Migration",
+          "impact": "High: Critical requirement for modern enterprise stacks, significantly increasing market value"
+        }
+      ],
+      "createdAt": "2026-06-26T19:17:41.506Z"
+    },
+    {
+      "id": "spi6ii19fic",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "currentSkills": [
+        "React",
+        "CSS"
+      ],
+      "strongSkills": [
+        "React",
+        "CSS",
+        "Version Control (Git)"
+      ],
+      "weakSkills": [
+        "TypeScript",
+        "State Management (Redux/Zustand)",
+        "Unit Testing (Jest/Cypress)",
+        "Network/API Integration"
+      ],
+      "preferredStack": [
+        "React.js",
+        "Next.js",
+        "Tailwind CSS",
+        "JavaScript ES6+"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Meta",
+        "Vercel",
+        "Zomato",
+        "Swiggy"
+      ],
+      "prediction3m": {
+        "title": "Portfolio Consolidation",
+        "subtitle": "Complete transition from basic React projects to full-stack integration using Next.js and external APIs."
+      },
+      "prediction6m": {
+        "title": "Market Entry",
+        "subtitle": "Securing a Junior Frontend role with a focus on UI-heavy consumer applications."
+      },
+      "prediction12m": {
+        "title": "Professional Stabilization",
+        "subtitle": "Transitioning to a mid-level contributor role with ownership of complex frontend components."
+      },
+      "salaryProjection": "₹6L - ₹10L / yr",
+      "riskFactors": [
+        "Low ATS score indicates poor resume keyword optimization",
+        "Lack of professional LinkedIn presence limits networking reach",
+        "Limited depth in modern state management and TypeScript"
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Resume Optimization",
+          "impact": "Improving ATS score to 80+ will significantly increase recruiter interview calls."
+        },
+        {
+          "title": "TypeScript Mastery",
+          "impact": "Adding TypeScript will make the candidate eligible for 70% more premium job openings."
+        },
+        {
+          "title": "Open Source Contribution",
+          "impact": "Actively contributing to active GitHub repos will establish technical credibility and networking."
+        }
+      ],
+      "createdAt": "2026-06-26T19:17:42.194Z"
+    },
+    {
+      "id": "88xp01lptpj",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "currentSkills": [
+        "TypeScript",
+        "React",
+        "JavaScript"
+      ],
+      "strongSkills": [
+        "TypeScript",
+        "React",
+        "JavaScript",
+        "Web Architecture"
+      ],
+      "weakSkills": [
+        "State Management Advanced Patterns",
+        "Testing Frameworks (Jest/Cypress)",
+        "CI/CD Pipelines",
+        "Personal Branding"
+      ],
+      "preferredStack": [
+        "React",
+        "Next.js",
+        "TypeScript",
+        "Tailwind CSS"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Vercel",
+        "Figma",
+        "Atlassian",
+        "Postman"
+      ],
+      "prediction3m": {
+        "title": "Upskilling Phase",
+        "subtitle": "Achieving advanced proficiency in Next.js and React testing suites to boost ATS score above 85."
+      },
+      "prediction6m": {
+        "title": "Market Entry",
+        "subtitle": "Transitioning into a Mid-Level Frontend Engineer role within a fast-paced product startup."
+      },
+      "prediction12m": {
+        "title": "Technical Authority",
+        "subtitle": "Leading frontend modules and contributing to open-source, establishing a visible presence in the TypeScript ecosystem."
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Lack of professional LinkedIn presence limiting inbound recruiter reach",
+        "Dependency on core frontend skills without cloud/backend exposure",
+        "ATS score of 75 indicates need for resume optimization against specific JD keywords"
+      ],
+      "growthOpportunities": [
+        {
+          "title": "GitHub Portfolio Enhancement",
+          "impact": "High: Converting hobby projects into production-grade repositories increases technical credibility."
+        },
+        {
+          "title": "Networking via LinkedIn",
+          "impact": "Critical: Building a professional brand will unlock hidden market opportunities and referral loops."
+        },
+        {
+          "title": "Full-stack Competency",
+          "impact": "Medium: Learning Node.js/PostgreSQL will transition the profile to a Full-stack developer, increasing compensation potential."
+        }
+      ],
+      "createdAt": "2026-06-26T19:43:28.411Z"
+    },
+    {
+      "id": "k25lohlpnaj",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "currentSkills": [
+        "TypeScript",
+        "React",
+        "JavaScript"
+      ],
+      "strongSkills": [
+        "TypeScript",
+        "React",
+        "JavaScript",
+        "Web Performance Optimization"
+      ],
+      "weakSkills": [
+        "System Design",
+        "Backend Integration (Node.js/GraphQL)",
+        "Cloud Infrastructure (AWS/Vercel)",
+        "State Management Advanced Patterns"
+      ],
+      "preferredStack": [
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "Next.js"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Vercel",
+        "Meta",
+        "Atlassian",
+        "Adobe"
+      ],
+      "prediction3m": {
+        "title": "Portfolio Refinement",
+        "subtitle": "Optimizing GitHub repository READMEs and completing a full-stack project to demonstrate backend competency."
+      },
+      "prediction6m": {
+        "title": "Mid-Level Transition",
+        "subtitle": "Successfully transitioning into a Frontend Developer role with a focus on component architecture and scalable UI systems."
+      },
+      "prediction12m": {
+        "title": "Senior Contributor Path",
+        "subtitle": "Taking ownership of critical frontend features and mentoring junior developers or contributing to major open-source UI libraries."
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Lack of LinkedIn presence limits recruiter visibility and networking potential",
+        "ATS score of 75 indicates need for resume formatting and keyword optimization",
+        "High competition in pure frontend roles requires differentiation via project depth"
+      ],
+      "growthOpportunities": [
+        {
+          "title": "LinkedIn Personal Branding",
+          "impact": "High: Increases inbound recruiter inquiries by 40% and builds professional authority."
+        },
+        {
+          "title": "Open Source Contributions",
+          "impact": "Medium: Improves code quality and demonstrates collaborative engineering capabilities."
+        },
+        {
+          "title": "Resume ATS Optimization",
+          "impact": "High: Increases interview conversion rate by ensuring profile passes automated screening filters."
+        }
+      ],
+      "createdAt": "2026-06-26T19:43:34.001Z"
+    }
+  ],
+  "recommended_projects": [
+    {
+      "id": "w4f8g95xob",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "Secure Multi-Tenant Real-time SaaS Dashboard",
+      "difficulty": "Intermediate",
+      "timeRequired": "4 weeks",
+      "technologies": [
+        "React",
+        "NextAuth.js",
+        "Redis",
+        "Stripe API",
+        "Docker"
+      ],
+      "resumeValue": 92,
+      "portfolioValue": 90,
+      "githubValue": 88,
+      "hiringImpact": 94,
+      "companiesWhereUseful": [
+        "Stripe",
+        "Auth0",
+        "Vercel",
+        "SaaS Startups"
+      ],
+      "skillsGained": [
+        "JWT implementation",
+        "Subscription billing cycles",
+        "Redis caching",
+        "Containerized deployment"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "How do you handle race conditions during concurrent subscription updates?",
+          "answerKey": "I use Redis distributed locks (Redlock) or database-level transactions to ensure atomicity during state changes."
+        },
+        {
+          "question": "How do you secure multi-tenant data isolation?",
+          "answerKey": "By scoping database queries using tenant_id middleware and validating JWT claims against the requested resource IDs."
+        }
+      ],
+      "learningOutcome": "Understanding complex Auth workflows and monetized user state management.",
+      "businessValue": "Demonstrates the ability to ship revenue-generating features in a secure, scalable production environment.",
+      "estimatedCompletionTime": "4 weeks",
+      "createdAt": "2026-06-26T19:17:46.686Z"
+    },
+    {
+      "id": "s0p8zaq3su",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "CI/CD Orchestrated Analytics Performance Monitor",
+      "difficulty": "Advanced",
+      "timeRequired": "6 weeks",
+      "technologies": [
+        "React",
+        "GitHub Actions",
+        "Docker",
+        "Prometheus",
+        "Redis"
+      ],
+      "resumeValue": 96,
+      "portfolioValue": 85,
+      "githubValue": 95,
+      "hiringImpact": 97,
+      "companiesWhereUseful": [
+        "Datadog",
+        "New Relic",
+        "Cloudflare",
+        "Netflix"
+      ],
+      "skillsGained": [
+        "CI/CD Pipeline automation",
+        "Dockerizing frontend architectures",
+        "System telemetry",
+        "Caching high-frequency data"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "Explain the benefit of caching high-frequency frontend telemetry data in Redis.",
+          "answerKey": "Redis reduces latency by preventing expensive database hits and allows for real-time dashboard updates via Pub/Sub patterns."
+        },
+        {
+          "question": "How did you automate your deployment workflow?",
+          "answerKey": "I defined a YAML-based GitHub Actions pipeline that builds a Docker image, runs integration tests, and pushes to an ephemeral environment."
+        }
+      ],
+      "learningOutcome": "Mastering the DevOps lifecycle and infrastructure-as-code principles for frontend applications.",
+      "businessValue": "Shows engineering maturity by reducing deployment friction and improving site observability.",
+      "estimatedCompletionTime": "6 weeks",
+      "createdAt": "2026-06-26T19:17:46.686Z"
+    },
+    {
+      "id": "hnpaaqjl89v",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "Vector-Search Documentation RAG Portal",
+      "difficulty": "Advanced",
+      "timeRequired": "5 weeks",
+      "technologies": [
+        "React",
+        "Docker",
+        "Redis (Vector Search)",
+        "OpenAI API",
+        "CI/CD"
+      ],
+      "resumeValue": 98,
+      "portfolioValue": 94,
+      "githubValue": 92,
+      "hiringImpact": 95,
+      "companiesWhereUseful": [
+        "LangChain",
+        "Pinecone",
+        "Elastic",
+        "Scale AI"
+      ],
+      "skillsGained": [
+        "Retrieval Augmented Generation (RAG)",
+        "Vector embeddings",
+        "Docker Compose microservices",
+        "Caching AI responses"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "Why use Redis for a RAG system?",
+          "answerKey": "Redis acts as a high-speed vector database, allowing for near-instant similarity searches on embedded documentation segments."
+        },
+        {
+          "question": "How do you handle stale cache issues in an AI-driven application?",
+          "answerKey": "I implement TTL strategies and cache invalidation logic based on document update timestamps to ensure data consistency."
+        }
+      ],
+      "learningOutcome": "Integrating AI/LLM infrastructure into modern React-based user interfaces.",
+      "businessValue": "Showcases ability to implement modern, high-demand AI architecture, significantly increasing technical credibility.",
+      "estimatedCompletionTime": "5 weeks",
+      "createdAt": "2026-06-26T19:17:46.686Z"
+    },
+    {
+      "id": "46vk1yo8gj",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "projectName": "Secure Multi-Tenant SaaS Dashboard with Stripe Billing",
+      "difficulty": "Intermediate",
+      "timeRequired": "4 weeks",
+      "technologies": [
+        "React",
+        "TypeScript",
+        "Stripe API",
+        "NextAuth.js",
+        "PostgreSQL",
+        "Prisma"
+      ],
+      "resumeValue": 92,
+      "portfolioValue": 88,
+      "githubValue": 90,
+      "hiringImpact": 95,
+      "companiesWhereUseful": [
+        "SaaS startups",
+        "B2B platforms",
+        "Fintech"
+      ],
+      "skillsGained": [
+        "Stripe Webhooks",
+        "OAuth flow management",
+        "RBAC implementation",
+        "Database schema modeling"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "How do you handle race conditions during payment webhook processing?",
+          "answerKey": "Implement idempotency keys and check for existing transaction status in the database before processing the event."
+        }
+      ],
+      "learningOutcome": "Understanding complex billing lifecycles and secure session management.",
+      "businessValue": "Demonstrates capability to build production-grade revenue pipelines.",
+      "estimatedCompletionTime": "4 weeks",
+      "createdAt": "2026-06-26T19:43:38.326Z"
+    },
+    {
+      "id": "yn8weyu78op",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "projectName": "Redis-Powered Real-time Collaborative Code Editor",
+      "difficulty": "Advanced",
+      "timeRequired": "6 weeks",
+      "technologies": [
+        "React",
+        "TypeScript",
+        "Socket.io",
+        "Redis",
+        "Node.js",
+        "Docker"
+      ],
+      "resumeValue": 96,
+      "portfolioValue": 94,
+      "githubValue": 95,
+      "hiringImpact": 98,
+      "companiesWhereUseful": [
+        "Google",
+        "Notion",
+        "Linear",
+        "Atlassian"
+      ],
+      "skillsGained": [
+        "WebSockets",
+        "In-memory caching",
+        "Distributed state management",
+        "Docker containerization"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "Why use Redis for a real-time collaborative app instead of just database polling?",
+          "answerKey": "Redis provides sub-millisecond latency for state synchronization and pub/sub capabilities, essential for real-time performance."
+        }
+      ],
+      "learningOutcome": "Mastering low-latency communication and distributed state synchronization.",
+      "businessValue": "Showcases ability to handle high-frequency data updates and system scalability.",
+      "estimatedCompletionTime": "6 weeks",
+      "createdAt": "2026-06-26T19:43:38.326Z"
+    },
+    {
+      "id": "beuswl6mb1n",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "projectName": "Automated Frontend Performance & Deployment Pipeline (CI/CD)",
+      "difficulty": "Advanced",
+      "timeRequired": "5 weeks",
+      "technologies": [
+        "React",
+        "TypeScript",
+        "GitHub Actions",
+        "Docker",
+        "AWS S3",
+        "Lighthouse API"
+      ],
+      "resumeValue": 94,
+      "portfolioValue": 90,
+      "githubValue": 93,
+      "hiringImpact": 97,
+      "companiesWhereUseful": [
+        "E-commerce",
+        "Streaming platforms",
+        "Enterprise SaaS"
+      ],
+      "skillsGained": [
+        "Automated testing",
+        "CI/CD pipeline design",
+        "Infrastructure as Code (Docker)",
+        "Performance profiling"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "How would you integrate automated Lighthouse performance checks into a CI/CD pipeline?",
+          "answerKey": "Use a GitHub Action to trigger a headless browser build, run Lighthouse CI on the production build, and fail the deployment if the performance score drops below a set threshold."
+        }
+      ],
+      "learningOutcome": "Deep understanding of DevOps workflows from a frontend perspective.",
+      "businessValue": "Highlights proficiency in maintaining high code quality and release velocity in a devops-oriented culture.",
+      "estimatedCompletionTime": "5 weeks",
+      "createdAt": "2026-06-26T19:43:38.326Z"
+    }
+  ],
+  "roadmaps": [
+    {
+      "id": "upho71z3vd",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "Frontend Developer",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Solve 2 LeetCode problems focusing on Arrays, Linked Lists, and Trees",
+          "completed": false
+        },
+        {
+          "text": "Commit one significant feature or refactor to GitHub to maintain green contribution graph",
+          "completed": false
+        },
+        {
+          "text": "Read one article on System Design or Advanced React patterns (e.g., Hooks, Context, Performance Optimization)",
+          "completed": false
+        },
+        {
+          "text": "Practice 30 minutes of technical communication by explaining a concept out loud (Feynman technique)",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Month 1: Deep dive into Data Structures and Algorithms with a focus on Frontend fundamentals (DOM, Browser APIs)",
+          "completed": false
+        },
+        {
+          "text": "Month 2: Build a production-grade, highly-performant scalable React application with full CI/CD pipeline",
+          "completed": false
+        },
+        {
+          "text": "Month 3: Conduct intensive mock interview sessions and finalize portfolio for FAANG-level technical assessment",
+          "completed": false
+        },
+        {
+          "text": "Post-90 Day: Final evaluation and application submission to Google careers portal",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-06-26T20:31:21.562Z"
+    }
+  ],
+  "learning_progress": [
+    {
+      "id": "mh2v8ct3k1e",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "roadmapId": "upho71z3vd",
+      "completedTasks": [],
+      "updatedAt": "2026-06-26T20:31:21.562Z"
+    }
+  ],
+  "activity_logs": [
+    {
+      "id": "bcc7h5kurea",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "action": "PROFILE_UPDATED",
+      "details": {
+        "targetRole": "Frontend Developer",
+        "cgpa": 8
+      },
+      "timestamp": "2026-06-26T18:11:32.239Z"
+    },
+    {
+      "id": "v8roet2a62",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "action": "PROFILE_UPDATED",
+      "details": {
+        "targetRole": "Frontend Developer",
+        "cgpa": 8.5
+      },
+      "timestamp": "2026-06-26T19:16:39.159Z"
+    },
+    {
+      "id": "7egqxh4ba5u",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "action": "PROFILE_UPDATED",
+      "details": {
+        "targetRole": "Frontend Developer",
+        "cgpa": 8.5
+      },
+      "timestamp": "2026-06-26T19:16:52.972Z"
+    },
+    {
+      "id": "ll1q8qdn4f9",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "action": "PROFILE_UPDATED",
+      "details": {
+        "targetRole": "Frontend Developer",
+        "cgpa": 8
+      },
+      "timestamp": "2026-06-26T19:26:21.105Z"
+    }
+  ],
+  "mentor_sessions": [],
+  "notifications": [
+    {
+      "id": "0wm5rh9zyc6q",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "Resume Analyzed",
+      "message": "Your resume \"My_Resume.pdf\" was scanned. ATS Score: 55/100.",
+      "read": false,
+      "createdAt": "2026-06-26T19:17:33.927Z"
+    },
+    {
+      "id": "so4zwvvp24",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 57/100.",
+      "read": false,
+      "createdAt": "2026-06-26T19:17:45.586Z"
+    },
+    {
+      "id": "no0khxxs9ak",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 57/100.",
+      "read": false,
+      "createdAt": "2026-06-26T19:17:46.688Z"
+    },
+    {
+      "id": "42377to7izj",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "title": "Resume Analyzed",
+      "message": "Your resume \"My_Resume.pdf\" was scanned. ATS Score: 75/100.",
+      "read": false,
+      "createdAt": "2026-06-26T19:43:20.407Z"
+    },
+    {
+      "id": "0dmgsrrft5pk",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 61/100.",
+      "read": false,
+      "createdAt": "2026-06-26T19:43:33.996Z"
+    },
+    {
+      "id": "9w5j75nnngm",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 61/100.",
+      "read": false,
+      "createdAt": "2026-06-26T19:43:38.330Z"
+    },
+    {
+      "id": "blfednutibk",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint for \"h4rsh740\" has been analyzed. Score: 80/100.",
+      "read": false,
+      "createdAt": "2026-06-26T20:19:29.283Z"
+    },
+    {
+      "id": "05p5d8imumla",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint for \"h4rsh740\" has been analyzed. Score: 80/100.",
+      "read": false,
+      "createdAt": "2026-06-26T20:19:31.657Z"
+    },
+    {
+      "id": "j91jxnd843p",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint for \"h4rsh740\" has been analyzed. Score: 80/100.",
+      "read": false,
+      "createdAt": "2026-06-26T20:20:29.736Z"
+    },
+    {
+      "id": "x7nhgbj5kze",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint for \"h4rsh740\" has been analyzed. Score: 80/100.",
+      "read": false,
+      "createdAt": "2026-06-26T20:20:44.880Z"
+    },
+    {
+      "id": "62wn290vo3o",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint for \"h4rsh740\" has been analyzed. Score: 80/100.",
+      "read": false,
+      "createdAt": "2026-06-26T20:20:48.033Z"
+    },
+    {
+      "id": "der2e5ssleb",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 44/100.",
+      "read": false,
+      "createdAt": "2026-06-26T20:26:59.733Z"
+    },
+    {
+      "id": "blowlluyzkh",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 35/100.",
+      "read": false,
+      "createdAt": "2026-06-26T20:27:08.195Z"
+    },
+    {
+      "id": "qq0q0r404a",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 36/100.",
+      "read": false,
+      "createdAt": "2026-06-27T04:51:46.587Z"
+    },
+    {
+      "id": "rq05qvr7es",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 44/100.",
+      "read": false,
+      "createdAt": "2026-06-27T04:58:24.222Z"
+    },
+    {
+      "id": "o2sxb0n87eo",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 44/100.",
+      "read": false,
+      "createdAt": "2026-06-27T06:36:30.736Z"
+    },
+    {
+      "id": "kxhpramwogm",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 44/100.",
+      "read": false,
+      "createdAt": "2026-06-27T06:36:45.945Z"
+    }
+  ],
+  "sync_history": [
+    {
+      "id": "idlq0ir8tn",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "message": "Mock GitHub account linked successfully"
+      },
+      "createdAt": "2026-06-26T18:11:34.600Z"
+    },
+    {
+      "id": "m5gnfbkz9uj",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "My_Resume.pdf",
+        "atsScore": 55
+      },
+      "createdAt": "2026-06-26T19:17:33.927Z"
+    },
+    {
+      "id": "zk5glyewlp",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 57
+      },
+      "createdAt": "2026-06-26T19:17:45.585Z"
+    },
+    {
+      "id": "qfuf56qxenr",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 57
+      },
+      "createdAt": "2026-06-26T19:17:46.687Z"
+    },
+    {
+      "id": "s1wx8t3947",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "message": "Mock GitHub account linked successfully"
+      },
+      "createdAt": "2026-06-26T19:26:24.543Z"
+    },
+    {
+      "id": "izeaynnq45f",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "message": "Mock GitHub account linked successfully"
+      },
+      "createdAt": "2026-06-26T19:32:33.422Z"
+    },
+    {
+      "id": "wqc17rz49ne",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "My_Resume.pdf",
+        "atsScore": 75
+      },
+      "createdAt": "2026-06-26T19:43:20.406Z"
+    },
+    {
+      "id": "vlille9go3",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 61
+      },
+      "createdAt": "2026-06-26T19:43:33.994Z"
+    },
+    {
+      "id": "wwcg1wu9wcg",
+      "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 61
+      },
+      "createdAt": "2026-06-26T19:43:38.329Z"
+    },
+    {
+      "id": "q7697855syf",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 80
+      },
+      "createdAt": "2026-06-26T20:19:29.282Z"
+    },
+    {
+      "id": "zeb8u3vgjws",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 80
+      },
+      "createdAt": "2026-06-26T20:19:31.655Z"
+    },
+    {
+      "id": "vwofgqkm7na",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 80
+      },
+      "createdAt": "2026-06-26T20:20:29.734Z"
+    },
+    {
+      "id": "b0ujb2sio2e",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-26T20:20:34.118Z"
+    },
+    {
+      "id": "aj84ibq3hid",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "message": "Mock GitHub account linked successfully"
+      },
+      "createdAt": "2026-06-26T20:20:37.896Z"
+    },
+    {
+      "id": "5d8xkmrr1a9",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 80
+      },
+      "createdAt": "2026-06-26T20:20:44.879Z"
+    },
+    {
+      "id": "17tusygpnd7",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 80
+      },
+      "createdAt": "2026-06-26T20:20:48.032Z"
+    },
+    {
+      "id": "nzh8tjraqpg",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-26T20:26:40.812Z"
+    },
+    {
+      "id": "t1912xlzwug",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "message": "Mock GitHub account linked successfully"
+      },
+      "createdAt": "2026-06-26T20:26:44.561Z"
+    },
+    {
+      "id": "k8jtcr7a85c",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 44
+      },
+      "createdAt": "2026-06-26T20:26:59.731Z"
+    },
+    {
+      "id": "kg33ceqnh1o",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 35
+      },
+      "createdAt": "2026-06-26T20:27:08.194Z"
+    },
+    {
+      "id": "4auonbsuznv",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-27T04:51:21.543Z"
+    },
+    {
+      "id": "n3ypy2g2z7r",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "message": "Mock GitHub account linked successfully"
+      },
+      "createdAt": "2026-06-27T04:51:25.401Z"
+    },
+    {
+      "id": "3sd5djlpvty",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 36
+      },
+      "createdAt": "2026-06-27T04:51:46.586Z"
+    },
+    {
+      "id": "7xw7ws1ic2g",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-27T04:54:23.957Z"
+    },
+    {
+      "id": "nsje8lxe4ak",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "message": "Mock GitHub account linked successfully"
+      },
+      "createdAt": "2026-06-27T04:54:27.688Z"
+    },
+    {
+      "id": "q5eoeh8xv9",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 44
+      },
+      "createdAt": "2026-06-27T04:58:24.221Z"
+    },
+    {
+      "id": "9dsm4yeeul6",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-27T06:30:18.678Z"
+    },
+    {
+      "id": "98x3jkj4v4q",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "scopes": [
+          "read:org",
+          "read:user",
+          "repo",
+          "user:email"
+        ]
+      },
+      "createdAt": "2026-06-27T06:36:04.780Z"
+    },
+    {
+      "id": "epmueil3aqi",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 44
+      },
+      "createdAt": "2026-06-27T06:36:30.733Z"
+    },
+    {
+      "id": "7gynkitfgrw",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 44
+      },
+      "createdAt": "2026-06-27T06:36:45.943Z"
+    }
+  ]
 }

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SkillSprint AI</string>
+    <string name="title_activity_main">SkillSprint AI</string>
+    <string name="package_name">com.skillsprint.ai</string>
+    <string name="custom_url_scheme">com.skillsprint.ai</string>
+</resources>
