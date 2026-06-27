@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   BrainCircuit, 
@@ -65,6 +64,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { getDashboardData, type DashboardData } from "@/actions/scores";
 import { buildRecommendedProject } from "@/actions/projects";
+import { generateRoadmapPdf } from "@/lib/generateRoadmapPdf";
 import { 
   ResponsiveContainer, 
   RadarChart, 
@@ -82,10 +82,10 @@ import {
 
 export default function DashboardOverview() {
   const { user } = useAuth();
-  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [buildingProject, setBuildingProject] = useState<string | null>(null);
+  const [pdfReady, setPdfReady] = useState<string | null>(null);
 
   // Fallback dynamic name priority matching Requirement 1
   const displayName = user?.name && user.name !== "SkillSprint Candidate" && user.name !== "fallback-profile" ? user.name : "";
@@ -108,9 +108,13 @@ export default function DashboardOverview() {
 
   const handleBuildProject = async (projectName: string) => {
     setBuildingProject(projectName);
+    setPdfReady(null);
     try {
-      await buildRecommendedProject(projectName);
-      router.push("/dashboard/roadmap");
+      const roadmap = await buildRecommendedProject(projectName);
+      // Generate and trigger PDF download — no navigation needed
+      generateRoadmapPdf(roadmap);
+      setPdfReady(projectName);
+      setTimeout(() => setPdfReady(null), 4000);
     } catch (e) {
       console.error("Failed to generate roadmap", e);
     } finally {
@@ -124,9 +128,8 @@ export default function DashboardOverview() {
 
   // Check which features are connected to show limited mode alerts
   const githubConnected = user?.githubConnected || !!data?.githubAnalysis;
-  const linkedinConnected = user?.linkedinConnected || !!data?.linkedinAnalysis;
   const resumeUploaded = user?.resumeUploaded || !!data?.resumeAnalysis;
-  const isLimitedMode = !githubConnected || !linkedinConnected || !resumeUploaded;
+  const isLimitedMode = !githubConnected || !resumeUploaded;
 
   // Prepare radar chart data
   const radarData = [
@@ -188,7 +191,7 @@ export default function DashboardOverview() {
       </div>
 
       {/* 2. ONBOARDING & CONNECTION STATUS BADGES */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatusCard icon={<CheckCircle2 className="text-emerald-500 w-5 h-5" />} label="Google Account" status="✅ Connected" />
         <StatusCard 
           icon={githubConnected ? <CheckCircle2 className="text-emerald-500 w-5 h-5" /> : <AlertTriangle className="text-amber-500 w-5 h-5" />} 
@@ -197,14 +200,6 @@ export default function DashboardOverview() {
           link={githubConnected ? "/dashboard/github" : "/api/auth/github"}
           actionLabel={githubConnected ? "Analyze Projects" : "Connect OAuth"}
           external={!githubConnected}
-        />
-        <StatusCard 
-          icon={linkedinConnected ? <CheckCircle2 className="text-emerald-500 w-5 h-5" /> : <AlertTriangle className="text-amber-500 w-5 h-5" />} 
-          label="LinkedIn Profile" 
-          status={linkedinConnected ? "✅ Connected" : "❌ Disconnected"} 
-          link={linkedinConnected ? "/dashboard/career-twin" : "/api/auth/linkedin"}
-          actionLabel={linkedinConnected ? "View Career Twin" : "Connect OAuth"}
-          external={!linkedinConnected}
         />
         <StatusCard 
           icon={resumeUploaded ? <CheckCircle2 className="text-emerald-500 w-5 h-5" /> : <AlertTriangle className="text-amber-500 w-5 h-5" />} 
@@ -324,124 +319,65 @@ export default function DashboardOverview() {
       </div>
 
       {/* 5. GITHUB ANALYTICS & COMMIT HEATMAP */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        
-        {/* GitHub Footprint & Consistency */}
-        <div className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/50 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                <Github className="w-4.5 h-4.5" /> Codebase Intelligence
-              </h3>
-              {githubConnected && (
-                <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                  Active
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-500 mb-6">Aggregate repository metrics and commits streak telemetry.</p>
+      {/* GitHub Footprint & Consistency */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/50 shadow-sm">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <Github className="w-4.5 h-4.5" /> Codebase Intelligence
+            </h3>
+            {githubConnected && (
+              <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                Active
+              </span>
+            )}
           </div>
+          <p className="text-xs text-gray-500 mb-6">Aggregate repository metrics and commits streak telemetry.</p>
+        </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-white/60 rounded-xl p-3 border border-gray-100 text-center">
-              <span className="text-[10px] text-gray-400 font-bold uppercase">Public Repos</span>
-              <p className="text-xl font-bold text-slate-800 mt-1">{data?.githubAnalysis?.publicReposCount || 0}</p>
-            </div>
-            <div className="bg-white/60 rounded-xl p-3 border border-gray-100 text-center">
-              <span className="text-[10px] text-gray-400 font-bold uppercase">Stars Earned</span>
-              <p className="text-xl font-bold text-slate-800 mt-1">{data?.githubAnalysis?.stars || 0}</p>
-            </div>
-            <div className="bg-white/60 rounded-xl p-3 border border-gray-100 text-center">
-              <span className="text-[10px] text-gray-400 font-bold uppercase">Commit Streak</span>
-              <p className="text-xl font-bold text-slate-800 mt-1">{data?.githubAnalysis?.contributionStreak || 0} Days</p>
-            </div>
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="bg-white/60 rounded-xl p-3 border border-gray-100 text-center">
+            <span className="text-[10px] text-gray-400 font-bold uppercase">Public Repos</span>
+            <p className="text-xl font-bold text-slate-800 mt-1">{data?.githubAnalysis?.publicReposCount || 0}</p>
           </div>
-
-          {/* GitHub Activity Heatmap Grid */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[11px] text-gray-400">
-              <span className="font-semibold uppercase tracking-wider">12-Week Commit Heatmap</span>
-              <span>{githubConnected ? `${data?.githubAnalysis?.contributionStreak || 0} active streak` : "No streak detected"}</span>
-            </div>
-            <div className="grid grid-cols-12 gap-1 bg-white/60 p-3 rounded-2xl border border-gray-100">
-              {commitGrid.map((c) => (
-                <div 
-                  key={c.day} 
-                  className={`aspect-square w-full rounded-sm transition-all duration-300 ${c.intensity} hover:scale-115`}
-                  title={`Day ${c.day}: ${c.active ? 'Commit recorded' : 'No commits'}`}
-                />
-              ))}
-            </div>
-            <div className="flex justify-between text-[9px] text-gray-400 px-1 pt-1">
-              <span>Less</span>
-              <div className="flex gap-1">
-                <div className="w-2.5 h-2.5 bg-gray-100 rounded-sm" />
-                <div className="w-2.5 h-2.5 bg-emerald-300 rounded-sm" />
-                <div className="w-2.5 h-2.5 bg-emerald-400 rounded-sm" />
-                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-sm" />
-              </div>
-              <span>More</span>
-            </div>
+          <div className="bg-white/60 rounded-xl p-3 border border-gray-100 text-center">
+            <span className="text-[10px] text-gray-400 font-bold uppercase">Stars Earned</span>
+            <p className="text-xl font-bold text-slate-800 mt-1">{data?.githubAnalysis?.stars || 0}</p>
+          </div>
+          <div className="bg-white/60 rounded-xl p-3 border border-gray-100 text-center">
+            <span className="text-[10px] text-gray-400 font-bold uppercase">Commit Streak</span>
+            <p className="text-xl font-bold text-slate-800 mt-1">{data?.githubAnalysis?.contributionStreak || 0} Days</p>
           </div>
         </div>
 
-        {/* LinkedIn Professional Footprint */}
-        <div className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/50 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                <Linkedin className="w-4.5 h-4.5" /> Profile Audit
-              </h3>
-              {linkedinConnected && (
-                <span className="text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                  Audited
-                </span>
-              )}
-            </div>
-            <p className="text-xs text-gray-500 mb-6">LinkedIn profile optimization and target industry keywords.</p>
+        {/* GitHub Activity Heatmap Grid */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[11px] text-gray-400">
+            <span className="font-semibold uppercase tracking-wider">12-Week Commit Heatmap</span>
+            <span>{githubConnected ? `${data?.githubAnalysis?.contributionStreak || 0} active streak` : "No streak detected"}</span>
           </div>
-
-          <div className="space-y-4">
-            <div className="bg-white/60 rounded-2xl p-4 border border-gray-100">
-              <span className="text-[10px] text-gray-400 font-bold uppercase block mb-1">Headline quality</span>
-              <p className="text-[13px] font-bold text-slate-800">
-                {linkedinConnected 
-                  ? "Highly optimized. Targets software engineering parameters."
-                  : "Headline analysis requires active LinkedIn integration."
-                }
-              </p>
+          <div className="grid grid-cols-12 gap-1 bg-white/60 p-3 rounded-2xl border border-gray-100">
+            {commitGrid.map((c) => (
+              <div 
+                key={c.day} 
+                className={`aspect-square w-full rounded-sm transition-all duration-300 ${c.intensity} hover:scale-115`}
+                title={`Day ${c.day}: ${c.active ? 'Commit recorded' : 'No commits'}`}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between text-[9px] text-gray-400 px-1 pt-1">
+            <span>Less</span>
+            <div className="flex gap-1">
+              <div className="w-2.5 h-2.5 bg-gray-100 rounded-sm" />
+              <div className="w-2.5 h-2.5 bg-emerald-300 rounded-sm" />
+              <div className="w-2.5 h-2.5 bg-emerald-400 rounded-sm" />
+              <div className="w-2.5 h-2.5 bg-emerald-500 rounded-sm" />
             </div>
-
-            <div className="bg-white/60 rounded-2xl p-4 border border-gray-100">
-              <span className="text-[10px] text-gray-400 font-bold uppercase block mb-2">Identified Keywords</span>
-              <div className="flex flex-wrap gap-1.5">
-                {linkedinConnected ? (
-                  <>
-                    <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2 py-1 rounded">REST APIs</span>
-                    <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2 py-1 rounded">Microservices</span>
-                    <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2 py-1 rounded">TypeScript</span>
-                    <span className="text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2 py-1 rounded">Docker</span>
-                  </>
-                ) : (
-                  <span className="text-xs text-gray-400 italic">No keywords scanned.</span>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white/60 rounded-2xl p-4 border border-gray-100 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] text-gray-400 font-bold uppercase block">Current position</span>
-                <span className="text-xs font-bold text-slate-800 mt-1 block">
-                  {linkedinConnected ? "B.Tech Computer Science Candidate" : "N/A"}
-                </span>
-              </div>
-              <span className="text-[10px] bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded font-bold uppercase">
-                {linkedinConnected ? "Active Student" : "Inactive"}
-              </span>
-            </div>
+            <span>More</span>
           </div>
         </div>
       </div>
+
 
       {/* 6. PROJECT RECOMMENDATIONS ENGINE (GAP DETECTOR) */}
       <div className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/50 shadow-sm">
@@ -509,17 +445,26 @@ export default function DashboardOverview() {
                 <button
                   onClick={() => handleBuildProject(project.projectName)}
                   disabled={buildingProject !== null}
-                  className="w-full flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[12.5px] font-extrabold py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-50"
+                  className={`w-full flex items-center justify-center gap-2 text-white text-[12.5px] font-extrabold py-2.5 rounded-xl transition-all cursor-pointer disabled:opacity-50 ${
+                    pdfReady === project.projectName
+                      ? "bg-emerald-500 hover:bg-emerald-600"
+                      : "bg-[#4f46e5] hover:bg-[#4338ca]"
+                  }`}
                 >
                   {buildingProject === project.projectName ? (
                     <>
                       <RotateCw className="w-4 h-4 animate-spin" />
-                      <span>Redirection...</span>
+                      <span>Generating PDF...</span>
+                    </>
+                  ) : pdfReady === project.projectName ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>PDF Downloaded!</span>
                     </>
                   ) : (
                     <>
+                      <FileText className="w-3.5 h-3.5" />
                       <span>Build Project</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>

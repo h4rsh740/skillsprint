@@ -1433,7 +1433,7 @@
           }
         ]
       },
-      "updatedAt": "2026-06-27T06:39:35.480Z"
+      "updatedAt": "2026-06-27T08:03:57.752Z"
     },
     {
       "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
@@ -2035,6 +2035,994 @@
       "templates": {},
       "interviewPrep": {},
       "createdAt": "2026-06-26T20:31:21.562Z"
+    },
+    {
+      "id": "xtvflaym97",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "Secure Multi-Tenant Real-time SaaS Dashboard",
+      "architecture": {
+        "pattern": "Microservices with Event-Driven Communication",
+        "description": "A scalable multi-tenant architecture utilizing Row-Level Security (RLS) for data isolation and WebSockets for real-time state synchronization.",
+        "diagramDescription": "Client (React) -> API Gateway -> Auth Service (Auth0) + Core SaaS Service (Node/NestJS) -> Database (PostgreSQL) + Redis (Real-time Pub/Sub)"
+      },
+      "folderStructure": {
+        "root": {
+          "services": [
+            "auth-service",
+            "dashboard-service",
+            "gateway"
+          ],
+          "shared": [
+            "types",
+            "utils",
+            "constants"
+          ],
+          "deploy": [
+            "terraform",
+            "docker-compose.yml"
+          ],
+          "docs": [
+            "architecture.md",
+            "api-spec.yaml"
+          ]
+        }
+      },
+      "databaseDesign": {
+        "provider": "PostgreSQL",
+        "schemas": [
+          {
+            "table": "tenants",
+            "columns": [
+              "id",
+              "name",
+              "created_at",
+              "plan_type"
+            ]
+          },
+          {
+            "table": "users",
+            "columns": [
+              "id",
+              "tenant_id",
+              "email",
+              "role",
+              "password_hash"
+            ]
+          },
+          {
+            "table": "dashboard_metrics",
+            "columns": [
+              "id",
+              "tenant_id",
+              "metric_name",
+              "value",
+              "recorded_at"
+            ]
+          }
+        ]
+      },
+      "apiDesign": {
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/v1/metrics",
+            "response": "200 OK - { metrics: [] }",
+            "description": "Retrieves tenant-specific real-time metrics"
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/tenants",
+            "response": "201 Created",
+            "description": "Onboards a new tenant organization"
+          }
+        ]
+      },
+      "authStrategy": {
+        "provider": "Auth0/JWT",
+        "flowDescription": "OAuth2 Authorization Code Flow with PKCE; JWT claims include tenant_id for RLS enforcement.",
+        "scopes": [
+          "openid",
+          "profile",
+          "email",
+          "read:metrics"
+        ]
+      },
+      "weeklyRoadmap": [
+        {
+          "week": 1,
+          "goal": "Infrastructure & Auth Setup",
+          "deliverable": "Authenticated API Gateway",
+          "days": [
+            {
+              "day": 1,
+              "task": "Design schema & DB normalization",
+              "resources": [
+                {
+                  "name": "PostgreSQL RLS",
+                  "url": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 2,
+          "goal": "Multi-Tenancy Implementation",
+          "deliverable": "Tenant Isolation Layer",
+          "days": [
+            {
+              "day": 1,
+              "task": "Implement middleware for tenant identification",
+              "resources": [
+                {
+                  "name": "NestJS Guards",
+                  "url": "https://docs.nestjs.com/guards"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 3,
+          "goal": "Real-time Streaming",
+          "deliverable": "WebSocket Metric Feed",
+          "days": [
+            {
+              "day": 1,
+              "task": "Setup Socket.io with Redis adapter",
+              "resources": [
+                {
+                  "name": "Redis Pub/Sub",
+                  "url": "https://redis.io/topics/pubsub"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 4,
+          "goal": "UI Dashboard & Deployment",
+          "deliverable": "Deployed SaaS Platform",
+          "days": [
+            {
+              "day": 1,
+              "task": "Integrate Recharts with WebSocket feed",
+              "resources": [
+                {
+                  "name": "Recharts",
+                  "url": "https://recharts.org/"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "dailyTasks": [
+        {
+          "text": "Week 1 Day 1: Design schema & DB normalization",
+          "completed": false
+        },
+        {
+          "text": "Week 2 Day 1: Implement middleware for tenant identification",
+          "completed": false
+        },
+        {
+          "text": "Week 3 Day 1: Setup Socket.io with Redis adapter",
+          "completed": false
+        },
+        {
+          "text": "Week 4 Day 1: Integrate Recharts with WebSocket feed",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Source code repository",
+          "completed": false
+        },
+        {
+          "text": "Architecture diagram",
+          "completed": false
+        },
+        {
+          "text": "Postman Collection",
+          "completed": false
+        },
+        {
+          "text": "Deployment Documentation",
+          "completed": false
+        }
+      ],
+      "resources": [
+        {
+          "name": "PostgreSQL RLS",
+          "url": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html"
+        },
+        {
+          "name": "NestJS Guards",
+          "url": "https://docs.nestjs.com/guards"
+        },
+        {
+          "name": "Redis Pub/Sub",
+          "url": "https://redis.io/topics/pubsub"
+        },
+        {
+          "name": "Recharts",
+          "url": "https://recharts.org/"
+        }
+      ],
+      "commonMistakes": [
+        "Missing RLS policies allowing cross-tenant data leaks",
+        "Improper WebSocket connection handling causing memory leaks",
+        "Hardcoding tenant configuration in frontend"
+      ],
+      "expectedDeliverables": [
+        "Source code repository",
+        "Architecture diagram",
+        "Postman Collection",
+        "Deployment Documentation"
+      ],
+      "templates": {
+        "readme": "# Multi-Tenant SaaS Dashboard\n\n## Overview\nReal-time analytics platform with strict data isolation.\n\n## Tech Stack\n- Node.js, PostgreSQL, Socket.io, React"
+      },
+      "interviewPrep": {
+        "behavioralQuestions": [
+          "Tell me about a time you handled a production bug",
+          "How do you manage technical debt in a fast-paced environment?"
+        ],
+        "technicalDeepDives": [
+          "How do you handle multi-tenancy at scale?",
+          "What are the trade-offs of using WebSocket vs Server-Sent Events?"
+        ]
+      },
+      "createdAt": "2026-06-27T07:40:32.405Z"
+    },
+    {
+      "id": "0dwru475o78",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "Secure Multi-Tenant Real-time SaaS Dashboard",
+      "architecture": {
+        "pattern": "Microservices with Event-Driven Communication",
+        "description": "A high-performance dashboard utilizing a shared-database, separate-schema multi-tenancy model with WebSocket-based real-time data streaming.",
+        "diagramDescription": "Client (React/Tailwind) -> API Gateway (Kong) -> Auth Service (Auth0) -> Tenant Service -> Real-time Service (Socket.io/Redis PubSub) -> PostgreSQL"
+      },
+      "folderStructure": {
+        "root": {
+          "services": {
+            "auth-service": [
+              "src/controllers",
+              "src/models",
+              "src/middleware"
+            ],
+            "data-service": [
+              "src/db",
+              "src/queues",
+              "src/workers"
+            ],
+            "websocket-service": [
+              "src/sockets",
+              "src/events"
+            ]
+          },
+          "client": {
+            "components": [
+              "ui",
+              "layout",
+              "charts"
+            ],
+            "hooks": [
+              "useTenant",
+              "useSocket"
+            ]
+          },
+          "infrastructure": [
+            "terraform",
+            "k8s-manifests"
+          ]
+        }
+      },
+      "databaseDesign": {
+        "provider": "PostgreSQL",
+        "schemas": [
+          {
+            "table": "tenants",
+            "columns": [
+              "id",
+              "name",
+              "slug",
+              "subscription_plan",
+              "created_at"
+            ]
+          },
+          {
+            "table": "users",
+            "columns": [
+              "id",
+              "tenant_id",
+              "email",
+              "role_id",
+              "last_login"
+            ]
+          },
+          {
+            "table": "metrics",
+            "columns": [
+              "id",
+              "tenant_id",
+              "event_type",
+              "payload",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "apiDesign": {
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/v1/dashboard/stats",
+            "response": "200 OK - { \"activeUsers\": 120, \"revenue\": 5000 }",
+            "description": "Fetches aggregated tenant-specific dashboard metrics."
+          }
+        ]
+      },
+      "authStrategy": {
+        "provider": "Auth0 / JWT",
+        "flowDescription": "User authenticates, receives a JWT containing 'tenant_id' in custom claims, used to authorize all downstream requests.",
+        "scopes": [
+          "read:metrics",
+          "write:settings",
+          "admin:tenant"
+        ]
+      },
+      "weeklyRoadmap": [
+        {
+          "week": 1,
+          "goal": "Project Setup & Multi-tenancy Architecture",
+          "deliverable": "Containerized app with database isolation foundation.",
+          "days": [
+            {
+              "day": 1,
+              "task": "Design schema and implement tenant middleware.",
+              "resources": [
+                {
+                  "name": "PostgreSQL RLS",
+                  "url": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 2,
+          "goal": "Real-time Event Pipeline",
+          "deliverable": "Live data updates via WebSockets.",
+          "days": [
+            {
+              "day": 1,
+              "task": "Configure Redis PubSub for WebSocket scaling.",
+              "resources": [
+                {
+                  "name": "Socket.io Scaling",
+                  "url": "https://socket.io/docs/v4/redis-adapter/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 3,
+          "goal": "Frontend Dashboard & Visualization",
+          "deliverable": "Interactive UI charts.",
+          "days": [
+            {
+              "day": 1,
+              "task": "Integrate Recharts with WebSocket hooks.",
+              "resources": [
+                {
+                  "name": "Recharts Docs",
+                  "url": "https://recharts.org/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 4,
+          "goal": "Security Audit & Deployment",
+          "deliverable": "Production-ready dashboard on AWS/GCP.",
+          "days": [
+            {
+              "day": 1,
+              "task": "Setup CI/CD pipeline and SSL.",
+              "resources": [
+                {
+                  "name": "GitHub Actions",
+                  "url": "https://github.com/features/actions"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "dailyTasks": [
+        {
+          "text": "Week 1 Day 1: Design schema and implement tenant middleware.",
+          "completed": false
+        },
+        {
+          "text": "Week 2 Day 1: Configure Redis PubSub for WebSocket scaling.",
+          "completed": false
+        },
+        {
+          "text": "Week 3 Day 1: Integrate Recharts with WebSocket hooks.",
+          "completed": false
+        },
+        {
+          "text": "Week 4 Day 1: Setup CI/CD pipeline and SSL.",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Live URL",
+          "completed": false
+        },
+        {
+          "text": "Architecture Diagram",
+          "completed": false
+        },
+        {
+          "text": "API Documentation",
+          "completed": false
+        },
+        {
+          "text": "Load Testing Report",
+          "completed": false
+        }
+      ],
+      "resources": [
+        {
+          "name": "PostgreSQL RLS",
+          "url": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html"
+        },
+        {
+          "name": "Socket.io Scaling",
+          "url": "https://socket.io/docs/v4/redis-adapter/"
+        },
+        {
+          "name": "Recharts Docs",
+          "url": "https://recharts.org/"
+        },
+        {
+          "name": "GitHub Actions",
+          "url": "https://github.com/features/actions"
+        }
+      ],
+      "commonMistakes": [
+        "Hardcoding tenant IDs in queries (use middleware instead).",
+        "Failing to implement Redis adapter for socket scaling.",
+        "Ignoring data leak risks during tenant context switching."
+      ],
+      "expectedDeliverables": [
+        "Live URL",
+        "Architecture Diagram",
+        "API Documentation",
+        "Load Testing Report"
+      ],
+      "templates": {
+        "readme": "# Multi-Tenant SaaS Dashboard\n## Features\n- Real-time updates\n- Row Level Security\n- Scalable architecture\n\n## Getting Started\nClone, run `docker-compose up`, and configure your environment variables."
+      },
+      "interviewPrep": {
+        "behavioralQuestions": [
+          "Tell me about a time you handled a security vulnerability.",
+          "How do you handle technical debt in a fast-paced environment?"
+        ],
+        "technicalDeepDives": [
+          "How do you scale WebSocket connections?",
+          "Explain PostgreSQL Row Level Security."
+        ]
+      },
+      "createdAt": "2026-06-27T07:52:25.278Z"
+    },
+    {
+      "id": "yjwh9acmo0d",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "Secure Multi-Tenant Real-time SaaS Dashboard",
+      "architecture": {
+        "pattern": "Microservices with Event-Driven Communication",
+        "description": "A scalable multi-tenant architecture utilizing Row-Level Security (RLS) for data isolation and WebSockets for real-time state synchronization.",
+        "diagramDescription": "Client SPA -> API Gateway -> Auth Service / Dashboard Service -> PostgreSQL (RLS) + Redis (Pub/Sub for Real-time)."
+      },
+      "folderStructure": {
+        "root": {
+          "apps": {
+            "api-gateway": {},
+            "dashboard-service": {},
+            "auth-service": {}
+          },
+          "libs": {
+            "shared-types": {},
+            "auth-middleware": {}
+          },
+          "docker-compose.yml": "infrastructure orchestration",
+          "README.md": "documentation"
+        }
+      },
+      "databaseDesign": {
+        "provider": "PostgreSQL",
+        "schemas": [
+          {
+            "table": "tenants",
+            "columns": [
+              "id",
+              "name",
+              "created_at"
+            ]
+          },
+          {
+            "table": "users",
+            "columns": [
+              "id",
+              "tenant_id",
+              "email",
+              "role"
+            ]
+          },
+          {
+            "table": "analytics_data",
+            "columns": [
+              "id",
+              "tenant_id",
+              "metric_name",
+              "value",
+              "timestamp"
+            ]
+          }
+        ]
+      },
+      "apiDesign": {
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/v1/dashboard/stats",
+            "response": "JSON",
+            "description": "Retrieves aggregated metrics filtered by current user tenant context"
+          }
+        ]
+      },
+      "authStrategy": {
+        "provider": "Auth0/Clerk",
+        "flowDescription": "OIDC Authorization Code Flow with PKCE, injecting tenant_id into JWT claims",
+        "scopes": [
+          "openid",
+          "profile",
+          "email",
+          "tenant_read"
+        ]
+      },
+      "weeklyRoadmap": [
+        {
+          "week": 1,
+          "goal": "Project Setup and Multi-tenant Auth",
+          "deliverable": "Working auth flow with tenant isolation",
+          "days": [
+            {
+              "day": 1,
+              "task": "Initialize monorepo and DB container",
+              "resources": [
+                {
+                  "name": "NX Monorepo",
+                  "url": "https://nx.dev/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 2,
+          "goal": "Real-time Infrastructure",
+          "deliverable": "Websocket integration with Redis pub/sub",
+          "days": [
+            {
+              "day": 1,
+              "task": "Configure Socket.io with Redis adapter",
+              "resources": [
+                {
+                  "name": "Socket.io Docs",
+                  "url": "https://socket.io/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 3,
+          "goal": "Dashboard UI & Data Visualization",
+          "deliverable": "Dynamic charts fetching real-time data",
+          "days": [
+            {
+              "day": 1,
+              "task": "Implement React Query and Chart.js",
+              "resources": [
+                {
+                  "name": "TanStack Query",
+                  "url": "https://tanstack.com/query/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 4,
+          "goal": "Testing, Security, and Deployment",
+          "deliverable": "Production-ready dashboard",
+          "days": [
+            {
+              "day": 1,
+              "task": "Write unit tests and perform RLS security audit",
+              "resources": [
+                {
+                  "name": "Postgres RLS",
+                  "url": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "dailyTasks": [
+        {
+          "text": "Week 1 Day 1: Initialize monorepo and DB container",
+          "completed": false
+        },
+        {
+          "text": "Week 2 Day 1: Configure Socket.io with Redis adapter",
+          "completed": false
+        },
+        {
+          "text": "Week 3 Day 1: Implement React Query and Chart.js",
+          "completed": false
+        },
+        {
+          "text": "Week 4 Day 1: Write unit tests and perform RLS security audit",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Source Code",
+          "completed": false
+        },
+        {
+          "text": "System Architecture Diagram",
+          "completed": false
+        },
+        {
+          "text": "Postman Collection",
+          "completed": false
+        },
+        {
+          "text": "Deployment Documentation",
+          "completed": false
+        }
+      ],
+      "resources": [
+        {
+          "name": "NX Monorepo",
+          "url": "https://nx.dev/"
+        },
+        {
+          "name": "Socket.io Docs",
+          "url": "https://socket.io/"
+        },
+        {
+          "name": "TanStack Query",
+          "url": "https://tanstack.com/query/"
+        },
+        {
+          "name": "Postgres RLS",
+          "url": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html"
+        }
+      ],
+      "commonMistakes": [
+        "Hardcoding tenant IDs instead of using JWT claims",
+        "Failing to scope database queries for all multi-tenant tables",
+        "Ignoring connection pooling limits in high-concurrency real-time apps"
+      ],
+      "expectedDeliverables": [
+        "Source Code",
+        "System Architecture Diagram",
+        "Postman Collection",
+        "Deployment Documentation"
+      ],
+      "templates": {
+        "readme": "# Project Title\n## Overview\n## Tech Stack\n## Setup Instructions\n## Multi-tenancy Strategy"
+      },
+      "interviewPrep": {
+        "behavioralQuestions": [
+          "How do you handle technical debt?",
+          "Tell me about a conflict in a technical decision."
+        ],
+        "technicalDeepDives": [
+          "How does RLS impact query performance?",
+          "How do you scale WebSocket connections?"
+        ]
+      },
+      "createdAt": "2026-06-27T07:57:44.639Z"
+    },
+    {
+      "id": "vsx42zwwet",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "projectName": "Secure Multi-Tenant Real-time SaaS Dashboard",
+      "architecture": {
+        "pattern": "Event-Driven Gateway Architecture",
+        "description": "A secure API gateway routing client WebSocket connections to isolated analytical nodes, backed by a Kafka log stream.",
+        "diagramDescription": "Client -> API Gateway (Go) -> Apache Kafka -> Worker node consumers -> Redis Cache -> Recharts frontend dashboard."
+      },
+      "folderStructure": {
+        "root": {
+          "src": {
+            "gateway": [
+              "main.go",
+              "router.go",
+              "auth_middleware.go"
+            ],
+            "workers": [
+              "analytics_consumer.py",
+              "db_pusher.py"
+            ],
+            "dashboard": {
+              "components": [
+                "Charts.tsx",
+                "RealtimeTable.tsx"
+              ],
+              "pages": [
+                "index.tsx",
+                "settings.tsx"
+              ]
+            }
+          },
+          "docker-compose.yml": "Compose configuration",
+          "README.md": "Project documentation",
+          "package.json": "Dependencies list"
+        }
+      },
+      "databaseDesign": {
+        "provider": "PostgreSQL & Redis Caching",
+        "schemas": [
+          {
+            "table": "users",
+            "columns": [
+              "id UUID Primary Key",
+              "email VARCHAR Unique",
+              "created_at TIMESTAMP"
+            ]
+          },
+          {
+            "table": "analytics_logs",
+            "columns": [
+              "id UUID Primary Key",
+              "user_id UUID REFERENCES users",
+              "event_type VARCHAR",
+              "metric_value FLOAT",
+              "timestamp TIMESTAMP"
+            ]
+          }
+        ]
+      },
+      "apiDesign": {
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/auth/token",
+            "response": "{ token: 'eyJ...' }",
+            "description": "Exchange client credentials for a signed JWT"
+          },
+          {
+            "method": "GET",
+            "path": "/api/analytics/realtime",
+            "response": "WebSocket connection upgrade",
+            "description": "Continuous stream of aggregate metrics"
+          },
+          {
+            "method": "GET",
+            "path": "/api/analytics/history",
+            "response": "Array of historical telemetry logs",
+            "description": "Paginated database retrieval of event histories"
+          }
+        ]
+      },
+      "authStrategy": {
+        "provider": "JWT Token Handshakes",
+        "flowDescription": "Clients authenticate via endpoint to retrieve JWTs, passed in Authorization headers or query strings during WebSocket connections.",
+        "scopes": [
+          "read:analytics",
+          "write:events"
+        ]
+      },
+      "weeklyRoadmap": [
+        {
+          "week": 1,
+          "goal": "Orchestration & Gateway Auth setup",
+          "deliverable": "Working HTTP reverse proxy with JWT validation",
+          "days": [
+            {
+              "day": 1,
+              "task": "Initialize repository structure and Docker Compose cluster for Kafka and Redis.",
+              "resources": [
+                {
+                  "name": "Docker Compose Tutorial",
+                  "url": "https://docs.docker.com/compose/"
+                }
+              ]
+            },
+            {
+              "day": 2,
+              "task": "Build Go HTTP router with request rate limiter.",
+              "resources": [
+                {
+                  "name": "Go HTTP Routing",
+                  "url": "https://go.dev/doc/"
+                }
+              ]
+            },
+            {
+              "day": 3,
+              "task": "Write custom JWT auth middleware validating signatures.",
+              "resources": [
+                {
+                  "name": "JWT Auth Go Guide",
+                  "url": "https://jwt.io/introduction"
+                }
+              ]
+            },
+            {
+              "day": 4,
+              "task": "Create mock client scripts generating HTTP telemetry calls.",
+              "resources": [
+                {
+                  "name": "Testing API Requests",
+                  "url": "https://github.com/h4rsh740"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "week": 2,
+          "goal": "Apache Kafka Streaming & Redis Pipelines",
+          "deliverable": "Working Pub/Sub log pipeline storing events in Redis memory",
+          "days": [
+            {
+              "day": 5,
+              "task": "Configure Kafka producer inside API gateway to stream logs.",
+              "resources": [
+                {
+                  "name": "Kafka Go Client",
+                  "url": "https://github.com/confluentinc/confluent-kafka-go"
+                }
+              ]
+            },
+            {
+              "day": 6,
+              "task": "Write python worker consumers processing events from Kafka topic.",
+              "resources": [
+                {
+                  "name": "Kafka Python Consumers",
+                  "url": "https://kafka.apache.org/quickstart"
+                }
+              ]
+            },
+            {
+              "day": 7,
+              "task": "Optimize consumer commits using batch transaction pipelines.",
+              "resources": [
+                {
+                  "name": "Redis Caching Pipelines",
+                  "url": "https://redis.io/docs/"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "dailyTasks": [
+        {
+          "text": "Week 1 Day 1: Initialize repository structure and Docker Compose cluster for Kafka and Redis.",
+          "completed": false
+        },
+        {
+          "text": "Week 1 Day 2: Build Go HTTP router with request rate limiter.",
+          "completed": false
+        },
+        {
+          "text": "Week 1 Day 3: Write custom JWT auth middleware validating signatures.",
+          "completed": false
+        },
+        {
+          "text": "Week 1 Day 4: Create mock client scripts generating HTTP telemetry calls.",
+          "completed": false
+        },
+        {
+          "text": "Week 2 Day 5: Configure Kafka producer inside API gateway to stream logs.",
+          "completed": false
+        },
+        {
+          "text": "Week 2 Day 6: Write python worker consumers processing events from Kafka topic.",
+          "completed": false
+        },
+        {
+          "text": "Week 2 Day 7: Optimize consumer commits using batch transaction pipelines.",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "GitHub repository containing complete codebase, README and Docker compose configurations.",
+          "completed": false
+        },
+        {
+          "text": "Hosted staging deployment of dashboard displaying dynamic chart updates.",
+          "completed": false
+        },
+        {
+          "text": "1-minute video demonstration showcasing load simulation.",
+          "completed": false
+        }
+      ],
+      "resources": [
+        {
+          "name": "Docker Compose Tutorial",
+          "url": "https://docs.docker.com/compose/"
+        },
+        {
+          "name": "Go HTTP Routing",
+          "url": "https://go.dev/doc/"
+        },
+        {
+          "name": "JWT Auth Go Guide",
+          "url": "https://jwt.io/introduction"
+        },
+        {
+          "name": "Testing API Requests",
+          "url": "https://github.com/h4rsh740"
+        },
+        {
+          "name": "Kafka Go Client",
+          "url": "https://github.com/confluentinc/confluent-kafka-go"
+        },
+        {
+          "name": "Kafka Python Consumers",
+          "url": "https://kafka.apache.org/quickstart"
+        },
+        {
+          "name": "Redis Caching Pipelines",
+          "url": "https://redis.io/docs/"
+        }
+      ],
+      "commonMistakes": [
+        "Failing to implement connection heartbeats, causing WebSocket timeouts on firewalls.",
+        "Synchronous database commits in hot loops, causing network bottlenecks.",
+        "Exposing Kafka brokers to public subnets rather than VPC isolated containers."
+      ],
+      "expectedDeliverables": [
+        "GitHub repository containing complete codebase, README and Docker compose configurations.",
+        "Hosted staging deployment of dashboard displaying dynamic chart updates.",
+        "1-minute video demonstration showcasing load simulation."
+      ],
+      "templates": {
+        "readme": "# Distributed Realtime Analytics Dashboard\n\nScale analytical log streams under 50ms latency.\n\n## Setup\n```bash\ndocker-compose up -d\n```"
+      },
+      "interviewPrep": {
+        "behavioralQuestions": [
+          "Tell me about the biggest technical bottleneck you hit during build, and how you diagnosed it."
+        ],
+        "technicalDeepDives": [
+          "How do event streams like Kafka differ from message queues like RabbitMQ?"
+        ]
+      },
+      "createdAt": "2026-06-27T08:04:10.430Z"
     }
   ],
   "learning_progress": [
@@ -2044,6 +3032,34 @@
       "roadmapId": "upho71z3vd",
       "completedTasks": [],
       "updatedAt": "2026-06-26T20:31:21.562Z"
+    },
+    {
+      "id": "049b8k06ehxm",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "roadmapId": "xtvflaym97",
+      "completedTasks": [],
+      "updatedAt": "2026-06-27T07:40:32.405Z"
+    },
+    {
+      "id": "izm4iqgs8o",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "roadmapId": "0dwru475o78",
+      "completedTasks": [],
+      "updatedAt": "2026-06-27T07:52:25.278Z"
+    },
+    {
+      "id": "kokmebn763",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "roadmapId": "yjwh9acmo0d",
+      "completedTasks": [],
+      "updatedAt": "2026-06-27T07:57:44.639Z"
+    },
+    {
+      "id": "77vzcwrpbzy",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "roadmapId": "vsx42zwwet",
+      "completedTasks": [],
+      "updatedAt": "2026-06-27T08:04:10.430Z"
     }
   ],
   "activity_logs": [
@@ -2225,6 +3241,38 @@
       "message": "Your GitHub repository footprint has been analyzed. Score: 44/100.",
       "read": false,
       "createdAt": "2026-06-27T06:36:45.945Z"
+    },
+    {
+      "id": "j12na8ne6",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "New Roadmap Generated",
+      "message": "Roadmap for \"Secure Multi-Tenant Real-time SaaS Dashboard\" generated successfully! AI Mentor active.",
+      "read": false,
+      "createdAt": "2026-06-27T07:40:32.410Z"
+    },
+    {
+      "id": "p3ux1ew5t6",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "New Roadmap Generated",
+      "message": "Roadmap for \"Secure Multi-Tenant Real-time SaaS Dashboard\" generated successfully! AI Mentor active.",
+      "read": false,
+      "createdAt": "2026-06-27T07:52:25.283Z"
+    },
+    {
+      "id": "enxgp8v49w8",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "New Roadmap Generated",
+      "message": "Roadmap for \"Secure Multi-Tenant Real-time SaaS Dashboard\" generated successfully! AI Mentor active.",
+      "read": false,
+      "createdAt": "2026-06-27T07:57:44.645Z"
+    },
+    {
+      "id": "1ujwurr9p4gj",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "New Roadmap Generated",
+      "message": "Roadmap for \"Secure Multi-Tenant Real-time SaaS Dashboard\" generated successfully! AI Mentor active.",
+      "read": false,
+      "createdAt": "2026-06-27T08:04:10.431Z"
     }
   ],
   "sync_history": [
@@ -2546,6 +3594,46 @@
         "score": 44
       },
       "createdAt": "2026-06-27T06:36:45.943Z"
+    },
+    {
+      "id": "m51q36ukr6f",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "message": "Roadmap built: Secure Multi-Tenant Real-time SaaS Dashboard"
+      },
+      "createdAt": "2026-06-27T07:40:32.412Z"
+    },
+    {
+      "id": "aj8a13uhmwa",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "message": "Roadmap built: Secure Multi-Tenant Real-time SaaS Dashboard"
+      },
+      "createdAt": "2026-06-27T07:52:25.286Z"
+    },
+    {
+      "id": "zsza55ng2sp",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "message": "Roadmap built: Secure Multi-Tenant Real-time SaaS Dashboard"
+      },
+      "createdAt": "2026-06-27T07:57:44.648Z"
+    },
+    {
+      "id": "pgav3by7hkf",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "message": "Roadmap built: Secure Multi-Tenant Real-time SaaS Dashboard"
+      },
+      "createdAt": "2026-06-27T08:04:10.434Z"
     }
   ]
 }
