@@ -404,5 +404,18 @@ export function generateRoadmapPdf(roadmap: ProjectRoadmap): void {
   }
 
   const safeName = roadmap.projectName.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-  doc.save(`skillsprint_roadmap_${safeName}.pdf`);
+  const filename = `skillsprint_roadmap_${safeName}.pdf`;
+
+  // Use explicit Blob download — doc.save() omits the extension in some browsers/prod envs
+  const pdfBlob = doc.output("blob");
+  const blobWithType = new Blob([pdfBlob], { type: "application/pdf" });
+  const url = URL.createObjectURL(blobWithType);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+
 }
