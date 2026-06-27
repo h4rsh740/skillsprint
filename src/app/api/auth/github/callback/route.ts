@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { getSessionUser } from "@/actions/auth";
 import { db } from "@/lib/db";
 import { encrypt } from "@/lib/encryption";
@@ -9,95 +8,76 @@ import { db as firestoreDb } from "@/lib/firebase";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  const step = "[GitHub OAuth → Callback]";
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
-  const host = request.headers.get("host") || "localhost:3000";
-  const xForwardedProto = request.headers.get("x-forwarded-proto");
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.");
-  const protocol = xForwardedProto || (isLocal ? "http" : "https");
-  const redirectUri = `${protocol}://${host}/api/auth/github/callback`;
+  console.log(`${step} Callback received. code=${code ? "present" : "missing"} error=${error || "none"}`);
 
-  const onboardingRedirectUrl = `${protocol}://${host}/onboarding`;
-  const loginRedirectUrl = `${protocol}://${host}/auth/signin`;
+  // ─────────────────────────────────────────────────────────────────────────
+  // 1. Resolve stable base URL (same logic as /api/auth/github/route.ts)
+  // ─────────────────────────────────────────────────────────────────────────
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+  let baseUrl: string;
 
+  if (appUrl) {
+    baseUrl = appUrl;
+  } else {
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
+    const proto = request.headers.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
+    baseUrl = `${proto}://${host}`;
+  }
+
+  // The redirect_uri sent to GitHub during token exchange must EXACTLY match the one used during authorization
+  const redirectUri = `${baseUrl}/api/auth/github/callback`;
+  const onboardingUrl = `${baseUrl}/onboarding`;
+  const signinUrl = `${baseUrl}/auth/signin`;
+  const dashboardGithubUrl = `${baseUrl}/dashboard/github`;
+
+  console.log(`${step} Base URL: ${baseUrl}`);
+  console.log(`${step} Redirect URI for token exchange: ${redirectUri}`);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 2. Handle GitHub OAuth errors (user denied, etc.)
+  // ─────────────────────────────────────────────────────────────────────────
   if (error) {
-    console.error("GitHub OAuth error:", error, errorDescription);
-    return NextResponse.redirect(`${onboardingRedirectUrl}?error=${encodeURIComponent(errorDescription || "GitHub connection failed")}`);
+    console.error(`${step} GitHub returned an error: ${error} — ${errorDescription}`);
+    return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent(errorDescription || "GitHub authorization was denied or failed.")}`);
   }
 
-  // Get current logged-in user session
-  const currentUser = await getSessionUser();
-  if (!currentUser) {
-    console.error("No active user session found during GitHub OAuth callback.");
-    return NextResponse.redirect(`${loginRedirectUrl}?error=Session+expired.+Please+sign+in+again.`);
-  }
-
-  const userId = currentUser.id;
-
-  // FALLBACK: If client credentials are not configured, handle mock GitHub connection
-  if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET || code === "mock-github-code-12345") {
-    console.warn("GitHub credentials not configured. Linking mock GitHub account...");
-
-    try {
-      // 1. Save github account info in PostgreSQL/JSON DB
-      await db.saveGitHubAccount(userId, {
-        username: "h4rsh740",
-        displayName: "Harsh Singh",
-        avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=256&auto=format&fit=crop",
-        email: currentUser.email,
-        publicRepos: 18,
-        privateRepos: 2
-      });
-
-      // 2. Save encrypted oauth token
-      await db.saveOAuthToken(userId, "github", {
-        accessToken: encrypt("mock-github-access-token-xyz"),
-        scopes: ["read:user", "repo"]
-      });
-
-      // 3. Mark connected in DB Profile
-      await db.updateProfile(userId, {
-        githubUsername: "h4rsh740"
-      });
-
-      // 4. Also update Firestore if available
-      try {
-        const userRef = doc(firestoreDb, "users", userId);
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-          await updateDoc(userRef, { githubConnected: true });
-        }
-      } catch (fErr) {
-        console.warn("Firestore update skipped (running in offline mode):", fErr);
-      }
-
-      // 5. Track sync history
-      await db.createSyncHistory(userId, {
-        provider: "github",
-        status: "success",
-        details: { message: "Mock GitHub account linked successfully" }
-      });
-
-      const targetRedirectUrl = currentUser.onboardingCompleted
-        ? `${protocol}://${host}/dashboard/github`
-        : onboardingRedirectUrl;
-
-      return NextResponse.redirect(targetRedirectUrl);
-    } catch (e: any) {
-      console.error("Failed to link mock GitHub account:", e);
-      return NextResponse.redirect(`${onboardingRedirectUrl}?error=${encodeURIComponent(e.message || "Failed to connect GitHub")}`);
-    }
+  // ─────────────────────────────────────────────────────────────────────────
+  // 3. Require real credentials — remove all mock fallbacks
+  // ─────────────────────────────────────────────────────────────────────────
+  if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+    console.error(`${step} GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET is not set in environment variables.`);
+    return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent("GitHub OAuth credentials are not configured in production.")}`);
   }
 
   if (!code) {
-    return NextResponse.redirect(`${onboardingRedirectUrl}?error=No+authorization+code+returned`);
+    console.error(`${step} No authorization code present in callback URL.`);
+    return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent("No authorization code was returned from GitHub.")}`);
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // 4. Require an active user session (must be logged in via Google/email first)
+  // ─────────────────────────────────────────────────────────────────────────
+  const currentUser = await getSessionUser();
+  if (!currentUser) {
+    console.error(`${step} No active user session found. User must be signed in before connecting GitHub.`);
+    return NextResponse.redirect(`${signinUrl}?error=${encodeURIComponent("Session expired. Please sign in and then connect GitHub again.")}`);
+  }
+
+  const userId = currentUser.id;
+  console.log(`${step} Active session found for user: ${userId}`);
+
   try {
-    // 1. Exchange code for GitHub access token
+    // ─────────────────────────────────────────────────────────────────────
+    // 5. Exchange authorization code for access token
+    // ─────────────────────────────────────────────────────────────────────
+    console.log(`${step} Exchanging authorization code for access token...`);
+
     const tokenRes = await fetch("https://github.com/login/oauth/access_token", {
       method: "POST",
       headers: {
@@ -113,32 +93,56 @@ export async function GET(request: Request) {
     });
 
     if (!tokenRes.ok) {
-      throw new Error("Failed to exchange authorization code for access token");
+      const errBody = await tokenRes.text();
+      console.error(`${step} Token exchange HTTP error ${tokenRes.status}: ${errBody}`);
+      throw new Error(`Token exchange failed with status ${tokenRes.status}`);
     }
 
     const tokenData = await tokenRes.json();
-    const access_token = tokenData.access_token;
-    const scopes = (tokenData.scope || "").split(",");
+    console.log(`${step} Token exchange response keys: ${Object.keys(tokenData).join(", ")}`);
 
-    if (!access_token) {
-      throw new Error("No access token returned from GitHub");
+    if (tokenData.error) {
+      console.error(`${step} GitHub token error: ${tokenData.error} — ${tokenData.error_description}`);
+      throw new Error(tokenData.error_description || tokenData.error || "GitHub token exchange failed");
     }
 
-    // 2. Retrieve GitHub profile details
+    const access_token = tokenData.access_token;
+    const scopes = (tokenData.scope || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+
+    if (!access_token) {
+      console.error(`${step} No access_token in response. Full response: ${JSON.stringify(tokenData)}`);
+      throw new Error("No access token returned from GitHub. The authorization code may have expired or already been used.");
+    }
+
+    console.log(`${step} Token exchange successful. Scopes: ${scopes.join(", ")}`);
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 6. Fetch authenticated GitHub user profile
+    // ─────────────────────────────────────────────────────────────────────
+    console.log(`${step} Fetching GitHub user profile...`);
+
     const profileRes = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `token ${access_token}`,
-        Accept: "application/vnd.github.v3+json"
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "SkillSprint-AI"
       }
     });
 
     if (!profileRes.ok) {
-      throw new Error("Failed to retrieve GitHub user profile");
+      const errBody = await profileRes.text();
+      console.error(`${step} GitHub profile fetch failed ${profileRes.status}: ${errBody}`);
+      throw new Error(`Failed to retrieve GitHub user profile (HTTP ${profileRes.status})`);
     }
 
     const profileData = await profileRes.json();
+    console.log(`${step} GitHub profile fetched: login=${profileData.login}, public_repos=${profileData.public_repos}`);
 
-    // 3. Save github account details and encrypted token in PostgreSQL/JSON DB
+    // ─────────────────────────────────────────────────────────────────────
+    // 7. Persist to database
+    // ─────────────────────────────────────────────────────────────────────
+    console.log(`${step} Saving GitHub account to database...`);
+
     await db.saveGitHubAccount(userId, {
       username: profileData.login,
       displayName: profileData.name || profileData.login,
@@ -148,49 +152,61 @@ export async function GET(request: Request) {
       privateRepos: profileData.total_private_repos || 0
     });
 
+    console.log(`${step} Saving encrypted OAuth token...`);
     await db.saveOAuthToken(userId, "github", {
       accessToken: encrypt(access_token),
       scopes
     });
 
-    // 4. Update profile github username
+    console.log(`${step} Updating profile with GitHub username: ${profileData.login}`);
     await db.updateProfile(userId, {
       githubUsername: profileData.login
     });
 
-    // 5. Update Firestore record
+    // ─────────────────────────────────────────────────────────────────────
+    // 8. Update Firestore record (non-blocking — Firestore may be offline)
+    // ─────────────────────────────────────────────────────────────────────
     try {
       const userRef = doc(firestoreDb, "users", userId);
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
         await updateDoc(userRef, { githubConnected: true });
+        console.log(`${step} Firestore githubConnected updated to true.`);
       }
     } catch (fErr) {
-      console.warn("Firestore update skipped:", fErr);
+      console.warn(`${step} Firestore update skipped (non-critical):`, fErr);
     }
 
-    // 6. Track sync history
+    // ─────────────────────────────────────────────────────────────────────
+    // 9. Log sync history
+    // ─────────────────────────────────────────────────────────────────────
     await db.createSyncHistory(userId, {
       provider: "github",
       status: "success",
-      details: { username: profileData.login }
+      details: { username: profileData.login, scopes }
     });
 
-    const targetRedirectUrl = currentUser.onboardingCompleted
-      ? `${protocol}://${host}/dashboard/github`
-      : onboardingRedirectUrl;
+    console.log(`${step} Database update complete.`);
 
-    return NextResponse.redirect(targetRedirectUrl);
+    // ─────────────────────────────────────────────────────────────────────
+    // 10. Determine redirect target
+    // ─────────────────────────────────────────────────────────────────────
+    const targetUrl = currentUser.onboardingCompleted ? dashboardGithubUrl : onboardingUrl;
+    console.log(`${step} onboardingCompleted=${currentUser.onboardingCompleted}. Redirecting to: ${targetUrl}`);
+
+    return NextResponse.redirect(targetUrl);
+
   } catch (err: any) {
-    console.error("GitHub callback processing error:", err);
-    
-    // Log sync failure
-    await db.createSyncHistory(userId, {
-      provider: "github",
-      status: "failed",
-      details: { error: err.message }
-    });
+    console.error(`${step} Error during GitHub OAuth callback:`, err.message, err.stack);
 
-    return NextResponse.redirect(`${onboardingRedirectUrl}?error=${encodeURIComponent(err.message || "Failed to process GitHub connection")}`);
+    try {
+      await db.createSyncHistory(userId, {
+        provider: "github",
+        status: "failed",
+        details: { error: err.message }
+      });
+    } catch (_) {}
+
+    return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent(err.message || "GitHub connection failed.")}`);
   }
 }

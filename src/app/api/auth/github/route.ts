@@ -3,24 +3,51 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  const host = request.headers.get("host") || "localhost:3000";
-  const xForwardedProto = request.headers.get("x-forwarded-proto");
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.");
-  const protocol = xForwardedProto || (isLocal ? "http" : "https");
-  
-  const redirectUri = `${protocol}://${host}/api/auth/github/callback`;
+  const step = "[GitHub OAuth → Start]";
 
-  // Fallback: If GitHub Client ID is not configured, redirect directly to callback for local mock login
-  if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
-    console.warn("GitHub credentials not configured in .env.local. Redirecting to mock callback...");
-    return NextResponse.redirect(`${redirectUri}?code=mock-github-code-12345&state=skillsprint_github_oauth_state`);
+  // ─────────────────────────────────────────────────────────────────────────
+  // 1. Determine the stable production callback URL.
+  //    Priority:
+  //    a) NEXT_PUBLIC_APP_URL env var  (always set on Vercel to your production domain)
+  //    b) x-forwarded-host + x-forwarded-proto from Vercel edge (reliable for prod)
+  //    c) host header fallback for localhost only
+  // ─────────────────────────────────────────────────────────────────────────
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
+
+  let baseUrl: string;
+
+  if (appUrl) {
+    // Explicit env var always wins — guarantees a stable production domain
+    baseUrl = appUrl;
+    console.log(`${step} Using NEXT_PUBLIC_APP_URL as base: ${baseUrl}`);
+  } else {
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "localhost:3000";
+    const proto = request.headers.get("x-forwarded-proto") || (host.startsWith("localhost") ? "http" : "https");
+    baseUrl = `${proto}://${host}`;
+    console.log(`${step} Derived base URL from headers: ${baseUrl}`);
   }
 
+  const redirectUri = `${baseUrl}/api/auth/github/callback`;
+  console.log(`${step} Redirect URI: ${redirectUri}`);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 2. Require real credentials — no mock fallback
+  // ─────────────────────────────────────────────────────────────────────────
+  if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+    console.error(`${step} GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET is not configured.`);
+    const errorUrl = `${baseUrl}/onboarding?error=${encodeURIComponent("GitHub OAuth is not configured. Please contact the administrator.")}`;
+    return NextResponse.redirect(errorUrl);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 3. Build GitHub Authorization URL
+  // ─────────────────────────────────────────────────────────────────────────
   const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");
   githubAuthUrl.searchParams.set("client_id", process.env.GITHUB_CLIENT_ID);
   githubAuthUrl.searchParams.set("redirect_uri", redirectUri);
-  githubAuthUrl.searchParams.set("scope", "read:user user:email repo read:org"); // Request expanded scopes
+  githubAuthUrl.searchParams.set("scope", "read:user user:email repo read:org");
   githubAuthUrl.searchParams.set("state", "skillsprint_github_oauth_state");
 
+  console.log(`${step} Redirecting to GitHub: ${githubAuthUrl.toString()}`);
   return NextResponse.redirect(githubAuthUrl.toString());
 }
