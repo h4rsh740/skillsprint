@@ -30,13 +30,51 @@ const ThreeCanvas = dynamic(() => import("@/components/dashboard/ThreeCanvas"), 
 export default function SkillGraphPage() {
   const { user } = useAuth();
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  
   // Rich dummy skills shown to populate the interactive 3D skill network
   const DUMMY_SKILLS = [
     "JavaScript", "React.js", "Next.js", "Node.js",
     "CSS / HTML", "Tailwind CSS", "PostgreSQL", "Python"
   ];
 
-  const [userSkillsList] = useState<string[]>(DUMMY_SKILLS);
+  const [userSkillsList, setUserSkillsList] = useState<string[]>(DUMMY_SKILLS);
+  const [profileSkills, setProfileSkills] = useState<string[]>([]);
+  const [isDemoMode, setIsDemoMode] = useState(true);
+
+  async function loadSkills() {
+    try {
+      const { getStudentProfileForTwin } = await import("@/actions/career-twin");
+      const profile = await getStudentProfileForTwin();
+      if (profile?.skills) {
+        const list = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
+        if (list.length > 0) {
+          setProfileSkills(list);
+          // If profile has skills, start in profile mode rather than demo mode
+          setUserSkillsList(list);
+          setIsDemoMode(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load skills for 3D graph:", err);
+    }
+  }
+
+  useEffect(() => {
+    loadSkills();
+  }, [user]);
+
+  const handleToggleMode = () => {
+    if (isDemoMode) {
+      // Toggle to profile mode
+      setUserSkillsList(profileSkills.length > 0 ? profileSkills : ["React", "JavaScript"]);
+      setIsDemoMode(false);
+    } else {
+      // Toggle to demo mode
+      setUserSkillsList(DUMMY_SKILLS);
+      setIsDemoMode(true);
+    }
+  };
 
   const userSkillsSet = useMemo(() => {
     return new Set(userSkillsList.map(s => s.toLowerCase().trim()));
@@ -88,14 +126,22 @@ export default function SkillGraphPage() {
         {/* WebGL Canvas Card */}
         <div className="lg:col-span-2 rounded-3xl overflow-hidden relative border border-white/50 bg-white/50 backdrop-blur-sm shadow-sm flex flex-col justify-between min-h-[500px]">
           {/* Info Overlays */}
-          <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-md border border-gray-150 rounded-2xl p-4 max-w-xs shadow-sm">
-            <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-2">Controls</h3>
-            <ul className="text-[11px] text-gray-600 space-y-1 font-medium">
-              <li>• Drag: Rotate space orientation</li>
-              <li>• Scroll: Zoom camera focal length</li>
-              <li>• Right-Click + Drag: Pan camera</li>
-              <li>• Click Node: Open skill specs & resources</li>
-            </ul>
+          <div className="absolute top-4 left-4 z-10 bg-white/80 backdrop-blur-md border border-gray-150 rounded-2xl p-4 max-w-xs shadow-sm flex flex-col gap-3">
+            <div>
+              <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider mb-2">Controls</h3>
+              <ul className="text-[11px] text-gray-650 space-y-1 font-medium">
+                <li>• Drag: Rotate space orientation</li>
+                <li>• Scroll: Zoom camera focal length</li>
+                <li>• Right-Click + Drag: Pan camera</li>
+                <li>• Click Node: Open skill specs</li>
+              </ul>
+            </div>
+            <button
+              onClick={handleToggleMode}
+              className="w-full text-center text-[10.5px] bg-[#4f46e5]/10 hover:bg-[#4f46e5]/20 text-[#4f46e5] font-extrabold py-2 px-3 rounded-xl transition-all cursor-pointer"
+            >
+              {isDemoMode ? "Reset to Profile Graph" : "Load Demo Graph"}
+            </button>
           </div>
 
           <div className="absolute top-4 right-4 z-10 bg-white/80 backdrop-blur-md border border-gray-150 rounded-2xl p-4 shadow-sm flex gap-4">
