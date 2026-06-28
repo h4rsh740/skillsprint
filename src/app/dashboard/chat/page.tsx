@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Sparkles, Send, User, Copy, Check, FileDown } from "lucide-react";
-import type { ChatMessage } from "@/actions/chat";
+import { askCareerCoach, type ChatMessage } from "@/actions/chat";
 import React from "react";
 
 // Helper to escape HTML characters
@@ -500,41 +500,15 @@ export default function ChatPage() {
   const handleSendMessage = async (text: string) => {
     if (!text.trim() || loading) return;
     const userMessage: ChatMessage = { role: "user", content: text };
-    const history = [...messages, userMessage];
-    setMessages(prev => [...prev, userMessage, { role: "assistant", content: "" }]);
+    setMessages(prev => [...prev, userMessage]);
     setInput("");
     setLoading(true);
-
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatHistory: history }),
-      });
-
-      if (!res.ok || !res.body) throw new Error("Stream failed");
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        accumulated += decoder.decode(value, { stream: true });
-        // Update the last assistant message in real-time
-        setMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: accumulated };
-          return updated;
-        });
-      }
+      const history = [...messages, userMessage];
+      const responseText = await askCareerCoach(history);
+      setMessages(prev => [...prev, { role: "assistant", content: responseText }]);
     } catch {
-      setMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = { role: "assistant", content: "Apologies, I encountered an error. Please try again." };
-        return updated;
-      });
+      setMessages(prev => [...prev, { role: "assistant", content: "Apologies, I encountered an error. Please try again." }]);
     } finally {
       setLoading(false);
     }

@@ -13,11 +13,9 @@ export async function askCareerCoach(chatHistory: ChatMessage[]): Promise<string
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const [profile, resume, careerTwin] = await Promise.all([
-    db.getProfileByUserId(user.id),
-    db.getLatestResumeByUserId(user.id),
-    db.getLatestCareerTwin(user.id),
-  ]);
+  const profile = await db.getProfileByUserId(user.id);
+  const resume = await db.getLatestResumeByUserId(user.id);
+  const careerTwin = await db.getLatestCareerTwin(user.id);
 
   const contextPrompt = `You are a world-class tech career coach AI at SkillSprint. You are speaking to a student named ${profile?.fullName || "Candidate"}.
   
