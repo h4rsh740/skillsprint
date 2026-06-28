@@ -399,15 +399,19 @@ export async function disconnectGitHub() {
     const user = await getSessionUser();
     if (!user) throw new Error("Unauthorized");
 
-    // 1. Delete GitHub account and tokens from database
+    // 1. Delete GitHub account, tokens, and analysis from database
     await db.deleteGitHubAccount(user.id);
 
-    // 2. Clear githubUsername from profile
-    await db.updateProfile(user.id, {
-      githubUsername: null
-    });
+    // 2. Clear githubUsername from profile so session refresh reflects disconnected state
+    try {
+      await db.updateProfile(user.id, {
+        githubUsername: null
+      });
+    } catch (profileErr) {
+      console.warn("Profile githubUsername clear failed (non-critical):", profileErr);
+    }
 
-    // 3. Clear firebase status if available
+    // 3. Clear firebase status (best-effort — don't fail if Firestore is offline)
     try {
       const userRef = doc(firestoreDb, "users", user.id);
       const docSnap = await getDoc(userRef);
@@ -418,12 +422,16 @@ export async function disconnectGitHub() {
       console.warn("Firestore update skipped during disconnect (offline/test mode):", fErr);
     }
 
-    // 4. Create sync history log
-    await db.createSyncHistory(user.id, {
-      provider: "github",
-      status: "failed",
-      details: { message: "GitHub account disconnected by user" }
-    });
+    // 4. Create sync history log (best-effort)
+    try {
+      await db.createSyncHistory(user.id, {
+        provider: "github",
+        status: "failed",
+        details: { message: "GitHub account disconnected by user" }
+      });
+    } catch (logErr) {
+      console.warn("Sync history log failed (non-critical):", logErr);
+    }
 
     return { success: true };
   } catch (error: any) {

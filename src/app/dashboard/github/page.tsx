@@ -132,14 +132,17 @@ export default function GitHubIntelPage() {
       setIsAnalyzing(true);
       setError(null);
       try {
-        await disconnectGitHub();
+        const result = await disconnectGitHub();
+        if (!result.success) {
+          throw new Error(result.error || "Failed to disconnect GitHub account.");
+        }
         setResult(null);
         setUsername("");
         await refreshSession();
         router.push("/dashboard");
       } catch (e: any) {
         console.error("Failed to disconnect GitHub", e);
-        setError("Failed to disconnect GitHub account.");
+        setError(e.message || "Failed to disconnect GitHub account.");
       } finally {
         setIsAnalyzing(false);
       }
