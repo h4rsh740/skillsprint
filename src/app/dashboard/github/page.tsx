@@ -139,7 +139,7 @@ export default function GitHubIntelPage() {
         setResult(null);
         setUsername("");
         await refreshSession();
-        router.push("/dashboard");
+        router.push("/api/auth/github");
       } catch (e: any) {
         console.error("Failed to disconnect GitHub", e);
         setError(e.message || "Failed to disconnect GitHub account.");
