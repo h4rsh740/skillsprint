@@ -66,7 +66,7 @@
         "CSS"
       ],
       "studyHoursPerWeek": 10,
-      "updatedAt": "2026-06-27T06:36:02.359Z"
+      "updatedAt": "2026-06-28T17:54:16.662Z"
     },
     {
       "id": "lai41gde7nb",
@@ -798,7 +798,7 @@
       "updatedAt": "2026-06-26T19:32:32.930Z"
     },
     {
-      "id": "p5a7y2105c",
+      "id": "sr6k135n3rk",
       "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
       "username": "h4rsh740",
       "displayName": "h4rsh740",
@@ -806,7 +806,7 @@
       "email": "harshsingh3989@gmail.com",
       "publicRepos": 19,
       "privateRepos": 2,
-      "updatedAt": "2026-06-27T06:36:45.936Z"
+      "updatedAt": "2026-06-28T17:55:20.903Z"
     }
   ],
   "linkedin_accounts": [],
@@ -823,17 +823,17 @@
       "updatedAt": "2026-06-26T19:32:32.938Z"
     },
     {
-      "id": "uyj2n4rgz1k",
+      "id": "h3hdtj70kw",
       "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
       "provider": "github",
-      "accessToken": "75be037708450886db8df9c2:40dab0f9da8b91e20ebf20365c0a25f2579e1e6f70a8f3ade2149413cc6bf872f4289237a4d8461e:451dc9e5f9b4341f68ee5876c2ae19b2",
+      "accessToken": "235f2b386d055266729822f1:f850864d20373c080b13fbaa9b0e1e79d3e666665f13d3c1bec081519aea0330c1726841b4506942:538cea4394774a3e6bc9342455581619",
       "scopes": [
         "read:org",
         "read:user",
         "repo",
         "user:email"
       ],
-      "updatedAt": "2026-06-27T06:36:02.357Z"
+      "updatedAt": "2026-06-28T17:54:16.659Z"
     }
   ],
   "resume_files": [
@@ -1237,46 +1237,46 @@
   ],
   "github_analysis": [
     {
-      "id": "lyakoeo04cl",
+      "id": "qfjhpmju5z",
       "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
-      "githubAccountId": "xq5vmxtsts",
+      "githubAccountId": "3om57r8826b",
       "publicReposCount": 19,
       "privateReposCount": 2,
       "pinnedRepos": [
         {
           "name": "skillsprint",
-          "signal": "Medium",
-          "insight": "The project shows recent development activity and documentation, but the lack of CI/CD and zero community engagement suggests it is in an early or experimental stage; implementation of automated testing and deployment pipelines is recommended to improve project reliability."
+          "signal": "Low",
+          "insight": "The repository is in its early stages with minimal community traction and lacks automated CI/CD pipelines. While recent activity is positive, the project requires increased documentation of its architectural goals and automated testing before it can be considered production-ready."
         },
         {
           "name": "my-github-activity",
           "signal": "Low",
-          "insight": "The repository shows low community engagement with zero stars and forks, and the large README relative to its unknown language suggests it may be a personal utility or learning project."
+          "insight": "The repository shows low community engagement with zero stars and forks, suggesting a personal project that may lack maintenance or production-grade standards."
         },
         {
           "name": "AI-Bias-Inspector",
           "signal": "Low",
-          "insight": "The project is in an early-stage development phase with minimal community adoption; verify the quality of the bias-detection methodology and documentation before integrating it into critical pipelines."
+          "insight": "The repository shows minimal community engagement despite having CI/CD and a substantial README; it likely serves as a personal project or proof-of-concept rather than an actively maintained library."
         },
         {
           "name": "VoiceBridge",
           "signal": "Low",
-          "insight": "The project lacks basic documentation, engagement, and automated testing, suggesting it is currently an early-stage or abandoned experimental codebase."
+          "insight": "The repository lacks basic documentation, CI/CD pipelines, and community engagement, suggesting it is an early-stage or inactive personal project that requires significant maturation before being considered for production use."
         },
         {
           "name": "Household-Energy-Advisor",
           "signal": "Low",
-          "insight": "The repository shows minimal community activity and lacks automated testing or CI/CD pipelines, suggesting it is likely a personal project or an early-stage prototype requiring more robust engineering practices for production use."
+          "insight": "The repository shows minimal community engagement with zero stars and forks, and lacks essential CI/CD automation, suggesting it is likely a personal or inactive project."
         }
       ],
       "languagesUsed": [
         {
           "name": "TypeScript",
-          "percentage": 66
+          "percentage": 69
         },
         {
           "name": "JavaScript",
-          "percentage": 23
+          "percentage": 21
         },
         {
           "name": "CSS",
@@ -1284,11 +1284,15 @@
         },
         {
           "name": "Python",
-          "percentage": 4
+          "percentage": 3
         },
         {
           "name": "HTML",
           "percentage": 3
+        },
+        {
+          "name": "Java",
+          "percentage": 0
         },
         {
           "name": "Dockerfile",
@@ -1296,12 +1300,12 @@
         }
       ],
       "commitHistory": {
-        "streak": 27,
+        "streak": 30,
         "prCount": 0,
         "resolvedIssues": 0,
-        "totalCommits": 27
+        "totalCommits": 30
       },
-      "stars": 1,
+      "stars": 2,
       "forks": 0,
       "openIssues": 0,
       "closedIssues": 0,
@@ -1312,56 +1316,56 @@
       "deploymentStatus": "Active Integrations",
       "cicdStatus": "Active GitHub Actions",
       "codeOwnership": "100% Owner",
-      "contributionStreak": 27,
-      "portfolioCompleteness": 44,
+      "contributionStreak": 30,
+      "portfolioCompleteness": 49,
       "suggestions": [
         "Ensure all repositories have custom README.md document guides.",
         "Review CI/CD deployment outputs for any warning signals.",
         "Archive inactive and duplicate learning/note repositories to clean portfolio footprint."
       ],
-      "createdAt": "2026-06-27T06:36:30.732Z"
+      "createdAt": "2026-06-28T17:54:24.503Z"
     },
     {
-      "id": "ep95j53j7pi",
+      "id": "hoicqqbnu3g",
       "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
-      "githubAccountId": "9opd0lycprw",
+      "githubAccountId": "8qil5y9osu3",
       "publicReposCount": 19,
       "privateReposCount": 2,
       "pinnedRepos": [
         {
           "name": "skillsprint",
-          "signal": "Medium",
-          "insight": "The repository shows consistent recent activity and documentation, but the lack of CI/CD and zero community metrics suggest it is in an early-stage or experimental phase."
+          "signal": "Low",
+          "insight": "The repository shows early-stage activity with recent commits, but lacks essential CI/CD infrastructure and community traction, suggesting it is currently a personal or experimental project."
         },
         {
           "name": "my-github-activity",
           "signal": "Low",
-          "insight": "The repository shows low community engagement with zero stars and forks, and lacks standard CI/CD practices despite recent activity, suggesting it is likely a personal or experimental project."
+          "insight": "The repository shows low community engagement with zero stars and forks, and the large README relative to the project size may indicate potential bloat or auto-generated content."
         },
         {
           "name": "AI-Bias-Inspector",
           "signal": "Low",
-          "insight": "The repository shows minimal community adoption and activity despite having CI/CD and a detailed README. It likely serves as a personal project or an early-stage tool, requiring further development and outreach to establish credibility."
+          "insight": "The repository is currently dormant with minimal community engagement, suggesting it is a personal or experimental project rather than a maintained production tool."
         },
         {
           "name": "VoiceBridge",
           "signal": "Low",
-          "insight": "The repository lacks basic documentation, automated testing, and community traction, suggesting it is currently an early-stage or experimental project that may not be production-ready."
+          "insight": "The project lacks basic documentation (README) and CI/CD, and shows minimal traction with zero stars or forks; it is likely an experimental or abandoned personal project."
         },
         {
           "name": "Household-Energy-Advisor",
           "signal": "Low",
-          "insight": "The repository shows minimal activity and lacks standard DevOps practices like CI/CD, suggesting it is likely a stagnant personal project or an abandoned prototype."
+          "insight": "The repository shows minimal activity and lacks standard automated development workflows like CI/CD, suggesting it is likely a dormant or personal project."
         }
       ],
       "languagesUsed": [
         {
           "name": "TypeScript",
-          "percentage": 66
+          "percentage": 69
         },
         {
           "name": "JavaScript",
-          "percentage": 23
+          "percentage": 21
         },
         {
           "name": "CSS",
@@ -1369,11 +1373,15 @@
         },
         {
           "name": "Python",
-          "percentage": 4
+          "percentage": 3
         },
         {
           "name": "HTML",
           "percentage": 3
+        },
+        {
+          "name": "Java",
+          "percentage": 0
         },
         {
           "name": "Dockerfile",
@@ -1381,12 +1389,12 @@
         }
       ],
       "commitHistory": {
-        "streak": 27,
+        "streak": 30,
         "prCount": 0,
         "resolvedIssues": 0,
-        "totalCommits": 27
+        "totalCommits": 30
       },
-      "stars": 1,
+      "stars": 2,
       "forks": 0,
       "openIssues": 0,
       "closedIssues": 0,
@@ -1397,14 +1405,103 @@
       "deploymentStatus": "Active Integrations",
       "cicdStatus": "Active GitHub Actions",
       "codeOwnership": "100% Owner",
-      "contributionStreak": 27,
-      "portfolioCompleteness": 44,
+      "contributionStreak": 30,
+      "portfolioCompleteness": 49,
       "suggestions": [
         "Ensure all repositories have custom README.md document guides.",
         "Review CI/CD deployment outputs for any warning signals.",
         "Archive inactive and duplicate learning/note repositories to clean portfolio footprint."
       ],
-      "createdAt": "2026-06-27T06:36:45.940Z"
+      "createdAt": "2026-06-28T17:54:37.864Z"
+    },
+    {
+      "id": "hwsx7mt33lk",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "githubAccountId": "wwz2iy18sgm",
+      "publicReposCount": 19,
+      "privateReposCount": 2,
+      "pinnedRepos": [
+        {
+          "name": "skillsprint",
+          "signal": "Low",
+          "insight": "The repository shows early signs of activity, but the lack of CI/CD and low social proof suggest it is currently an experimental or personal project."
+        },
+        {
+          "name": "my-github-activity",
+          "signal": "Low",
+          "insight": "The repository lacks community traction, clear documentation of purpose, and automated testing, suggesting it is likely a personal utility or experimental project with low maintainability."
+        },
+        {
+          "name": "AI-Bias-Inspector",
+          "signal": "Low",
+          "insight": "The repository shows minimal community adoption and low activity, suggesting it is likely a personal project or an early-stage experiment that requires further validation before professional use."
+        },
+        {
+          "name": "VoiceBridge",
+          "signal": "Low",
+          "insight": "The repository lacks basic documentation, CI/CD, and community engagement, suggesting it is an early-stage or abandoned project that requires significant setup before it can be considered production-ready."
+        },
+        {
+          "name": "Household-Energy-Advisor",
+          "signal": "Low",
+          "insight": "The project shows minimal activity and lacks community engagement or automated testing infrastructure, suggesting it is likely a personal or abandoned side project."
+        }
+      ],
+      "languagesUsed": [
+        {
+          "name": "TypeScript",
+          "percentage": 69
+        },
+        {
+          "name": "JavaScript",
+          "percentage": 21
+        },
+        {
+          "name": "CSS",
+          "percentage": 4
+        },
+        {
+          "name": "Python",
+          "percentage": 3
+        },
+        {
+          "name": "HTML",
+          "percentage": 3
+        },
+        {
+          "name": "Java",
+          "percentage": 0
+        },
+        {
+          "name": "Dockerfile",
+          "percentage": 0
+        }
+      ],
+      "commitHistory": {
+        "streak": 30,
+        "prCount": 0,
+        "resolvedIssues": 0,
+        "totalCommits": 30
+      },
+      "stars": 2,
+      "forks": 0,
+      "openIssues": 0,
+      "closedIssues": 0,
+      "pullRequests": 0,
+      "readmeQuality": "Medium",
+      "docsQuality": "Medium",
+      "branchStrategy": "GitFlow Standard",
+      "deploymentStatus": "Active Integrations",
+      "cicdStatus": "Active GitHub Actions",
+      "codeOwnership": "100% Owner",
+      "contributionStreak": 30,
+      "portfolioCompleteness": 49,
+      "suggestions": [
+        "Ensure all repositories have custom README.md document guides.",
+        "Review CI/CD deployment outputs for any warning signals.",
+        "Archive inactive and duplicate learning/note repositories to clean portfolio footprint."
+      ],
+      "createdAt": "2026-06-28T17:55:20.907Z"
     }
   ],
   "linkedin_analysis": [],
@@ -1433,7 +1530,7 @@
           }
         ]
       },
-      "updatedAt": "2026-06-27T08:03:57.752Z"
+      "updatedAt": "2026-06-28T17:54:52.100Z"
     },
     {
       "userId": "95yduvdn6rXyDMCvYp56aIQF2UW2",
@@ -3273,6 +3370,54 @@
       "message": "Roadmap for \"Secure Multi-Tenant Real-time SaaS Dashboard\" generated successfully! AI Mentor active.",
       "read": false,
       "createdAt": "2026-06-27T08:04:10.431Z"
+    },
+    {
+      "id": "f72n29m874w",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 49/100.",
+      "read": false,
+      "createdAt": "2026-06-28T17:52:17.929Z"
+    },
+    {
+      "id": "ntai1uan35s",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 49/100.",
+      "read": false,
+      "createdAt": "2026-06-28T17:52:47.800Z"
+    },
+    {
+      "id": "uez5yfuglcg",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 49/100.",
+      "read": false,
+      "createdAt": "2026-06-28T17:54:06.852Z"
+    },
+    {
+      "id": "y711v0wla2e",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 49/100.",
+      "read": false,
+      "createdAt": "2026-06-28T17:54:24.509Z"
+    },
+    {
+      "id": "tjen0n0zc",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 49/100.",
+      "read": false,
+      "createdAt": "2026-06-28T17:54:37.870Z"
+    },
+    {
+      "id": "1k55jy92pkq",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "title": "GitHub Synchronized",
+      "message": "Your GitHub repository footprint has been analyzed. Score: 49/100.",
+      "read": false,
+      "createdAt": "2026-06-28T17:55:20.915Z"
     }
   ],
   "sync_history": [
@@ -3634,6 +3779,150 @@
         "message": "Roadmap built: Secure Multi-Tenant Real-time SaaS Dashboard"
       },
       "createdAt": "2026-06-27T08:04:10.434Z"
+    },
+    {
+      "id": "cfwy8hbizot",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-28T17:51:31.885Z"
+    },
+    {
+      "id": "3dff8p0e39c",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "scopes": [
+          "read:org",
+          "read:user",
+          "repo",
+          "user:email"
+        ]
+      },
+      "createdAt": "2026-06-28T17:51:36.227Z"
+    },
+    {
+      "id": "jvzuy4n341",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 49
+      },
+      "createdAt": "2026-06-28T17:52:17.928Z"
+    },
+    {
+      "id": "a0cw6lc13hk",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 49
+      },
+      "createdAt": "2026-06-28T17:52:47.797Z"
+    },
+    {
+      "id": "wysqzal9qv",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-28T17:53:29.577Z"
+    },
+    {
+      "id": "pm2f08dt0ir",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "scopes": [
+          "read:org",
+          "read:user",
+          "repo",
+          "user:email"
+        ]
+      },
+      "createdAt": "2026-06-28T17:53:32.771Z"
+    },
+    {
+      "id": "9fjhsxd0j8",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 49
+      },
+      "createdAt": "2026-06-28T17:54:06.849Z"
+    },
+    {
+      "id": "gbnnkya7ug",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "failed",
+      "details": {
+        "message": "GitHub account disconnected by user"
+      },
+      "createdAt": "2026-06-28T17:54:14.259Z"
+    },
+    {
+      "id": "pe9aljcnlm",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "scopes": [
+          "read:org",
+          "read:user",
+          "repo",
+          "user:email"
+        ]
+      },
+      "createdAt": "2026-06-28T17:54:16.876Z"
+    },
+    {
+      "id": "cxa6pnqvob",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 49
+      },
+      "createdAt": "2026-06-28T17:54:24.506Z"
+    },
+    {
+      "id": "noqouzdyqo",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 49
+      },
+      "createdAt": "2026-06-28T17:54:37.867Z"
+    },
+    {
+      "id": "0mws03ngt4um",
+      "userId": "X1bU4VlSIcOoiX2lGRLYWfBnkiy2",
+      "provider": "github",
+      "status": "success",
+      "details": {
+        "username": "h4rsh740",
+        "score": 49
+      },
+      "createdAt": "2026-06-28T17:55:20.912Z"
     }
   ]
 }
