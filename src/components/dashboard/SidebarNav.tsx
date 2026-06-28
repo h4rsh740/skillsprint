@@ -22,7 +22,8 @@ import {
   Shield,
   ArrowRight,
   Clock,
-  Users
+  Users,
+  ClipboardCheck
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -68,6 +69,7 @@ export function SidebarNav() {
     { name: "Learning Roadmap", path: "/dashboard/roadmap", icon: Map },
     { name: "Mock Interviews", path: "/dashboard/mock-interview", icon: Mic },
     { name: "AI Career Coach", path: "/dashboard/chat", icon: Sparkles },
+    { name: "Prep Quizzes", path: "/dashboard/prep-quizzes", icon: ClipboardCheck },
     { name: "Job Matching", path: "/dashboard/jobs", icon: Briefcase },
     { name: "Talent Leaderboard", path: "/dashboard/leaderboard", icon: Trophy },
     { name: "Portfolio Analyzer", path: "/dashboard/portfolio-analyzer", icon: Link2 },
