@@ -21,7 +21,8 @@ import {
   Link2,
   Shield,
   ArrowRight,
-  Clock
+  Clock,
+  Users
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -73,6 +74,7 @@ export function SidebarNav() {
     { name: "Portfolio Analyzer", path: "/dashboard/portfolio-analyzer", icon: Link2 },
     { name: "Hackathons", path: "/dashboard/hackathons", icon: Trophy },
     { name: "Admin Panel", path: "/dashboard/admin", icon: Shield },
+    { name: "AI Shortlisting", path: "/dashboard/shortlisting", icon: Users },
   ];
 
   const handleLogout = async () => {
