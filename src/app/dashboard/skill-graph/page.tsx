@@ -30,7 +30,13 @@ const ThreeCanvas = dynamic(() => import("@/components/dashboard/ThreeCanvas"), 
 export default function SkillGraphPage() {
   const { user } = useAuth();
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
-  const [userSkillsList, setUserSkillsList] = useState<string[]>(["React", "JavaScript"]);
+  // Rich dummy skills shown when profile has no skills or fails to load
+  const DUMMY_SKILLS = [
+    "JavaScript", "React.js", "Next.js", "Node.js",
+    "CSS / HTML", "Tailwind CSS", "PostgreSQL", "Python"
+  ];
+
+  const [userSkillsList, setUserSkillsList] = useState<string[]>(DUMMY_SKILLS);
 
   useEffect(() => {
     async function loadSkills() {
@@ -41,11 +47,14 @@ export default function SkillGraphPage() {
           const list = profile.skills.split(",").map((s: string) => s.trim()).filter(Boolean);
           if (list.length > 0) {
             setUserSkillsList(list);
+            return;
           }
         }
       } catch (err) {
         console.error("Failed to load skills for 3D graph:", err);
       }
+      // Keep dummy data if profile load fails or has no skills
+      setUserSkillsList(DUMMY_SKILLS);
     }
     loadSkills();
   }, [user]);
