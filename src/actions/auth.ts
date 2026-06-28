@@ -225,8 +225,11 @@ async function resolveUserSessionDetails(userId: string, email: string, role: st
   const resumeUploaded = !!resume;
   const careerTwinGenerated = !!twin;
 
-  // Onboarding completed only if profile fields are filled and a career twin exists
-  const onboardingCompleted = !!(profile?.targetRole && profile?.college && careerTwinGenerated);
+  // Onboarding is complete if the profile has core fields filled in.
+  // We also check the DB-stored flag as a reliable override for returning users.
+  const profileOnboardingDone = !!(profile?.onboardingCompleted);
+  const derivedOnboardingDone = !!(profile?.targetRole && profile?.college);
+  const onboardingCompleted = profileOnboardingDone || derivedOnboardingDone;
 
   return {
     name,

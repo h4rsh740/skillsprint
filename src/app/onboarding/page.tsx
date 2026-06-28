@@ -307,29 +307,39 @@ export default function OnboardingPage() {
   const completeOnboarding = async () => {
     setSaving(true);
     try {
-      // Trigger Career Twin build endpoint
-      const res = await fetch("/api/career-twin/build", { method: "POST" });
-      const data = await res.json();
-      
-      if (data.success) {
-        // Mark onboardCompleted in Firestore
+      // 1. Trigger Career Twin build (non-blocking — don't fail onboarding if this errors)
+      try {
+        await fetch("/api/career-twin/build", { method: "POST" });
+      } catch (twinErr) {
+        console.warn("Career twin build failed (non-critical):", twinErr);
+      }
+
+      // 2. Mark onboarding complete in PostgreSQL (critical — this is what session refresh reads)
+      const patchRes = await fetch("/api/onboard", { method: "PATCH" });
+      const patchData = await patchRes.json();
+      if (!patchData.success) {
+        throw new Error(patchData.error || "Failed to mark onboarding complete");
+      }
+
+      // 3. Also update Firestore for real-time listeners
+      try {
         await updateOnboarding({
           onboardingCompleted: true,
           careerTwinGenerated: true
         });
-
-        // Trigger refresh
-        await refreshSession();
-
-        setAuthStatus("success");
-        setTimeout(() => {
-          router.push("/dashboard");
-          router.refresh();
-        }, 1000);
-      } else {
-        setError(data.error || "Failed to generate career twin.");
-        setSaving(false);
+      } catch (fsErr) {
+        console.warn("Firestore onboarding update failed (non-critical):", fsErr);
       }
+
+      // 4. Refresh session so the new onboardingCompleted=true is reflected
+      await refreshSession();
+
+      setAuthStatus("success");
+
+      // 5. Hard redirect — forces a fresh page load so ProtectedRoute reads the new session
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 800);
     } catch (err: any) {
       setError(err.message || "Failed to save onboarding details");
       setAuthStatus("error");

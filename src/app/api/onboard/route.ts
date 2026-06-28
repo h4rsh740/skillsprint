@@ -67,3 +67,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
+
+// PATCH: Mark onboarding as completed in the DB
+export async function PATCH() {
+  try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Persist onboardingCompleted=true to the PostgreSQL profile
+    await db.updateProfile(user.id, { onboardingCompleted: true });
+
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    console.error("Onboarding complete PATCH error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
