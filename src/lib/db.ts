@@ -1,6 +1,8 @@
 import { prisma } from "./prisma";
 import fs from "fs";
 import path from "path";
+import { db as firestoreDb } from "./firebase";
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 // Define the file path for local fallback database
 const DB_FILE = path.join(process.cwd(), "prisma", "db.json");
@@ -28,7 +30,11 @@ function getLocalDB() {
       notifications: [],
       sync_history: [],
       portfolios: [], // For legacy compatibility with portfolio audit actions
-      hackathons: [] // For legacy compatibility
+      hackathons: [], // For legacy compatibility
+      quiz_sessions: [],
+      quiz_questions: [],
+      quiz_answers: [],
+      quiz_reports: []
     };
     fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
     fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), "utf8");
@@ -44,7 +50,8 @@ function getLocalDB() {
       "resume_files", "resume_analysis", "github_analysis", "linkedin_analysis",
       "career_scores", "career_twins", "recommended_projects", "roadmaps",
       "learning_progress", "activity_logs", "mentor_sessions", "notifications",
-      "sync_history", "portfolios", "hackathons"
+      "sync_history", "portfolios", "hackathons",
+      "quiz_sessions", "quiz_questions", "quiz_answers", "quiz_reports"
     ];
     let changed = false;
     keys.forEach(k => {
@@ -1408,7 +1415,363 @@ export const db = {
     return sync;
   },
 
+  // --- QUIZZES ---
+  async listQuizSessions(userId: string) {
+    try {
+      const isDummyFirebase = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "AIzaSyFakeKeyForBuildTimeOnly";
+      if (isDummyFirebase) throw new Error("Firebase unconfigured");
+
+      const q = query(
+        collection(firestoreDb, "quiz_sessions"),
+        where("userId", "==", userId),
+        where("deletedAt", "==", null)
+      );
+      const querySnapshot = await getDocs(q);
+      const sessions: any[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data() as any;
+        sessions.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt ? new Date(data.createdAt) : new Date()
+        });
+      });
+      // Sort in memory by createdAt descending
+      return sessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    } catch (err) {
+      console.warn("Firestore listQuizSessions failed, falling back to local JSON db:", err);
+      const store = getLocalDB();
+      return (store.quiz_sessions || []).filter((s: any) => s.userId === userId && !s.deletedAt).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+  },
+
+  async getQuizSession(id: string, userId: string) {
+    try {
+      const isDummyFirebase = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "AIzaSyFakeKeyForBuildTimeOnly";
+      if (isDummyFirebase) throw new Error("Firebase unconfigured");
+
+      const docRef = doc(firestoreDb, "quiz_sessions", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data() as any;
+        if (data.userId === userId && !data.deletedAt) {
+          return {
+            id: docSnap.id,
+            ...data,
+            createdAt: data.createdAt ? new Date(data.createdAt) : new Date()
+          } as any;
+        }
+      }
+      return null;
+    } catch (err) {
+      console.warn("Firestore getQuizSession failed, falling back to local JSON db:", err);
+      const store = getLocalDB();
+      const session = (store.quiz_sessions || []).find((s: any) => s.id === id && s.userId === userId && !s.deletedAt);
+      if (!session) return null;
+      
+      const questions = (store.quiz_questions || []).filter((q: any) => q.sessionId === id).sort((a: any, b: any) => a.position - b.position).map((q: any) => {
+        const answers = (store.quiz_answers || []).filter((ans: any) => ans.questionId === q.id);
+        return { ...q, answers };
+      });
+      
+      return { ...session, questions };
+    }
+  },
+
+  async createQuizSession(userId: string, data: {
+    resumeId?: string | null;
+    title: string;
+    jobRole: string;
+    difficulty: any;
+    quizType: any;
+    questionCount: number;
+    estimatedTime: string;
+    generatedPayload?: string;
+    source: string;
+    questions: any[];
+  }) {
+    const sessionId = Math.random().toString(36).substring(2, 15);
+    const now = new Date().toISOString();
+    
+    const questions = data.questions.map((q, i) => ({
+      id: q.id || Math.random().toString(36).substring(2, 15),
+      position: i + 1,
+      externalId: q.id || q.externalId || (i + 1),
+      question: q.question,
+      type: q.type || "mcq",
+      skill: q.skill,
+      difficulty: q.difficulty,
+      options: typeof q.options === "string" ? JSON.parse(q.options) : q.options,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      answers: []
+    }));
+
+    const sessionDoc = {
+      userId,
+      resumeId: data.resumeId || null,
+      title: data.title,
+      jobRole: data.jobRole,
+      difficulty: data.difficulty,
+      quizType: data.quizType,
+      questionCount: data.questionCount,
+      estimatedTime: data.estimatedTime,
+      status: "GENERATED",
+      startedAt: null,
+      submittedAt: null,
+      durationSec: null,
+      score: null,
+      correctCount: null,
+      totalCount: null,
+      generatedPayload: data.generatedPayload || null,
+      source: data.source,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+      questions
+    };
+
+    try {
+      const isDummyFirebase = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "AIzaSyFakeKeyForBuildTimeOnly";
+      if (isDummyFirebase) throw new Error("Firebase unconfigured");
+
+      await setDoc(doc(firestoreDb, "quiz_sessions", sessionId), sessionDoc);
+      return { id: sessionId, ...sessionDoc };
+    } catch (err) {
+      console.warn("Firestore createQuizSession failed, falling back to local JSON db:", err);
+      const store = getLocalDB();
+      store.quiz_sessions = store.quiz_sessions || [];
+      store.quiz_questions = store.quiz_questions || [];
+
+      const fallbackSession = {
+        id: sessionId,
+        userId,
+        resumeId: data.resumeId || null,
+        title: data.title,
+        jobRole: data.jobRole,
+        difficulty: data.difficulty,
+        quizType: data.quizType,
+        questionCount: data.questionCount,
+        estimatedTime: data.estimatedTime,
+        status: "GENERATED",
+        startedAt: null,
+        submittedAt: null,
+        durationSec: null,
+        score: null,
+        correctCount: null,
+        totalCount: null,
+        generatedPayload: data.generatedPayload || null,
+        source: data.source,
+        createdAt: now,
+        updatedAt: now,
+        deletedAt: null
+      };
+
+      const fallbackQuestions = questions.map((q) => ({
+        id: q.id,
+        sessionId,
+        position: q.position,
+        externalId: q.externalId,
+        question: q.question,
+        type: q.type,
+        skill: q.skill,
+        difficulty: q.difficulty,
+        options: JSON.stringify(q.options),
+        correctAnswer: q.correctAnswer,
+        explanation: q.explanation,
+        createdAt: now
+      }));
+
+      store.quiz_sessions.push(fallbackSession);
+      store.quiz_questions.push(...fallbackQuestions);
+      saveLocalDB(store);
+      
+      return { ...fallbackSession, questions };
+    }
+  },
+
+  async updateQuizSession(id: string, data: any) {
+    try {
+      const isDummyFirebase = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "AIzaSyFakeKeyForBuildTimeOnly";
+      if (isDummyFirebase) throw new Error("Firebase unconfigured");
+
+      const docRef = doc(firestoreDb, "quiz_sessions", id);
+      const updateData = {
+        ...data,
+        updatedAt: new Date().toISOString()
+      };
+      await updateDoc(docRef, updateData);
+      return { id, ...updateData };
+    } catch (err) {
+      console.warn("Firestore updateQuizSession failed, falling back to local JSON db:", err);
+      const store = getLocalDB();
+      const idx = (store.quiz_sessions || []).findIndex((s: any) => s.id === id);
+      if (idx === -1) return null;
+      const session = { ...store.quiz_sessions[idx], ...data, updatedAt: new Date().toISOString() };
+      store.quiz_sessions[idx] = session;
+      saveLocalDB(store);
+      return session;
+    }
+  },
+
+  async saveQuizAnswer(questionId: string, data: {
+    selectedAnswer: string | null;
+    isCorrect: boolean;
+    pointsAwarded: number;
+  }) {
+    try {
+      const isDummyFirebase = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "AIzaSyFakeKeyForBuildTimeOnly";
+      if (isDummyFirebase) throw new Error("Firebase unconfigured");
+      return { id: questionId, ...data };
+    } catch (err) {
+      const store = getLocalDB();
+      store.quiz_answers = store.quiz_answers || [];
+      const ans = {
+        id: Math.random().toString(36).substring(2, 15),
+        questionId,
+        selectedAnswer: data.selectedAnswer,
+        isCorrect: data.isCorrect,
+        pointsAwarded: data.pointsAwarded,
+        createdAt: new Date().toISOString()
+      };
+      store.quiz_answers.push(ans);
+      saveLocalDB(store);
+      return ans;
+    }
+  },
+
+  async createQuizReport(userId: string, sessionId: string, data: {
+    score: number;
+    readiness: number;
+    strengths: string[];
+    weaknesses: string[];
+    skillGaps: string[];
+    improvements: string[];
+    roadmap: any;
+    recommendedProjects: string[];
+    recommendedCertifications: string[];
+    recommendedCourses: string[];
+    careerAdvice: string[];
+    fullPayload: any;
+  }) {
+    const reportDoc = {
+      userId,
+      sessionId,
+      score: data.score,
+      readiness: data.readiness,
+      strengths: JSON.stringify(data.strengths),
+      weaknesses: JSON.stringify(data.weaknesses),
+      skillGaps: JSON.stringify(data.skillGaps),
+      improvements: JSON.stringify(data.improvements),
+      roadmap: typeof data.roadmap === "string" ? data.roadmap : JSON.stringify(data.roadmap),
+      recommendedProjects: JSON.stringify(data.recommendedProjects),
+      recommendedCertifications: JSON.stringify(data.recommendedCertifications),
+      recommendedCourses: JSON.stringify(data.recommendedCourses),
+      careerAdvice: JSON.stringify(data.careerAdvice),
+      fullPayload: typeof data.fullPayload === "string" ? data.fullPayload : JSON.stringify(data.fullPayload),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deletedAt: null
+    };
+
+    try {
+      const isDummyFirebase = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "AIzaSyFakeKeyForBuildTimeOnly";
+      if (isDummyFirebase) throw new Error("Firebase unconfigured");
+
+      await setDoc(doc(firestoreDb, "quiz_reports", sessionId), reportDoc);
+      return { id: sessionId, ...reportDoc };
+    } catch (err) {
+      console.warn("Firestore createQuizReport failed, falling back to local JSON db:", err);
+      const store = getLocalDB();
+      store.quiz_reports = store.quiz_reports || [];
+      const report = {
+        id: sessionId,
+        ...reportDoc
+      };
+      store.quiz_reports.push(report);
+      saveLocalDB(store);
+      return report;
+    }
+  },
+
+  async getQuizReport(sessionId: string, userId: string) {
+    try {
+      const isDummyFirebase = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 
+                              process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "AIzaSyFakeKeyForBuildTimeOnly";
+      if (isDummyFirebase) throw new Error("Firebase unconfigured");
+
+      const docRef = doc(firestoreDb, "quiz_reports", sessionId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data() as any;
+        if (data.userId === userId && !data.deletedAt) {
+          return { id: docSnap.id, ...data } as any;
+        }
+      }
+      return null;
+    } catch (err) {
+      console.warn("Firestore getQuizReport failed, falling back to local JSON db:", err);
+      const store = getLocalDB();
+      return (store.quiz_reports || []).find((r: any) => r.sessionId === sessionId && r.userId === userId && !r.deletedAt) || null;
+    }
+  },
+
+  async listResumesByUserId(userId: string) {
+    if (!useLocalDB) {
+      try {
+        return await prisma.resumeFile.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" }
+        });
+      } catch (err) {
+        console.warn("Prisma listResumesByUserId failed, falling back to local JSON db:", err);
+      }
+    }
+    const store = getLocalDB();
+    return (store.resume_files || []).filter((f: any) => f.userId === userId).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  async getResumeAnalysisByFileId(resumeFileId: string, userId: string) {
+    if (!useLocalDB) {
+      try {
+        return await prisma.resumeAnalysis.findFirst({
+          where: { resumeFileId, userId },
+          orderBy: { createdAt: "desc" }
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    const store = getLocalDB();
+    const analyses = (store.resume_analysis || []).filter((a: any) => a.resumeFileId === resumeFileId && a.userId === userId);
+    if (analyses.length === 0) return null;
+    return analyses.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  },
+
   async migrateUserId(oldId: string, newId: string) {
+    try {
+      const qSessions = query(collection(firestoreDb, "quiz_sessions"), where("userId", "==", oldId));
+      const snapSessions = await getDocs(qSessions);
+      for (const docSnap of snapSessions.docs) {
+        await updateDoc(docSnap.ref, { userId: newId });
+      }
+
+      const qReports = query(collection(firestoreDb, "quiz_reports"), where("userId", "==", oldId));
+      const snapReports = await getDocs(qReports);
+      for (const docSnap of snapReports.docs) {
+        await updateDoc(docSnap.ref, { userId: newId });
+      }
+      console.log(`[db] Firestore user ID migration complete from "${oldId}" to "${newId}"`);
+    } catch (fErr) {
+      console.warn("Firestore migrateUserId failed:", fErr);
+    }
+
     if (!useLocalDB) {
       try {
         console.log(`[db] Starting Prisma migrateUserId transaction from "${oldId}" to "${newId}"`);
@@ -1447,6 +1810,8 @@ export const db = {
           await tx.mentorSession.updateMany({ where: { userId: oldId }, data: { userId: newId } });
           await tx.notification.updateMany({ where: { userId: oldId }, data: { userId: newId } });
           await tx.syncHistory.updateMany({ where: { userId: oldId }, data: { userId: newId } });
+          await tx.quizSession.updateMany({ where: { userId: oldId }, data: { userId: newId } });
+          await tx.quizReport.updateMany({ where: { userId: oldId }, data: { userId: newId } });
 
           await tx.user.delete({ where: { id: oldId } });
         });
@@ -1471,7 +1836,7 @@ export const db = {
           "resume_files", "resume_analysis", "github_analysis", "linkedin_analysis",
           "career_scores", "career_twins", "recommended_projects", "roadmaps",
           "learning_progress", "activity_logs", "mentor_sessions", "notifications",
-          "sync_history", "portfolios", "hackathons"
+          "sync_history", "portfolios", "hackathons", "quiz_sessions", "quiz_reports"
         ];
         
         relationKeys.forEach((key: string) => {

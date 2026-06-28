@@ -35,6 +35,8 @@ model User {
   mentorSessions   MentorSession[]
   notifications    Notification[]
   syncHistories    SyncHistory[]
+  quizSessions     QuizSession[]
+  quizReports      QuizReport[]
 
   @@map("users")
 }
@@ -121,6 +123,7 @@ model ResumeFile {
   fileType       String
   createdAt      DateTime         @default(now())
   analyses       ResumeAnalysis[]
+  quizSessions   QuizSession[]
 
   @@map("resume_files")
 }
@@ -366,4 +369,112 @@ model SyncHistory {
 
   @@map("sync_history")
 }
+
+enum QuizDifficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXTREME
+}
+
+enum QuizType {
+  TECHNICAL
+  HR
+  MIXED
+  PROJECT_BASED
+}
+
+enum QuizSessionStatus {
+  GENERATED
+  IN_PROGRESS
+  SUBMITTED
+  EVALUATED
+}
+
+model QuizSession {
+  id               String            @id @default(uuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resumeId         String?
+  resume           ResumeFile?       @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  title            String
+  jobRole          String
+  difficulty       QuizDifficulty
+  quizType         QuizType
+  questionCount    Int
+  estimatedTime    String
+  status           QuizSessionStatus @default(GENERATED)
+  startedAt        DateTime?
+  submittedAt      DateTime?
+  durationSec      Int?
+  score            Float?
+  correctCount     Int?
+  totalCount       Int?
+  generatedPayload String?           // JSON string of generated question objects
+  source           String            @default("mock") // mock | gemini
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+  questions        QuizQuestion[]
+  report           QuizReport?
+
+  @@map("quiz_sessions")
+}
+
+model QuizQuestion {
+  id            String       @id @default(uuid())
+  sessionId     String
+  session       QuizSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  position      Int
+  externalId    Int
+  question      String
+  type          String       // e.g. "mcq"
+  skill         String
+  difficulty    String
+  options       String       // JSON-serialized options array
+  correctAnswer String
+  explanation   String
+  answers       QuizAnswer[]
+  createdAt     DateTime     @default(now())
+
+  @@map("quiz_questions")
+}
+
+model QuizAnswer {
+  id             String       @id @default(uuid())
+  questionId     String
+  question       QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedAnswer String?
+  isCorrect      Boolean?
+  pointsAwarded  Float?       @default(0)
+  createdAt      DateTime     @default(now())
+
+  @@map("quiz_answers")
+}
+
+model QuizReport {
+  id                        String      @id @default(uuid())
+  userId                    String
+  user                      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId                 String      @unique
+  session                   QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  score                     Float
+  readiness                 Float
+  strengths                 String      // JSON string[]
+  weaknesses                String      // JSON string[]
+  skillGaps                 String      // JSON string[]
+  improvements              String      // JSON string[]
+  roadmap                   String      // JSON roadmap structure
+  recommendedProjects      String      // JSON string[]
+  recommendedCertifications String      // JSON string[]
+  recommendedCourses       String      // JSON string[]
+  careerAdvice              String      // JSON string[]
+  fullPayload               String      // full JSON report
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
+  deletedAt                 DateTime?
+
+  @@map("quiz_reports")
+}
+
 

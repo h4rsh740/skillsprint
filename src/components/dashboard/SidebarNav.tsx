@@ -66,6 +66,7 @@ export function SidebarNav() {
     { name: "Resume Intel", path: "/dashboard/resume-intelligence", icon: FileText },
     { name: "Learning Roadmap", path: "/dashboard/roadmap", icon: Map },
     { name: "Mock Interviews", path: "/dashboard/mock-interview", icon: Mic },
+    { name: "Prep Quizzes", path: "/dashboard/prep-quiz", icon: Trophy },
     { name: "AI Career Coach", path: "/dashboard/chat", icon: Sparkles },
     { name: "3D Skill Graph", path: "/dashboard/skill-graph", icon: Network },
     { name: "Job Matching", path: "/dashboard/jobs", icon: Briefcase },
@@ -222,91 +223,120 @@ export function SidebarNav() {
         {desktopSidebarContent}
       </aside>
 
-      {/* Mobile Sidebar Slide-Over Drawer (Bottom Sheet Style matching landing page) */}
+      {/* Mobile Sidebar Slide-Over Drawer (iOS Left Sliding Sidebar style) */}
       <div
-        className={`fixed inset-0 z-50 flex flex-col justify-end transition-opacity duration-500 md:hidden ${
+        className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/60" onClick={() => setIsOpen(false)} />
+        <div 
+          className="absolute inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity duration-300" 
+          onClick={() => setIsOpen(false)} 
+        />
 
         {/* Drawer panel */}
         <div
-          className={`relative bg-white rounded-2xl mx-3 mb-3 p-6 flex flex-col max-h-[85vh] transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] z-10 ${
-            isOpen ? "translate-y-0" : "translate-y-[120%]"
+          className={`absolute top-0 bottom-0 left-0 w-[290px] bg-white/95 backdrop-blur-md border-r border-gray-150 flex flex-col h-full shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-10 ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full">
-              <Clock className="w-3.5 h-3.5 text-gray-600" />
-              <span className="text-[13px] text-gray-600 font-medium">{londonTime} IST</span>
+          <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-gradient-to-tr from-[#4f46e5] to-[#06b6d4] rounded-full flex items-center justify-center">
+                <BrainCircuit className="w-4.5 h-4.5 text-white animate-pulse" />
+              </div>
+              <div>
+                <h2 className="font-bold text-[14px] text-gray-900 leading-tight">SkillSprint</h2>
+                <span className="text-[8px] bg-[#06b6d4] text-white px-1.5 py-0.2 rounded font-black tracking-wider uppercase">PRO</span>
+              </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"
+              className="w-8 h-8 bg-gray-50 border border-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
             >
-              <X className="w-5 h-5 text-gray-900" />
+              <X className="w-4.5 h-4.5" />
             </button>
           </div>
 
           {/* User Profile Card */}
           {user && (
-            <div className="flex items-center gap-3 p-3.5 bg-gray-50 rounded-2xl border border-gray-150 mb-6">
-              {user.photoURL ? (
-                <img 
-                  src={user.photoURL} 
-                  alt={user.name} 
-                  className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                />
-              ) : (
-                <div className="w-10 h-10 bg-gradient-to-tr from-[#4f46e5] to-[#06b6d4] rounded-full flex items-center justify-center text-white text-[14px] font-bold uppercase">
-                  {user.name.substring(0, 2)}
+            <div className="px-4 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-3 p-2.5 bg-gray-50 rounded-2xl border border-gray-150">
+                {user.photoURL ? (
+                  <img 
+                    src={user.photoURL} 
+                    alt={user.name} 
+                    className="w-9 h-9 rounded-full object-cover border border-gray-200 flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-9 h-9 bg-gradient-to-tr from-[#4f46e5] to-[#06b6d4] rounded-full flex items-center justify-center text-white text-[12px] font-bold uppercase flex-shrink-0">
+                    {user.name.substring(0, 2)}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="text-[12.5px] font-bold text-gray-800 truncate leading-snug">{user.name}</div>
+                  <div className="text-[9.5px] text-gray-400 truncate leading-none mt-0.5">{user.email}</div>
                 </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="text-[13.5px] font-bold text-gray-800 truncate">{user.name}</div>
-                <div className="text-[10.5px] text-gray-400 truncate mt-0.5">{user.email}</div>
               </div>
             </div>
           )}
 
-          {/* Scrollable Links */}
-          <nav className="flex flex-col gap-4 mb-8 overflow-y-auto max-h-[40vh] pr-1">
+          {/* Scrollable Links with Icons */}
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {links.map((link) => {
               const isActive = pathname === link.path;
+              const Icon = link.icon;
               return (
                 <Link
                   key={link.name}
                   href={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`text-[28px] leading-[32px] font-medium tracking-tight transition-colors duration-300 ${
-                    isActive ? "text-[#4f46e5]" : "text-gray-900 hover:text-[#4f46e5]"
+                  className={`group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200 ${
+                    isActive
+                      ? "bg-[#4f46e5] text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-transparent hover:border-gray-200"
                   }`}
                 >
-                  {link.name}
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600"}`} />
+                    <span>{link.name}</span>
+                  </div>
+                  <ArrowRight className={`w-3 h-3 opacity-60 ${isActive ? "text-white" : "text-gray-400 group-hover:translate-x-0.5 transition-transform"}`} />
                 </Link>
               );
             })}
           </nav>
 
-          {/* Action buttons at the bottom */}
-          <button 
-            onClick={() => { setIsOpen(false); handleLogout(); }} 
-            className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 transition-colors text-white text-[15px] font-medium rounded-full p-4 w-full mb-3 cursor-pointer"
-          >
-            Sign Out
-            <LogOut className="w-4 h-4" />
-          </button>
-          <Link 
-            href="/dashboard/settings" 
-            onClick={() => setIsOpen(false)} 
-            className="flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] transition-colors text-white text-[15px] font-medium rounded-full p-4 w-full"
-          >
-            Settings
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          {/* Footer Actions */}
+          <div className="p-4 border-t border-gray-100 space-y-2 bg-white/80">
+            <Link
+              href="/dashboard/settings"
+              onClick={() => setIsOpen(false)}
+              className={`group flex items-center justify-between px-3.5 py-2 rounded-xl text-[12.5px] font-semibold transition-all ${
+                pathname === "/dashboard/settings"
+                  ? "bg-[#4f46e5]/10 text-[#4f46e5]"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Settings className="w-3.5 h-3.5 text-gray-500" />
+                <span>Settings</span>
+              </div>
+              <ArrowRight className="w-3 h-3 text-gray-400" />
+            </Link>
+            <button
+              onClick={() => { setIsOpen(false); handleLogout(); }}
+              className="group w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-[12.5px] font-semibold text-red-650 hover:bg-red-50 transition-all text-left cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <LogOut className="w-3.5 h-3.5 text-red-500" />
+                <span>Sign Out</span>
+              </div>
+              <ArrowRight className="w-3 h-3 text-red-400" />
+            </button>
+          </div>
         </div>
       </div>
     </>
