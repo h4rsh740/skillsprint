@@ -39,8 +39,13 @@ export async function getAdminStats(): Promise<AdminStats> {
   });
 
   // Fetch sync history to model background jobs
+  // Exclude internal housekeeping entries (e.g. GitHub disconnect logs)
   const userSyncs = await db.getSyncHistory(user.id);
-  const recentJobs: { id: string; name: string; status: string; duration: string; timestamp: string }[] = (userSyncs || []).map((sync: any) => ({
+  const filteredSyncs = (userSyncs || []).filter((sync: any) => {
+    const msg = sync.details?.message || "";
+    return !msg.toLowerCase().includes("disconnected");
+  });
+  const recentJobs: { id: string; name: string; status: string; duration: string; timestamp: string }[] = filteredSyncs.map((sync: any) => ({
     id: sync.id || `job-${Math.random().toString(36).substring(2, 6)}`,
     name: `${sync.provider.toUpperCase()} Footprint Calibration`,
     status: sync.status === "success" ? "success" : "failed",
