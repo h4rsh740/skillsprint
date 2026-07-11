@@ -227,7 +227,23 @@ async function resolveUserSessionDetails(userId: string, email: string, role: st
 
   // Onboarding is complete if the profile has core fields filled in.
   // We also check the DB-stored flag as a reliable override for returning users.
-  const profileOnboardingDone = !!(profile?.onboardingCompleted);
+  let profileOnboardingDone = !!(profile?.onboardingCompleted);
+
+  // Since onboardingCompleted is not in the Prisma schema, try raw query check on production
+  if (!profileOnboardingDone) {
+    try {
+      const { prisma } = require("@/lib/prisma");
+      const rawRes: any = await prisma.$queryRaw`
+        SELECT "onboardingCompleted" FROM profiles WHERE "userId" = ${userId} LIMIT 1
+      `;
+      if (rawRes && rawRes[0] && rawRes[0].onboardingCompleted) {
+        profileOnboardingDone = true;
+      }
+    } catch (rawErr) {
+      // Ignore if column doesn't exist or query fails
+    }
+  }
+
   const derivedOnboardingDone = !!(profile?.targetRole && profile?.college);
   const onboardingCompleted = profileOnboardingDone || derivedOnboardingDone;
 

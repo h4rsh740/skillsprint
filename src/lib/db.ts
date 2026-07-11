@@ -166,7 +166,8 @@ export const db = {
       try {
         return await prisma.profile.findUnique({ where: { userId } });
       } catch (err) {
-        console.warn("Prisma getProfileByUserId failed, falling back to local JSON db:", err);
+        console.error("Prisma getProfileByUserId failed on production:", err);
+        return null;
       }
     }
     const store = getLocalDB();
@@ -191,7 +192,8 @@ export const db = {
           create: { userId, ...data }
         });
       } catch (err) {
-        console.warn("Prisma upsertProfile failed, falling back to local JSON db:", err);
+        console.error("Prisma upsertProfile failed on production:", err);
+        throw err;
       }
     }
     const store = getLocalDB();
@@ -226,12 +228,32 @@ export const db = {
   async updateProfile(userId: string, data: any) {
     if (!useLocalDB) {
       try {
-        return await prisma.profile.update({
-          where: { userId },
-          data
-        });
+        // If data contains onboardingCompleted, update it via raw query since it's not in the Prisma schema
+        if ("onboardingCompleted" in data) {
+          const { onboardingCompleted, ...rest } = data;
+          try {
+            await prisma.$executeRaw`
+              UPDATE profiles 
+              SET "onboardingCompleted" = ${onboardingCompleted} 
+              WHERE "userId" = ${userId}
+            `;
+          } catch (rawErr) {
+            console.warn("Raw SQL update of onboardingCompleted failed:", rawErr);
+          }
+          data = rest;
+        }
+
+        if (Object.keys(data).length > 0) {
+          return await prisma.profile.update({
+            where: { userId },
+            data
+          });
+        } else {
+          return await prisma.profile.findUnique({ where: { userId } });
+        }
       } catch (err) {
-        console.warn("Prisma updateProfile failed, falling back to local JSON db:", err);
+        console.error("Prisma updateProfile failed on production:", err);
+        return null;
       }
     }
     const store = getLocalDB();
