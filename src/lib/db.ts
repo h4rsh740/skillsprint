@@ -7,6 +7,12 @@ const DB_FILE = path.join(process.cwd(), "prisma", "db.json");
 
 // Helper to initialize the local JSON database with all 17 tables if it doesn't exist
 function getLocalDB() {
+  if (DB_CONFIGURED) {
+    throw new Error(
+      "Local JSON DB fallback is disabled because DATABASE_URL is configured. " +
+      "A Prisma query failed upstream; fix the database connection instead of silently writing to ephemeral storage."
+    );
+  }
   if (!fs.existsSync(DB_FILE)) {
     const initialData = {
       users: [],
@@ -84,6 +90,12 @@ function getLocalDB() {
 }
 
 function saveLocalDB(data: any) {
+  if (DB_CONFIGURED) {
+    throw new Error(
+      "Local JSON DB fallback is disabled because DATABASE_URL is configured. " +
+      "A Prisma write failed upstream; fix the database connection instead of silently writing to ephemeral storage."
+    );
+  }
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf8");
   } catch (err) {
@@ -93,6 +105,9 @@ function saveLocalDB(data: any) {
 
 // Check if we should use local JSON database
 const useLocalDB = !process.env.DATABASE_URL;
+// When a real database is configured, NEVER fall back to the ephemeral local
+// JSON file (it does not persist on serverless). Fail loudly instead.
+const DB_CONFIGURED = !!process.env.DATABASE_URL;
 
 export const db = {
   // --- USERS ---
@@ -1258,33 +1273,45 @@ export const db = {
 
   // --- PORTFOLIOS (LEGACY FALLBACK COMPATIBILITY) ---
   async getPortfolioAudit(userId: string) {
-    const store = getLocalDB();
-    return store.portfolios.find((p: any) => p.userId === userId) || null;
+    try {
+      const store = getLocalDB();
+      return store.portfolios.find((p: any) => p.userId === userId) || null;
+    } catch {
+      return null;
+    }
   },
 
   async savePortfolioAudit(userId: string, data: any) {
-    const store = getLocalDB();
-    let index = store.portfolios.findIndex((p: any) => p.userId === userId);
-    const audit = {
-      id: Math.random().toString(36).substring(2, 15),
-      userId,
-      ...data,
-      createdAt: new Date().toISOString()
-    };
-    if (index !== -1) {
-      store.portfolios[index] = audit;
-    } else {
-      store.portfolios.push(audit);
+    try {
+      const store = getLocalDB();
+      let index = store.portfolios.findIndex((p: any) => p.userId === userId);
+      const audit = {
+        id: Math.random().toString(36).substring(2, 15),
+        userId,
+        ...data,
+        createdAt: new Date().toISOString()
+      };
+      if (index !== -1) {
+        store.portfolios[index] = audit;
+      } else {
+        store.portfolios.push(audit);
+      }
+      saveLocalDB(store);
+      return audit;
+    } catch {
+      return null;
     }
-    saveLocalDB(store);
-    return audit;
   },
 
   // --- HACKATHONS (LEGACY COMPATIBILITY) ---
   async getHackathonsByUserId(userId: string) {
-    const store = getLocalDB();
-    const list = store.hackathons.filter((h: any) => h.userId === userId);
-    if (list.length > 0) return list;
+    try {
+      const store = getLocalDB();
+      const list = store.hackathons.filter((h: any) => h.userId === userId);
+      if (list.length > 0) return list;
+    } catch {
+      // Local JSON DB disabled in production — fall through to defaults.
+    }
     return [
       { id: "h1", userId, title: "Smart India Hackathon 2026", matchScore: 92, platform: "Govt of India", skills: ["React", "SQL", "Cloud"] },
       { id: "h2", userId, title: "Co:here AI Hackathon", matchScore: 84, platform: "Lablab.ai", skills: ["Next.js", "Python", "API Design"] },

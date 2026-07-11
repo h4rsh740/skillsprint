@@ -17,6 +17,13 @@ export async function POST() {
     const githubAccount = await db.getGitHubAccountByUserId(user.id);
     const linkedinAccount = await db.getLinkedInAccountByUserId(user.id);
     const resume = await db.getLatestResumeAnalysis(user.id);
+    const githubAnalysis = await db.getLatestGitHubAnalysis(user.id);
+
+    // Derive the GitHub score from the actual synchronized analysis when present,
+    // rather than a hardcoded constant.
+    const githubScore = githubAccount
+      ? Math.min(100, githubAnalysis?.portfolioCompleteness ?? 70)
+      : 0;
 
     // AI Career Twin Projection
     const prompt = `Synthesize Career Twin profile for:
@@ -87,9 +94,8 @@ export async function POST() {
 
     // Calculate initial dynamic career scores
     const atsScore = resume?.atsScore || 70;
-    const githubScore = githubAccount ? 85 : 0;
     const linkedinScore = linkedinAccount ? 82 : 0;
-    const portfolioScore = 75; 
+    const portfolioScore = githubAccount ? githubScore : 75;
     
     // Overall SDE career score calculation
     const overallScore = Math.round((atsScore + githubScore + linkedinScore + portfolioScore + 70) / 5);

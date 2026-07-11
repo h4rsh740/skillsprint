@@ -371,11 +371,19 @@ export async function linkGitHubAccountOnSignIn(
       email: ""
     });
 
-    // 2. Save encrypted access token
-    await db.saveOAuthToken(userId, "github", {
-      accessToken: encrypt(accessToken),
-      scopes: ["read:user", "user:email", "repo", "read:org"]
-    });
+    // 2. Save encrypted access token — but never persist a placeholder/mock
+    //    token as a usable data-connection token (it would fail every sync).
+    if (accessToken && !accessToken.startsWith("mock-")) {
+      await db.saveOAuthToken(userId, "github", {
+        accessToken: encrypt(accessToken),
+        scopes: ["read:user", "user:email", "repo", "read:org"]
+      });
+    } else {
+      console.warn(
+        `[linkGitHubAccountOnSignIn] No valid GitHub access token provided (received a placeholder). ` +
+        `Skipping token storage. The user must connect GitHub via the dedicated 'Connect GitHub' OAuth flow to enable repository sync.`
+      );
+    }
 
     // 3. Update profile to set githubUsername
     await db.updateProfile(userId, {

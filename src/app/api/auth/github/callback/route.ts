@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getSessionUser } from "@/actions/auth";
 import { db } from "@/lib/db";
 import { encrypt } from "@/lib/encryption";
@@ -13,11 +14,12 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
+  const returnedState = searchParams.get("state");
 
   console.log(`${step} Callback received. code=${code ? "present" : "missing"} error=${error || "none"}`);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 1. Resolve stable base URL (same logic as /api/auth/github/route.ts)
+  // 0. Resolve stable base URL (same logic as /api/auth/github/route.ts)
   // ─────────────────────────────────────────────────────────────────────────
   const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
   let baseUrl: string;
@@ -30,7 +32,6 @@ export async function GET(request: Request) {
     baseUrl = `${proto}://${host}`;
   }
 
-  // The redirect_uri sent to GitHub during token exchange must EXACTLY match the one used during authorization
   const redirectUri = `${baseUrl}/api/auth/github/callback`;
   const onboardingUrl = `${baseUrl}/onboarding`;
   const signinUrl = `${baseUrl}/auth/signin`;
@@ -38,6 +39,18 @@ export async function GET(request: Request) {
 
   console.log(`${step} Base URL: ${baseUrl}`);
   console.log(`${step} Redirect URI for token exchange: ${redirectUri}`);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 1. Validate CSRF state token
+  // ─────────────────────────────────────────────────────────────────────────
+  const cookieStore = await cookies();
+  const expectedState = cookieStore.get("github_oauth_state")?.value;
+  cookieStore.delete("github_oauth_state");
+
+  if (!returnedState || !expectedState || returnedState !== expectedState) {
+    console.error(`${step} OAuth state mismatch. Possible CSRF attack.`);
+    return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent("GitHub OAuth state validation failed. Please try connecting again.")}`);
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // 2. Handle GitHub OAuth errors (user denied, etc.)

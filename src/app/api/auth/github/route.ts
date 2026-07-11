@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import crypto from "crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -40,13 +42,26 @@ export async function GET(request: Request) {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 3. Build GitHub Authorization URL
+  // 3. Generate and persist a CSRF state token (validated in the callback)
+  // ─────────────────────────────────────────────────────────────────────────
+  const state = crypto.randomBytes(24).toString("hex");
+  const cookieStore = await cookies();
+  cookieStore.set("github_oauth_state", state, {
+    httpOnly: true,
+    secure: baseUrl.startsWith("https"),
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 10, // 10 minutes
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 4. Build GitHub Authorization URL
   // ─────────────────────────────────────────────────────────────────────────
   const githubAuthUrl = new URL("https://github.com/login/oauth/authorize");
   githubAuthUrl.searchParams.set("client_id", process.env.GITHUB_CLIENT_ID);
   githubAuthUrl.searchParams.set("redirect_uri", redirectUri);
   githubAuthUrl.searchParams.set("scope", "read:user user:email repo read:org");
-  githubAuthUrl.searchParams.set("state", "skillsprint_github_oauth_state");
+  githubAuthUrl.searchParams.set("state", state);
 
   console.log(`${step} Redirecting to GitHub: ${githubAuthUrl.toString()}`);
   return NextResponse.redirect(githubAuthUrl.toString());

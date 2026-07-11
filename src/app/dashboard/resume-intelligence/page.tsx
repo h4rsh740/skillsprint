@@ -9,6 +9,8 @@ export default function ResumeIntelPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState<ResumeAnalysisResult | null>(null);
   const [applied, setApplied] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"analysis" | "enhanced">("analysis");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,13 +19,17 @@ export default function ResumeIntelPage() {
 
     setIsUploading(true);
     setApplied(false);
+    setUploadError(null);
+    setResult(null);
+    setActiveTab("analysis");
     try {
       const formData = new FormData();
       formData.append("resume", file);
       const data = await analyzeResume(formData);
       setResult(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to analyze resume", error);
+      setUploadError(error?.message || "Failed to analyze resume. Please try again.");
     } finally {
       setIsUploading(false);
     }
@@ -282,9 +288,9 @@ export default function ResumeIntelPage() {
           </div>
           <div className="text-center">
             <h3 className="text-lg font-semibold text-gray-900">Upload your resume</h3>
-            <p className="text-sm text-gray-500 mt-1">PDF, DOCX, or Image (Max 5MB)</p>
+            <p className="text-sm text-gray-500 mt-1">PDF, DOCX, or TXT (Max 10MB)</p>
           </div>
-          
+           
           <button 
             onClick={() => fileInputRef.current?.click()} 
             disabled={isUploading}
@@ -309,6 +315,13 @@ export default function ResumeIntelPage() {
               </>
             )}
           </button>
+
+          {uploadError && (
+            <div className="flex items-start gap-2 max-w-md mx-auto mt-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <span>{uploadError}</span>
+            </div>
+          )}
         </div>
       ) : (
         <motion.div 
@@ -351,307 +364,376 @@ export default function ResumeIntelPage() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Extracted Signals */}
-            <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 animate-in fade-in duration-300">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Extracted Signals</h3>
-              <div className="flex flex-wrap gap-2 mb-8">
-                {result.extractedSignals.map(signal => (
-                  <span key={signal} className="px-3 py-1.5 bg-white/60 border border-gray-200 text-gray-700 text-[13px] rounded-full font-medium shadow-sm">
-                    {signal}
-                  </span>
-                ))}
-              </div>
-
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Section Health</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
-                  <span className="text-[14px] text-gray-700 font-medium">Headline</span>
-                  <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-[12px] font-semibold rounded-full">Average</span>
-                </div>
-                <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
-                  <span className="text-[14px] text-gray-700 font-medium">Projects</span>
-                  <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-[12px] font-semibold rounded-full">Strong</span>
-                </div>
-                <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
-                  <span className="text-[14px] text-gray-700 font-medium">Skills</span>
-                  <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-[12px] font-semibold rounded-full">Needs Regrouping</span>
-                </div>
-                <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
-                  <span className="text-[14px] text-gray-700 font-medium">Experience</span>
-                  <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-[12px] font-semibold rounded-full">Light</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Improvement Suggestions */}
-            <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 animate-in fade-in duration-300">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Improvement Suggestions</h3>
-              <div className="space-y-4">
-                {result.improvementSuggestions.map((suggestion, idx) => (
-                  <div key={idx} className="flex gap-4 p-4 rounded-xl bg-white/40 border border-gray-200 shadow-sm">
-                    <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-[#4f46e5] to-[#8b5cf6] flex items-center justify-center text-white font-bold shadow-sm">
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start mb-1">
-                        <strong className="text-[14px] font-semibold text-gray-900">{suggestion.title}</strong>
-                        <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-md ${suggestion.priority === 'High' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
-                          {suggestion.priority}
-                        </span>
-                      </div>
-                      <p className="text-[13px] text-gray-500 mb-3">{suggestion.description}</p>
-                      <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${suggestion.progress}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button 
-                onClick={() => { setResult(null); setApplied(false); }}
-                className="w-full mt-6 flex justify-center items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-[14px] font-medium rounded-full py-3.5 transition-colors border border-gray-200 shadow-sm"
-              >
-                Upload New Resume
-              </button>
-            </div>
+          {/* Tabs Navigation */}
+          <div className="flex border-b border-gray-200/80 max-w-4xl mx-auto gap-8 justify-center mt-8 mb-4">
+            <button
+              onClick={() => setActiveTab("analysis")}
+              className={`pb-4 text-[15px] font-semibold transition-all relative ${
+                activeTab === "analysis" 
+                  ? "text-[#4f46e5] font-bold" 
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              ATS Analysis & Insights
+              {activeTab === "analysis" && (
+                <motion.div 
+                  layoutId="activeTabUnderline"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4f46e5]"
+                />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab("enhanced")}
+              className={`pb-4 text-[15px] font-semibold transition-all relative flex items-center gap-2 ${
+                activeTab === "enhanced" 
+                  ? "text-[#4f46e5] font-bold" 
+                  : "text-gray-500 hover:text-gray-800"
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-indigo-500 animate-pulse" />
+              AI Enhanced Resume
+              {activeTab === "enhanced" && (
+                <motion.div 
+                  layoutId="activeTabUnderline"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4f46e5]"
+                />
+              )}
+            </button>
           </div>
 
-          {/* AI Resume Optimizer Side-by-Side Comparison */}
-          {result.originalResume && result.improvedResume && (
-            <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 space-y-6 animate-in fade-in duration-500">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200/80">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-[#4f46e5] animate-pulse" /> AI Resume Optimizer
-                  </h3>
-                  <p className="text-gray-500 text-[13px] mt-1">Review the changes and export your polished, high-fidelity resume.</p>
-                </div>
-                
-                {!applied ? (
-                  <button
-                    onClick={() => setApplied(true)}
-                    className="flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[14px] font-semibold rounded-full px-6 py-3 transition-colors shadow-sm self-start md:self-auto"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Apply AI Improvements</span>
-                  </button>
-                ) : (
-                  <div className="flex flex-wrap gap-2 self-start md:self-auto">
-                    <button
-                      onClick={() => handleDownloadPDF(result.improvedResume!)}
-                      className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[14px] font-semibold rounded-full px-6 py-3 transition-colors shadow-sm"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>Download PDF Resume</span>
-                    </button>
-                    <button
-                      onClick={() => setApplied(false)}
-                      className="flex items-center gap-2 bg-white border border-gray-250 text-gray-600 hover:bg-gray-50 text-[14px] font-semibold rounded-full px-5 py-3 transition-colors shadow-sm"
-                    >
-                      <span>Undo</span>
-                    </button>
+          {activeTab === "analysis" ? (
+            <>
+              <div className="grid lg:grid-cols-2 gap-6">
+                {/* Extracted Signals */}
+                <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 animate-in fade-in duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Extracted Signals</h3>
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {result.extractedSignals.map(signal => (
+                      <span key={signal} className="px-3 py-1.5 bg-white/60 border border-gray-200 text-gray-700 text-[13px] rounded-full font-medium shadow-sm">
+                        {signal}
+                      </span>
+                    ))}
                   </div>
-                )}
-              </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Original Resume Side */}
-                <div className="border border-gray-255 rounded-2xl p-5 bg-white/30 shadow-inner relative opacity-70">
-                  <span className="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full border border-gray-200">
-                    Original Contents
-                  </span>
-                  <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-4">Original Resume</h4>
-                  <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 text-left font-sans text-xs text-gray-700 leading-relaxed">
-                    <div>
-                      <div className="text-base font-bold text-slate-800">{result.originalResume.personalInfo.name}</div>
-                      <div className="text-gray-500 mt-0.5">
-                        {result.originalResume.personalInfo.email} {result.originalResume.personalInfo.phone && `| ${result.originalResume.personalInfo.phone}`} {result.originalResume.personalInfo.location && `| ${result.originalResume.personalInfo.location}`}
-                      </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Section Health</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
+                      <span className="text-[14px] text-gray-700 font-medium">Headline</span>
+                      <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-[12px] font-semibold rounded-full">Average</span>
                     </div>
-                    
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">Professional Summary</div>
-                      <p className="italic text-gray-600">"{result.originalResume.summary}"</p>
+                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
+                      <span className="text-[14px] text-gray-700 font-medium">Projects</span>
+                      <span className="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-[12px] font-semibold rounded-full">Strong</span>
                     </div>
-
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1.5">Skills</div>
-                      <div className="flex flex-wrap gap-1">
-                        {result.originalResume.skills.map((s, i) => (
-                          <span key={i} className="bg-gray-100 border border-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-700 font-semibold">{s}</span>
-                        ))}
-                      </div>
+                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
+                      <span className="text-[14px] text-gray-700 font-medium">Skills</span>
+                      <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-[12px] font-semibold rounded-full">Needs Regrouping</span>
                     </div>
-
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-2">Work Experience</div>
-                      {result.originalResume.experience.map((exp, idx) => (
-                        <div key={idx} className="mb-3 last:mb-0">
-                          <div className="flex justify-between font-bold text-slate-850">
-                            <span>{exp.company} - {exp.role}</span>
-                            <span className="text-gray-400 font-medium text-[10px]">{exp.date}</span>
-                          </div>
-                          <ul className="list-disc pl-4 mt-1 space-y-1 text-gray-500">
-                            {exp.bullets.map((b, i) => <li key={i}>"{b}"</li>)}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-2">Projects</div>
-                      {result.originalResume.projects.map((proj, idx) => (
-                        <div key={idx} className="mb-3 last:mb-0">
-                          <div className="font-bold text-slate-850">{proj.title}</div>
-                          <p className="text-gray-500 italic mt-0.5">"{proj.description}"</p>
-                          <ul className="list-disc pl-4 mt-1 space-y-1 text-gray-500">
-                            {proj.bullets.map((b, i) => <li key={i}>"{b}"</li>)}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-2">Education</div>
-                      {result.originalResume.education.map((edu, idx) => (
-                        <div key={idx} className="mb-2 last:mb-0">
-                          <div className="flex justify-between font-bold text-slate-850">
-                            <span>{edu.institution}</span>
-                            <span className="text-gray-400 font-medium text-[10px]">{edu.date}</span>
-                          </div>
-                          <div className="text-gray-500 mt-0.5">{edu.degree} {edu.gpa && `| GPA: ${edu.gpa}`}</div>
-                        </div>
-                      ))}
+                    <div className="flex justify-between items-center p-3.5 rounded-xl bg-white/40 border border-white/20">
+                      <span className="text-[14px] text-gray-700 font-medium">Experience</span>
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-[12px] font-semibold rounded-full">Light</span>
                     </div>
                   </div>
                 </div>
 
-                {/* AI Optimized Side */}
-                <div className={`border-2 rounded-2xl p-5 shadow-sm relative transition-all duration-300 ${applied ? 'border-emerald-500 bg-emerald-50/10' : 'border-[#4f46e5]/30 bg-indigo-50/5'}`}>
-                  <span className={`absolute top-4 right-4 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${applied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-indigo-50 text-indigo-650 border-indigo-150'}`}>
-                    {applied ? `Improvements Integrated (ATS: ${result.improvedAtsScore || 96}/100)` : `AI Optimization Preview (Est. ATS: ${result.improvedAtsScore || 96}/100)`}
-                  </span>
-                  <h4 className="text-xs font-bold text-slate-850 uppercase tracking-wide mb-4">AI-Optimized Resume</h4>
-                  <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 text-left font-sans text-xs text-slate-800 leading-relaxed">
-                    <div>
-                      <div className="text-base font-bold text-slate-900">{result.improvedResume.personalInfo.name}</div>
-                      <div className="text-gray-500 mt-0.5">
-                        {result.improvedResume.personalInfo.email} {result.improvedResume.personalInfo.phone && `| ${result.improvedResume.personalInfo.phone}`} {result.improvedResume.personalInfo.location && `| ${result.improvedResume.personalInfo.location}`}
-                      </div>
-                    </div>
-                    
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-1">Professional Summary</div>
-                      <p className={`font-medium ${applied ? 'text-emerald-900 bg-emerald-50/30 p-2 rounded-lg border border-emerald-100/50' : 'text-slate-850'}`}>
-                        {result.improvedResume.summary}
-                      </p>
-                    </div>
-
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-1.5">Skills</div>
-                      <div className="flex flex-wrap gap-1">
-                        {result.improvedResume.skills.map((s, i) => {
-                          const isNew = !result.originalResume!.skills.includes(s);
-                          return (
-                            <span 
-                              key={i} 
-                              className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${isNew ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm font-bold' : 'bg-gray-100 border-gray-250 text-gray-700'}`}
-                            >
-                              {s} {isNew && '★'}
+                {/* Improvement Suggestions */}
+                <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 animate-in fade-in duration-300">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Improvement Suggestions</h3>
+                  <div className="space-y-4">
+                    {result.improvementSuggestions.map((suggestion, idx) => (
+                      <div key={idx} className="flex gap-4 p-4 rounded-xl bg-white/40 border border-gray-200 shadow-sm">
+                        <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-[#4f46e5] to-[#8b5cf6] flex items-center justify-center text-white font-bold shadow-sm">
+                          {idx + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start mb-1">
+                            <strong className="text-[14px] font-semibold text-gray-900">{suggestion.title}</strong>
+                            <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-md ${suggestion.priority === 'High' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                              {suggestion.priority}
                             </span>
-                          );
-                        })}
+                          </div>
+                          <p className="text-[13px] text-gray-500 mb-3">{suggestion.description}</p>
+                          <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${suggestion.progress}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button 
+                    onClick={() => { setResult(null); setApplied(false); }}
+                    className="w-full mt-6 flex justify-center items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-[14px] font-medium rounded-full py-3.5 transition-colors border border-gray-200 shadow-sm"
+                  >
+                    Upload New Resume
+                  </button>
+                </div>
+              </div>
+
+              {result.rewriteSuggestions && result.rewriteSuggestions.length > 0 && (
+                <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 animate-in fade-in duration-350">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Resume Bullet Point Rewrites</h3>
+                  <p className="text-gray-500 text-[13px] mb-6">AI-generated recommendations to elevate technical achievements to action-oriented, metrics-driven bullet points.</p>
+                  
+                  <div className="space-y-4">
+                    {result.rewriteSuggestions.map((rewrite, idx) => (
+                      <div key={idx} className="grid md:grid-cols-2 gap-4 p-5 rounded-2xl bg-white/40 border border-gray-200/50 shadow-sm">
+                        <div className="space-y-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100 inline-block">Original</span>
+                          <p className="text-[13.5px] text-gray-600 italic bg-red-50/20 border border-red-100/50 p-3.5 rounded-xl">"{rewrite.original}"</p>
+                        </div>
+                        <div className="space-y-1.5">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 inline-block">AI Improved</span>
+                          <p className="text-[13.5px] text-slate-800 font-medium bg-emerald-50/20 border border-emerald-100/50 p-3.5 rounded-xl">"{rewrite.improved}"</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* AI Resume Optimizer Side-by-Side Comparison */}
+              {result.originalResume && result.improvedResume && (
+                <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 space-y-6 animate-in fade-in duration-500">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200/80">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-[#4f46e5] animate-pulse" /> AI Resume Optimizer
+                      </h3>
+                      <p className="text-gray-500 text-[13px] mt-1">Review the changes and export your polished, high-fidelity resume.</p>
+                    </div>
+                    
+                    {!applied ? (
+                      <button
+                        onClick={() => setApplied(true)}
+                        className="flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[14px] font-semibold rounded-full px-6 py-3 transition-colors shadow-sm self-start md:self-auto"
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        <span>Apply AI Improvements</span>
+                      </button>
+                    ) : (
+                      <div className="flex flex-wrap gap-2 self-start md:self-auto">
+                        <button
+                          onClick={() => handleDownloadPDF(result.improvedResume!)}
+                          className="flex items-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-[14px] font-semibold rounded-full px-6 py-3 transition-colors shadow-sm"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>Download Enhanced PDF</span>
+                        </button>
+                        <button
+                          onClick={() => setApplied(false)}
+                          className="flex items-center gap-2 bg-white border border-gray-250 text-gray-600 hover:bg-gray-50 text-[14px] font-semibold rounded-full px-5 py-3 transition-colors shadow-sm"
+                        >
+                          <span>Undo</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Original Resume Side */}
+                    <div className="border border-gray-200 rounded-2xl p-5 bg-white/30 shadow-inner relative opacity-85">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-3 mb-4">
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-800 uppercase tracking-wide">Original Resume</h4>
+                          <div className="text-[12px] font-semibold text-gray-600 mt-0.5">
+                            ATS Score: <span className="text-gray-900 font-bold">{result.atsScore}/100</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleDownloadPDF(result.originalResume!)}
+                          className="flex items-center gap-1.5 bg-slate-650 hover:bg-slate-700 text-white text-[11px] font-semibold rounded-full px-3.5 py-1.5 transition-colors shadow-sm self-start sm:self-auto"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download PDF</span>
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 text-left font-sans text-xs text-gray-700 leading-relaxed">
+                        <div>
+                          <div className="text-base font-bold text-slate-800">{result.originalResume.personalInfo.name}</div>
+                          <div className="text-gray-500 mt-0.5">
+                            {result.originalResume.personalInfo.email} {result.originalResume.personalInfo.phone && `| ${result.originalResume.personalInfo.phone}`} {result.originalResume.personalInfo.location && `| ${result.originalResume.personalInfo.location}`}
+                          </div>
+                        </div>
+                        
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1">Professional Summary</div>
+                          <p className="italic text-gray-600">"{result.originalResume.summary}"</p>
+                        </div>
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-1.5">Skills</div>
+                          <div className="flex flex-wrap gap-1">
+                            {result.originalResume.skills.map((s, i) => (
+                              <span key={i} className="bg-gray-100 border border-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-700 font-semibold">{s}</span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-2">Work Experience</div>
+                          {result.originalResume.experience.map((exp, idx) => (
+                            <div key={idx} className="mb-3 last:mb-0">
+                              <div className="flex justify-between font-bold text-slate-850">
+                                <span>{exp.company} - {exp.role}</span>
+                                <span className="text-gray-400 font-medium text-[10px]">{exp.date}</span>
+                              </div>
+                              <ul className="list-disc pl-4 mt-1 space-y-1 text-gray-500">
+                                {exp.bullets.map((b, i) => <li key={i}>"{b}"</li>)}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-2">Projects</div>
+                          {result.originalResume.projects.map((proj, idx) => (
+                            <div key={idx} className="mb-3 last:mb-0">
+                              <div className="font-bold text-slate-850">{proj.title}</div>
+                              <p className="text-gray-500 italic mt-0.5">"{proj.description}"</p>
+                              <ul className="list-disc pl-4 mt-1 space-y-1 text-gray-500">
+                                {proj.bullets.map((b, i) => <li key={i}>"{b}"</li>)}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-700 uppercase tracking-wider text-[10px] mb-2">Education</div>
+                          {result.originalResume.education.map((edu, idx) => (
+                            <div key={idx} className="mb-2 last:mb-0">
+                              <div className="flex justify-between font-bold text-slate-850">
+                                <span>{edu.institution}</span>
+                                <span className="text-gray-400 font-medium text-[10px]">{edu.date}</span>
+                              </div>
+                              <div className="text-gray-500 mt-0.5">{edu.degree} {edu.gpa && `| GPA: ${edu.gpa}`}</div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-2">Work Experience</div>
-                      {result.improvedResume.experience.map((exp, idx) => (
-                        <div key={idx} className="mb-3 last:mb-0">
-                          <div className="flex justify-between font-bold text-slate-855">
-                            <span>{exp.company} - {exp.role}</span>
-                            <span className="text-gray-400 font-medium text-[10px]">{exp.date}</span>
+                    {/* AI Optimized Side */}
+                    <div className={`border-2 rounded-2xl p-5 shadow-sm relative transition-all duration-300 ${applied ? 'border-emerald-500 bg-emerald-50/10' : 'border-indigo-500 bg-indigo-50/5'}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 pb-3 mb-4">
+                        <div>
+                          <h4 className="text-sm font-bold text-indigo-900 uppercase tracking-wide flex items-center gap-1.5">
+                            <Sparkles className="w-4 h-4 text-indigo-650" /> AI-Enhanced Resume
+                          </h4>
+                          <div className="text-[12px] font-semibold text-indigo-700 mt-0.5">
+                            ATS Score: <span className="text-indigo-900 font-bold">{result.improvedAtsScore || (result.atsScore + 12)}/100</span>
                           </div>
-                          <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-700">
-                            {exp.bullets.map((b, i) => {
-                              const isModified = !result.originalResume!.experience[idx]?.bullets.includes(b);
+                        </div>
+                        <button
+                          onClick={() => handleDownloadPDF(result.improvedResume!)}
+                          className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-semibold rounded-full px-3.5 py-1.5 transition-colors shadow-sm self-start sm:self-auto"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download PDF</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 text-left font-sans text-xs text-slate-800 leading-relaxed">
+                        <div>
+                          <div className="text-base font-bold text-slate-900">{result.improvedResume.personalInfo.name}</div>
+                          <div className="text-gray-500 mt-0.5">
+                            {result.improvedResume.personalInfo.email} {result.improvedResume.personalInfo.phone && `| ${result.improvedResume.personalInfo.phone}`} {result.improvedResume.personalInfo.location && `| ${result.improvedResume.personalInfo.location}`}
+                          </div>
+                        </div>
+                        
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-1">Professional Summary</div>
+                          <p className={`font-medium ${applied ? 'text-emerald-900 bg-emerald-50/30 p-2 rounded-lg border border-emerald-100/50' : 'text-slate-850'}`}>
+                            {result.improvedResume.summary}
+                          </p>
+                        </div>
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-1.5">Skills</div>
+                          <div className="flex flex-wrap gap-1">
+                            {result.improvedResume.skills.map((s, i) => {
+                              const isOriginal = result.originalResume?.skills.includes(s);
                               return (
-                                <li 
+                                <span 
                                   key={i} 
-                                  className={isModified ? 'text-emerald-800 bg-emerald-50/20 px-1 py-0.5 rounded font-medium border border-dashed border-emerald-100/50' : 'text-slate-600'}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${!isOriginal ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm font-bold' : 'bg-gray-100 border-gray-250 text-gray-700'}`}
                                 >
-                                  {b}
-                                </li>
+                                  {s} {!isOriginal && '★'}
+                                </span>
                               );
                             })}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-2">Projects</div>
-                      {result.improvedResume.projects.map((proj, idx) => (
-                        <div key={idx} className="mb-3 last:mb-0">
-                          <div className="font-bold text-slate-855">{proj.title}</div>
-                          <p className="text-slate-700 mt-0.5 font-medium">{proj.description}</p>
-                          <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-700">
-                            {proj.bullets.map((b, i) => {
-                              const isModified = !result.originalResume!.projects[idx]?.bullets.includes(b);
-                              return (
-                                <li 
-                                  key={i} 
-                                  className={isModified ? 'text-emerald-800 bg-emerald-50/20 px-1 py-0.5 rounded font-medium border border-dashed border-emerald-100/50' : 'text-slate-600'}
-                                >
-                                  {b}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="border-t border-gray-150 pt-3">
-                      <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-2">Education</div>
-                      {result.improvedResume.education.map((edu, idx) => (
-                        <div key={idx} className="mb-2 last:mb-0">
-                          <div className="flex justify-between font-bold text-slate-855">
-                            <span>{edu.institution}</span>
-                            <span className="text-gray-400 font-medium text-[10px]">{edu.date}</span>
                           </div>
-                          <div className="text-slate-600 mt-0.5">{edu.degree} {edu.gpa && `| GPA: ${edu.gpa}`}</div>
                         </div>
-                      ))}
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-2">Work Experience</div>
+                          {result.improvedResume.experience.map((exp, idx) => (
+                            <div key={idx} className="mb-3 last:mb-0">
+                              <div className="flex justify-between font-bold text-slate-855">
+                                <span>{exp.company} - {exp.role}</span>
+                                <span className="text-gray-400 font-medium text-[10px]">{exp.date}</span>
+                              </div>
+                              <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-700">
+                                {exp.bullets.map((b, i) => {
+                                  const isOriginal = result.originalResume?.experience[idx]?.bullets.includes(b);
+                                  return (
+                                    <li 
+                                      key={i} 
+                                      className={!isOriginal ? 'text-emerald-800 bg-emerald-50/20 px-1 py-0.5 rounded font-medium border border-dashed border-emerald-100/50' : 'text-slate-600'}
+                                    >
+                                      {b}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-2">Projects</div>
+                          {result.improvedResume.projects.map((proj, idx) => (
+                            <div key={idx} className="mb-3 last:mb-0">
+                              <div className="font-bold text-slate-855">{proj.title}</div>
+                              <p className="text-slate-700 mt-0.5 font-medium">{proj.description}</p>
+                              <ul className="list-disc pl-4 mt-1 space-y-1 text-slate-700">
+                                {proj.bullets.map((b, i) => {
+                                  const isOriginal = result.originalResume?.projects[idx]?.bullets.includes(b);
+                                  return (
+                                    <li 
+                                      key={i} 
+                                      className={!isOriginal ? 'text-emerald-800 bg-emerald-50/20 px-1 py-0.5 rounded font-medium border border-dashed border-emerald-100/50' : 'text-slate-600'}
+                                    >
+                                      {b}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="border-t border-gray-150 pt-3">
+                          <div className="font-bold text-indigo-800 uppercase tracking-wider text-[10px] mb-2">Education</div>
+                          {result.improvedResume.education.map((edu, idx) => (
+                            <div key={idx} className="mb-2 last:mb-0">
+                              <div className="flex justify-between font-bold text-slate-855">
+                                <span>{edu.institution}</span>
+                                <span className="text-gray-400 font-medium text-[10px]">{edu.date}</span>
+                              </div>
+                              <div className="text-slate-600 mt-0.5">{edu.degree} {edu.gpa && `| GPA: ${edu.gpa}`}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {result.rewriteSuggestions && result.rewriteSuggestions.length > 0 && !result.originalResume && (
-            <div className="liquid-glass-light rounded-3xl p-6 sm:p-8 animate-in fade-in duration-350">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">Resume Bullet Point Rewrites</h3>
-              <p className="text-gray-500 text-[13px] mb-6">AI-generated recommendations to elevate technical achievements to action-oriented, metrics-driven bullet points.</p>
-              
-              <div className="space-y-4">
-                {result.rewriteSuggestions.map((rewrite, idx) => (
-                  <div key={idx} className="grid md:grid-cols-2 gap-4 p-5 rounded-2xl bg-white/40 border border-gray-200/50 shadow-sm">
-                    <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100 inline-block">Original</span>
-                      <p className="text-[13.5px] text-gray-600 italic bg-red-50/20 border border-red-100/50 p-3.5 rounded-xl">"{rewrite.original}"</p>
-                    </div>
-                    <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-100 inline-block">AI Improved</span>
-                      <p className="text-[13.5px] text-slate-800 font-medium bg-emerald-50/20 border border-emerald-100/50 p-3.5 rounded-xl">"{rewrite.improved}"</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+              )}
+            </>
           )}
         </motion.div>
       )}
