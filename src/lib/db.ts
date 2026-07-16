@@ -8,6 +8,10 @@ const DB_FILE = path.join(process.cwd(), "prisma", "db.json");
 // Helper to initialize the local JSON database with all 17 tables if it doesn't exist
 function getLocalDB() {
   if (DB_CONFIGURED) {
+    const originalError = (globalThis as any).latestPrismaError;
+    if (originalError) {
+      throw originalError;
+    }
     throw new Error(
       "Local JSON DB fallback is disabled because DATABASE_URL is configured. " +
       "A Prisma query failed upstream; fix the database connection instead of silently writing to ephemeral storage."
@@ -91,6 +95,10 @@ function getLocalDB() {
 
 function saveLocalDB(data: any) {
   if (DB_CONFIGURED) {
+    const originalError = (globalThis as any).latestPrismaError;
+    if (originalError) {
+      throw originalError;
+    }
     throw new Error(
       "Local JSON DB fallback is disabled because DATABASE_URL is configured. " +
       "A Prisma write failed upstream; fix the database connection instead of silently writing to ephemeral storage."
