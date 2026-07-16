@@ -65,7 +65,7 @@ export function SidebarNav() {
   const links = [
     { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
     { name: "Career Twin", path: "/dashboard/career-twin", icon: BrainCircuit },
-    { name: "Resume Intel", path: "/dashboard/resume-intelligence", icon: FileText },
+    { name: "Resume Intel", path: "/dashboard/resume-intel", icon: FileText },
     { name: "Learning Roadmap", path: "/dashboard/roadmap", icon: Map },
     { name: "Mock Interviews", path: "/dashboard/mock-interview", icon: Mic },
     { name: "AI Career Coach", path: "/dashboard/chat", icon: Sparkles },
