@@ -66,8 +66,11 @@ async function extractPdf(buffer: Buffer): Promise<string> {
 }
 
 async function extractDocx(buffer: Buffer): Promise<string> {
-  const mammoth = await import("mammoth");
-  const result = await (mammoth as any).extractRawText({ buffer });
+  // Use runtime-only import to bypass Turbopack/webpack static analysis.
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  const mammoth: any = await new Function('return import("mammoth")')();
+  const mod = mammoth.default ?? mammoth;
+  const result = await mod.extractRawText({ buffer });
   return result?.value || "";
 }
 
