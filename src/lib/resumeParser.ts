@@ -35,34 +35,16 @@ function looksLikeRealText(text: string): boolean {
 }
 
 async function extractPdf(buffer: Buffer): Promise<string> {
-  // Use the official Mozilla PDF.js (pdfjs-dist v5) for robust text extraction.
-  // Dynamic import is used with a runtime-resolved path to avoid TypeScript's
-  // static module resolution (pdfjs-dist is listed in serverExternalPackages).
-  // eslint-disable-next-line @typescript-eslint/no-implied-eval
-  const pdfjs: any = await new Function('return import("pdfjs-dist/legacy/pdf.mjs")')();
-
-  // Disable worker — running in Node.js server context, not a browser.
-  if (pdfjs.GlobalWorkerOptions) {
-    pdfjs.GlobalWorkerOptions.workerSrc = "";
+  // Use unpdf — a serverless-friendly PDF text extractor built for Next.js/Vercel.
+  // It bundles its own PDF.js and works without any native dependencies.
+  try {
+    const { extractText, getDocumentProxy } = await import("unpdf");
+    const pdf = await getDocumentProxy(new Uint8Array(buffer));
+    const { text } = await extractText(pdf, { mergePages: true });
+    return text || "";
+  } catch (err: any) {
+    throw new Error(`PDF extraction failed: ${err?.message || "unknown error"}`);
   }
-
-  const pdf = await pdfjs.getDocument({
-    data: new Uint8Array(buffer),
-    useWorkerFetch: false,
-    isEvalSupported: false,
-    disableWorker: true,
-  }).promise;
-
-  let text = "";
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const pageText = (content.items as any[])
-      .map((it) => ("str" in it ? it.str : ""))
-      .join(" ");
-    text += pageText + "\n";
-  }
-  return text;
 }
 
 async function extractDocx(buffer: Buffer): Promise<string> {

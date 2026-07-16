@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  serverExternalPackages: ["pdf-parse", "mammoth", "xlsx", "pdfjs-dist"],
+  serverExternalPackages: ["pdf-parse", "mammoth", "xlsx", "unpdf"],
   async headers() {
     return [
       {
