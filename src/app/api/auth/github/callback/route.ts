@@ -152,29 +152,29 @@ export async function GET(request: Request) {
     console.log(`${step} GitHub profile fetched: login=${profileData.login}, public_repos=${profileData.public_repos}`);
 
     // ─────────────────────────────────────────────────────────────────────
-    // 7. Persist to database
+    // 7. Persist to database — best effort (don't block OAuth success)
     // ─────────────────────────────────────────────────────────────────────
     console.log(`${step} Saving GitHub account to database...`);
 
-    await db.saveGitHubAccount(userId, {
-      username: profileData.login,
-      displayName: profileData.name || profileData.login,
-      avatarUrl: profileData.avatar_url || "",
-      email: profileData.email || currentUser.email,
-      publicRepos: profileData.public_repos || 0,
-      privateRepos: profileData.total_private_repos || 0
-    });
-
-    console.log(`${step} Saving encrypted OAuth token...`);
-    await db.saveOAuthToken(userId, "github", {
-      accessToken: encrypt(access_token),
-      scopes
-    });
-
-    console.log(`${step} Updating profile with GitHub username: ${profileData.login}`);
-    await db.updateProfile(userId, {
-      githubUsername: profileData.login
-    });
+    try {
+      await db.saveGitHubAccount(userId, {
+        username: profileData.login,
+        displayName: profileData.name || profileData.login,
+        avatarUrl: profileData.avatar_url || "",
+        email: profileData.email || currentUser.email,
+        publicRepos: profileData.public_repos || 0,
+        privateRepos: profileData.total_private_repos || 0
+      });
+      console.log(`${step} Saving encrypted OAuth token...`);
+      await db.saveOAuthToken(userId, "github", {
+        accessToken: encrypt(access_token),
+        scopes
+      });
+      console.log(`${step} Updating profile with GitHub username: ${profileData.login}`);
+      await db.updateProfile(userId, { githubUsername: profileData.login });
+    } catch (dbErr: any) {
+      console.warn(`${step} DB save failed (continuing anyway):`, dbErr.message);
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // 8. Update Firestore record (non-blocking — Firestore may be offline)
@@ -191,20 +191,22 @@ export async function GET(request: Request) {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // 9. Log sync history
+    // 9. Log sync history — best effort
     // ─────────────────────────────────────────────────────────────────────
-    await db.createSyncHistory(userId, {
-      provider: "github",
-      status: "success",
-      details: { username: profileData.login, scopes }
-    });
+    try {
+      await db.createSyncHistory(userId, {
+        provider: "github",
+        status: "success",
+        details: { username: profileData.login, scopes }
+      });
+    } catch (_) {}
 
-    console.log(`${step} Database update complete.`);
+    console.log(`${step} GitHub OAuth complete.`);
 
     // ─────────────────────────────────────────────────────────────────────
-    // 10. Determine redirect target
+    // 10. Determine redirect target — go forward to step 3 (Resume Upload)
     // ─────────────────────────────────────────────────────────────────────
-    const targetUrl = currentUser.onboardingCompleted ? dashboardGithubUrl : onboardingUrl;
+    const targetUrl = currentUser.onboardingCompleted ? dashboardGithubUrl : `${onboardingUrl}?step=3`;
     console.log(`${step} onboardingCompleted=${currentUser.onboardingCompleted}. Redirecting to: ${targetUrl}`);
 
     return NextResponse.redirect(targetUrl);

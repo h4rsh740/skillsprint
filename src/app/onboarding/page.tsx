@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { 
   BrainCircuit, 
@@ -63,6 +63,7 @@ const careerSkillsMap: Record<string, string[]> = {
 
 export default function OnboardingPage() {
   const { user, loading, updateOnboarding, refreshSession } = useAuth();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -114,6 +115,20 @@ export default function OnboardingPage() {
   // Fetch existing profile and set initial step on load
   const [profileLoaded, setProfileLoaded] = useState(false);
 
+  // Read ?step and ?error from URL (set by GitHub OAuth callback)
+  useEffect(() => {
+    const urlStep = searchParams.get("step");
+    const urlError = searchParams.get("error");
+    if (urlError) setError(urlError);
+    if (urlStep) {
+      const parsed = parseInt(urlStep);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 4) {
+        setStep(parsed);
+        setProfileLoaded(true);
+      }
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     if (!user) {
       setProfileLoaded(false);
@@ -134,6 +149,13 @@ export default function OnboardingPage() {
           setTargetRole(p.targetRole || "Frontend Developer");
           setSkills(Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""));
           
+          // Honor URL ?step param if set (e.g. after GitHub OAuth callback)
+          const urlStep = searchParams.get("step");
+          if (urlStep) {
+            const parsed = parseInt(urlStep);
+            if (!isNaN(parsed)) { setStep(parsed); return; }
+          }
+
           if (user.githubConnected && user.resumeUploaded) {
             setStep(4);
             setTimeout(() => startTwinGeneration(), 100);
@@ -144,6 +166,8 @@ export default function OnboardingPage() {
           }
         } else {
           setFullName(user.name || "");
+          const urlStep = searchParams.get("step");
+          if (urlStep) { const p = parseInt(urlStep); if (!isNaN(p)) { setStep(p); setProfileLoaded(true); return; } }
           setStep(1);
         }
         setProfileLoaded(true);
@@ -151,6 +175,8 @@ export default function OnboardingPage() {
       .catch(err => {
         console.error("Error fetching profile status:", err);
         setFullName(user.name || "");
+        const urlStep = searchParams.get("step");
+        if (urlStep) { const p = parseInt(urlStep); if (!isNaN(p)) { setStep(p); setProfileLoaded(true); return; } }
         setStep(1);
         setProfileLoaded(true);
       });
