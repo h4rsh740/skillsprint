@@ -49,14 +49,22 @@ export async function GET(request: Request) {
   cookieStore.delete("github_oauth_state");
 
   let stateValid = false;
+  let initiatorBaseUrl = "";
 
   if (returnedState) {
-    if (returnedState.includes(":")) {
-      // HMAC-signed state: nonce:signature
-      const [nonce, signature] = returnedState.split(":");
+    const parts = returnedState.split(":");
+    if (parts.length >= 2) {
+      // HMAC-signed state: nonce:signature[:base64Url]
+      const [nonce, signature, base64Url] = parts;
       const secret = process.env.NEXTAUTH_SECRET || process.env.ENCRYPTION_KEY || "skillsprint-oauth-secret";
       const expectedSig = crypto.createHmac("sha256", secret).update(nonce).digest("hex");
       stateValid = signature === expectedSig;
+      
+      if (stateValid && base64Url) {
+        try {
+          initiatorBaseUrl = Buffer.from(base64Url, "base64").toString("utf8");
+        } catch (_) {}
+      }
     } else {
       // Legacy cookie-based state
       const expectedState = cookieStore.get("github_oauth_state")?.value;
@@ -67,6 +75,32 @@ export async function GET(request: Request) {
   if (!stateValid) {
     console.error(`${step} OAuth state validation failed.`);
     return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent("GitHub OAuth state validation failed. Please try connecting again.")}`);
+  }
+
+  // If callback was received on a different domain (e.g. production domain instead of 
+  // the initiating preview domain), redirect back to the initiator domain callback 
+  // to preserve session cookies.
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
+  const currentDomain = host.toLowerCase().split(":")[0]; // Ignore port for comparison
+  
+  if (initiatorBaseUrl) {
+    try {
+      const parsedInitiator = new URL(initiatorBaseUrl);
+      const initiatorDomain = parsedInitiator.host.toLowerCase().split(":")[0];
+      
+      if (initiatorDomain !== currentDomain) {
+        const forwardUrl = new URL(`${initiatorBaseUrl.replace(/\/$/, "")}/api/auth/github/callback`);
+        if (code) forwardUrl.searchParams.set("code", code);
+        if (returnedState) forwardUrl.searchParams.set("state", returnedState);
+        if (error) forwardUrl.searchParams.set("error", error);
+        if (errorDescription) forwardUrl.searchParams.set("error_description", errorDescription);
+        
+        console.log(`${step} Forwarding callback to initiator domain: ${forwardUrl.toString()}`);
+        return NextResponse.redirect(forwardUrl.toString());
+      }
+    } catch (fwdErr: any) {
+      console.warn(`${step} Failed to forward callback:`, fwdErr.message);
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
