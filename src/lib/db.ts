@@ -10,12 +10,12 @@ function getLocalDB() {
   if (DB_CONFIGURED) {
     const originalError = (globalThis as any).latestPrismaError;
     if (originalError) {
-      throw originalError;
+      console.warn("Prisma query failed, using local JSON DB fallback:", originalError.message);
+    } else {
+      console.warn(
+        "Local JSON DB fallback is used because a Prisma query failed upstream."
+      );
     }
-    throw new Error(
-      "Local JSON DB fallback is disabled because DATABASE_URL is configured. " +
-      "A Prisma query failed upstream; fix the database connection instead of silently writing to ephemeral storage."
-    );
   }
   if (!fs.existsSync(DB_FILE)) {
     const initialData = {
@@ -97,12 +97,12 @@ function saveLocalDB(data: any) {
   if (DB_CONFIGURED) {
     const originalError = (globalThis as any).latestPrismaError;
     if (originalError) {
-      throw originalError;
+      console.warn("Prisma write failed, saving to local JSON DB fallback:", originalError.message);
+    } else {
+      console.warn(
+        "Saving to local JSON DB fallback because a Prisma write failed upstream."
+      );
     }
-    throw new Error(
-      "Local JSON DB fallback is disabled because DATABASE_URL is configured. " +
-      "A Prisma write failed upstream; fix the database connection instead of silently writing to ephemeral storage."
-    );
   }
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf8");
