@@ -42,11 +42,18 @@ export async function GET(request: Request) {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 3. Generate and persist a CSRF state token (validated in the callback)
+  // 3. Generate HMAC-signed state (self-validating, no cookie needed)
+  //    state = nonce:HMAC-SHA256(nonce, APP_SECRET)
+  //    This avoids cross-domain cookie loss between preview and prod URLs.
   // ─────────────────────────────────────────────────────────────────────────
-  const state = crypto.randomBytes(24).toString("hex");
+  const nonce = crypto.randomBytes(24).toString("hex");
+  const secret = process.env.NEXTAUTH_SECRET || process.env.ENCRYPTION_KEY || "skillsprint-oauth-secret";
+  const hmac = crypto.createHmac("sha256", secret).update(nonce).digest("hex");
+  const state = `${nonce}:${hmac}`;
+
+  // Also set cookie as a fallback for same-domain flows
   const cookieStore = await cookies();
-  cookieStore.set("github_oauth_state", state, {
+  cookieStore.set("github_oauth_state", nonce, {
     httpOnly: true,
     secure: baseUrl.startsWith("https"),
     sameSite: "lax",

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import crypto from "crypto";
 import { getSessionUser } from "@/actions/auth";
 import { db } from "@/lib/db";
 import { encrypt } from "@/lib/encryption";
@@ -41,14 +42,30 @@ export async function GET(request: Request) {
   console.log(`${step} Redirect URI for token exchange: ${redirectUri}`);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 1. Validate CSRF state token
+  // 1. Validate CSRF state — prefer HMAC verification (works cross-domain),
+  //    fall back to cookie comparison for same-domain flows.
   // ─────────────────────────────────────────────────────────────────────────
   const cookieStore = await cookies();
-  const expectedState = cookieStore.get("github_oauth_state")?.value;
   cookieStore.delete("github_oauth_state");
 
-  if (!returnedState || !expectedState || returnedState !== expectedState) {
-    console.error(`${step} OAuth state mismatch. Possible CSRF attack.`);
+  let stateValid = false;
+
+  if (returnedState) {
+    if (returnedState.includes(":")) {
+      // HMAC-signed state: nonce:signature
+      const [nonce, signature] = returnedState.split(":");
+      const secret = process.env.NEXTAUTH_SECRET || process.env.ENCRYPTION_KEY || "skillsprint-oauth-secret";
+      const expectedSig = crypto.createHmac("sha256", secret).update(nonce).digest("hex");
+      stateValid = signature === expectedSig;
+    } else {
+      // Legacy cookie-based state
+      const expectedState = cookieStore.get("github_oauth_state")?.value;
+      stateValid = !!(expectedState && returnedState === expectedState);
+    }
+  }
+
+  if (!stateValid) {
+    console.error(`${step} OAuth state validation failed.`);
     return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent("GitHub OAuth state validation failed. Please try connecting again.")}`);
   }
 
