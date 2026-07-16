@@ -205,7 +205,7 @@ export default function DashboardOverview() {
           icon={resumeUploaded ? <CheckCircle2 className="text-emerald-500 w-5 h-5" /> : <AlertTriangle className="text-amber-500 w-5 h-5" />} 
           label="ATS Resume File" 
           status={resumeUploaded ? "✅ Uploaded" : "❌ Missing"} 
-          link="/dashboard/resume-intelligence"
+          link="/dashboard/resume-intel"
           actionLabel={resumeUploaded ? "Analyze Resume" : "Upload PDF"}
         />
       </div>
