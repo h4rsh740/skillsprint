@@ -76,9 +76,14 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
     }
 
     // Resolve details to send back to client auth context
-    const details = await resolveUserSessionDetails(user.id, user.email, user.role);
+    let details: any = {};
+    try {
+      details = await resolveUserSessionDetails(user.id, user.email, user.role);
+    } catch (detailsErr: any) {
+      console.warn(`[syncOAuthUser] Could not resolve session details (DB may be unavailable):`, detailsErr.message);
+    }
 
-    // Encode session info into cookie
+    // Encode session info into cookie — always set this, even if DB sync had issues
     const sessionPayload = {
       id: user.id,
       email: user.email,
@@ -109,7 +114,26 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
       } 
     };
   } catch (error: any) {
-    console.error("[syncOAuthUser] Error syncing OAuth user:", error);
+    console.error("[syncOAuthUser] Critical error, attempting emergency cookie set:", error);
+    // Emergency fallback: even if everything fails, set the cookie from Firebase data
+    // so the user is not completely locked out.
+    try {
+      const emergencyPayload = { id: supabaseUserId, email, role };
+      const cookieValue = Buffer.from(JSON.stringify(emergencyPayload)).toString('base64');
+      const cookieStore = await cookies();
+      const secure = await isSecureOrigin();
+      cookieStore.set("session_user_id", cookieValue, {
+        httpOnly: true,
+        secure,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      console.log(`[syncOAuthUser] Emergency cookie set for user: ${supabaseUserId}`);
+      return { success: true, user: { id: supabaseUserId, email, role } };
+    } catch (cookieErr: any) {
+      console.error(`[syncOAuthUser] Emergency cookie set also failed:`, cookieErr.message);
+    }
     return { success: false, error: error.message };
   }
 }
@@ -141,7 +165,14 @@ export async function getSessionUser() {
   const userId = sessionData ? sessionData.id : sessionVal;
 
   try {
-    let user = await db.findUserById(userId);
+    let user: any = null;
+    
+    // Try to load the user from DB — fall back to cookie data if DB is unavailable
+    try {
+      user = await db.findUserById(userId);
+    } catch (dbErr: any) {
+      console.warn(`[getSessionUser] DB lookup failed (using cookie fallback):`, dbErr.message);
+    }
 
     if (!user && sessionData) {
       user = {
@@ -160,10 +191,19 @@ export async function getSessionUser() {
     // Load profile or fallback
     let profile = user.profile;
     if (!profile) {
-      profile = await db.getProfileByUserId(userId);
+      try {
+        profile = await db.getProfileByUserId(userId);
+      } catch (profileErr: any) {
+        console.warn(`[getSessionUser] Could not load profile from DB:`, profileErr.message);
+      }
     }
 
-    const details = await resolveUserSessionDetails(user.id, user.email, user.role, profile);
+    let details: any = { name: user.email, githubConnected: false, linkedinConnected: false, resumeUploaded: false, careerTwinGenerated: false, onboardingCompleted: false };
+    try {
+      details = await resolveUserSessionDetails(user.id, user.email, user.role, profile);
+    } catch (detailsErr: any) {
+      console.warn(`[getSessionUser] Could not resolve session details:`, detailsErr.message);
+    }
 
     return {
       id: user.id,
