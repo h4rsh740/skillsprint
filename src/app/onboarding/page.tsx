@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -61,7 +61,7 @@ const careerSkillsMap: Record<string, string[]> = {
   "Product Manager": ["Product Roadmap", "Agile/Scrum", "SQL", "A/B Testing", "Market Research", "User Analytics"]
 };
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const { user, loading, updateOnboarding, refreshSession } = useAuth();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
@@ -910,5 +910,13 @@ export default function OnboardingPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F0F2F5] flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" /></div>}>
+      <OnboardingContent />
+    </Suspense>
   );
 }
