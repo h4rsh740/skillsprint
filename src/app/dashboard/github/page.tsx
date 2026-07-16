@@ -103,7 +103,7 @@ export default function GitHubIntelPage() {
       }
     } catch (e: any) {
       console.error("Failed to load initial GitHub analysis", e);
-      setError("Unable to synchronize GitHub repositories.");
+      setError(e.message || "Unable to synchronize GitHub repositories.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -121,7 +121,7 @@ export default function GitHubIntelPage() {
       setResult(data);
     } catch (e: any) {
       console.error("Failed to re-sync GitHub", e);
-      setError("Unable to synchronize GitHub repositories.");
+      setError(e.message || "Unable to synchronize GitHub repositories.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -176,18 +176,27 @@ export default function GitHubIntelPage() {
           </div>
           <span className="font-extrabold text-rose-900 text-lg">{error}</span>
           <p className="text-xs text-rose-600 max-w-md leading-relaxed">
-            The system could not retrieve your live GitHub repositories. Verify your connection or rate limit permissions and try again.
+            Verify your connection settings, rate limits, or try reconnecting your account if the authentication token has expired.
           </p>
-          <button
-            onClick={() => {
-              setError(null);
-              loadSavedAnalysis();
-            }}
-            className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[13.5px] px-6 py-2.5 rounded-xl transition-all shadow cursor-pointer hover:scale-[1.02]"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Retry Synchronization
-          </button>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <button
+              onClick={() => {
+                setError(null);
+                loadSavedAnalysis();
+              }}
+              className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[13.5px] px-6 py-2.5 rounded-xl transition-all shadow cursor-pointer hover:scale-[1.02]"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Retry Synchronization
+            </button>
+            <a
+              href="/api/auth/github"
+              className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-[13.5px] px-6 py-2.5 rounded-xl transition-all shadow cursor-pointer hover:scale-[1.02] no-underline border border-gray-950"
+            >
+              <Github className="w-4 h-4 text-white" />
+              Reconnect GitHub
+            </a>
+          </div>
         </div>
       ) : isAnalyzing && !result ? (
         <div className="min-h-[400px] flex flex-col items-center justify-center bg-white/40 border border-gray-150 rounded-3xl p-8 gap-4 text-center shadow-sm max-w-xl mx-auto">
