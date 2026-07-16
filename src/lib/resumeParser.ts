@@ -35,17 +35,22 @@ function looksLikeRealText(text: string): boolean {
 }
 
 async function extractPdf(buffer: Buffer): Promise<string> {
-  // Use the official Mozilla PDF.js (pdfjs-dist) for robust text extraction.
-  // Note: the `pdf-parse` package resolved to v2.x, whose API differs from the
-  // classic `pdfParse(buffer)` shape, so we rely on pdfjs-dist instead.
-  const pdfjs: any = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const standardFontsDir = path.join(process.cwd(), "node_modules", "pdfjs-dist", "standard_fonts") + "/";
+  // Use the official Mozilla PDF.js (pdfjs-dist v5) for robust text extraction.
+  // Dynamic import is used with a runtime-resolved path to avoid TypeScript's
+  // static module resolution (pdfjs-dist is listed in serverExternalPackages).
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  const pdfjs: any = await new Function('return import("pdfjs-dist/legacy/pdf.mjs")')();
+
+  // Disable worker — running in Node.js server context, not a browser.
+  if (pdfjs.GlobalWorkerOptions) {
+    pdfjs.GlobalWorkerOptions.workerSrc = "";
+  }
 
   const pdf = await pdfjs.getDocument({
     data: new Uint8Array(buffer),
     useWorkerFetch: false,
     isEvalSupported: false,
-    standardFontDataUrl: standardFontsDir,
+    disableWorker: true,
   }).promise;
 
   let text = "";
