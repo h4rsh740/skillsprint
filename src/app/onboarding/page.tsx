@@ -15,6 +15,21 @@ import {
   FileText
 } from "lucide-react";
 import "../auth/auth.css";
+import { getAuth } from "firebase/auth";
+
+// Get current Firebase ID token for API auth fallback
+async function getFirebaseToken(): Promise<string | null> {
+  try {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      return await currentUser.getIdToken();
+    }
+  } catch (e) {
+    console.warn("[onboarding] Could not get Firebase ID token:", e);
+  }
+  return null;
+}
 
 // Inline custom SVG replacements for missing Lucide icons in package.json version
 function Github(props: React.SVGProps<SVGSVGElement>) {
@@ -137,51 +152,55 @@ function OnboardingContent() {
       return;
     }
     if (profileLoaded) return;
-    
-    fetch("/api/onboard")
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.profile) {
-          const p = data.profile;
-          setFullName(p.fullName || user.name || "");
-          setCollege(p.college || "");
-          setBranch(p.branch || "");
-          setGraduationYear(String(p.graduationYear || "2026"));
-          setCgpa(String(p.cgpa || ""));
-          setTargetRole(p.targetRole || "Frontend Developer");
-          setSkills(Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""));
-          
-          // Honor URL ?step param if set (e.g. after GitHub OAuth callback)
-          const urlStep = searchParams.get("step");
-          if (urlStep) {
-            const parsed = parseInt(urlStep);
-            if (!isNaN(parsed)) { setStep(parsed); return; }
-          }
 
-          if (user.githubConnected && user.resumeUploaded) {
-            setStep(4);
-            setTimeout(() => startTwinGeneration(), 100);
-          } else if (user.githubConnected) {
-            setStep(3);
+    (async () => {
+      const token = await getFirebaseToken();
+      const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+      fetch("/api/onboard", { credentials: "include", headers: authHeaders })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.profile) {
+            const p = data.profile;
+            setFullName(p.fullName || user.name || "");
+            setCollege(p.college || "");
+            setBranch(p.branch || "");
+            setGraduationYear(String(p.graduationYear || "2026"));
+            setCgpa(String(p.cgpa || ""));
+            setTargetRole(p.targetRole || "Frontend Developer");
+            setSkills(Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""));
+            
+            // Honor URL ?step param if set (e.g. after GitHub OAuth callback)
+            const urlStep = searchParams.get("step");
+            if (urlStep) {
+              const parsed = parseInt(urlStep);
+              if (!isNaN(parsed)) { setStep(parsed); return; }
+            }
+
+            if (user.githubConnected && user.resumeUploaded) {
+              setStep(4);
+              setTimeout(() => startTwinGeneration(), 100);
+            } else if (user.githubConnected) {
+              setStep(3);
+            } else {
+              setStep(2);
+            }
           } else {
-            setStep(2);
+            setFullName(user.name || "");
+            const urlStep = searchParams.get("step");
+            if (urlStep) { const p = parseInt(urlStep); if (!isNaN(p)) { setStep(p); setProfileLoaded(true); return; } }
+            setStep(1);
           }
-        } else {
+          setProfileLoaded(true);
+        })
+        .catch(err => {
+          console.error("Error fetching profile status:", err);
           setFullName(user.name || "");
           const urlStep = searchParams.get("step");
           if (urlStep) { const p = parseInt(urlStep); if (!isNaN(p)) { setStep(p); setProfileLoaded(true); return; } }
           setStep(1);
-        }
-        setProfileLoaded(true);
-      })
-      .catch(err => {
-        console.error("Error fetching profile status:", err);
-        setFullName(user.name || "");
-        const urlStep = searchParams.get("step");
-        if (urlStep) { const p = parseInt(urlStep); if (!isNaN(p)) { setStep(p); setProfileLoaded(true); return; } }
-        setStep(1);
-        setProfileLoaded(true);
-      });
+          setProfileLoaded(true);
+        });
+    })();
   }, [user, profileLoaded]);
 
   // If onboarding completed, redirect to dashboard
@@ -191,7 +210,7 @@ function OnboardingContent() {
     }
   }, [user, loading, router]);
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     setError("");
     if (step === 1) {
       if (!fullName || !college || !branch || !graduationYear || !cgpa || !skills) {
@@ -217,9 +236,14 @@ function OnboardingContent() {
       formData.append("skills", skillsArray.join(","));
       formData.append("githubUsername", user?.email.split("@")[0] || "candidate");
 
+      const token = await getFirebaseToken();
+      const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
       // We call the server action onboardStudent or API
       fetch("/api/onboard", {
         method: "POST",
+        credentials: "include",
+        headers: authHeaders,
         body: formData
       })
       .then(res => res.json())
@@ -343,7 +367,10 @@ function OnboardingContent() {
       }
 
       // 2. Mark onboarding complete in PostgreSQL (critical — this is what session refresh reads)
-      const patchRes = await fetch("/api/onboard", { method: "PATCH" });
+      const patchToken = await getFirebaseToken();
+      const patchAuthHeaders: Record<string, string> = patchToken ? { Authorization: `Bearer ${patchToken}` } : {};
+      const patchRes = await fetch("/api/onboard", { method: "PATCH", credentials: "include", headers: patchAuthHeaders });
+
       const patchData = await patchRes.json();
       if (!patchData.success) {
         throw new Error(patchData.error || "Failed to mark onboarding complete");

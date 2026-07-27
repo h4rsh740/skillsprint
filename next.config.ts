@@ -31,7 +31,9 @@ const nextConfig: NextConfig = {
         // Security + performance headers for all pages
         source: "/(.*)",
         headers: [
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          // "unsafe-none" allows Firebase OAuth popups (window.closed) to work.
+          // "same-origin-allow-popups" was blocking popup auth completion.
+          { key: "Cross-Origin-Opener-Policy", value: "unsafe-none" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
