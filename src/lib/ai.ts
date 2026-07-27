@@ -197,7 +197,7 @@ const RESPONSES: Record<Intent, (q: string) => string> = {
 3. **Docker Hub / GitHub Container Registry** — Push your images for deployment.
 
 ### Sample ${T}Dockerfile${T} for Next.js
-${T}${T}${T}dockerfile
+${T}${T}${T}
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
@@ -215,7 +215,7 @@ CMD ["npm", "start"]
 ${T}${T}${T}
 
 ### CI/CD Pipeline (GitHub Actions)
-${T}${T}${T}yaml
+${T}${T}${T}
 name: Deploy
 on: [push]
 jobs:
@@ -305,7 +305,7 @@ Here are three production-grade projects that demonstrate real depth, not just C
 - Learn **Drei** — a helper library with pre-built controls, loaders, shaders.
 - Practice: Build an interactive 3D product card that responds to mouse movement.
 
-${T}${T}${T}tsx
+${T}${T}${T}
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Box } from '@react-three/drei'
 
@@ -420,7 +420,7 @@ ${T}${T}${T}
 ### GraphQL
 
 **How it works:** Single endpoint, client specifies exactly what data it needs.
-${T}${T}${T}graphql
+${T}${T}${T}
 query {
   user(id: "123") {
     name
@@ -443,7 +443,7 @@ ${T}${T}${T}
 
 **How it works:** Define procedures on the server; call them from the client with full TypeScript inference — no schema files, no code generation.
 
-${T}${T}${T}ts
+${T}${T}${T}
 // Server
 const appRouter = t.router({
   getUserById: t.procedure
@@ -478,13 +478,13 @@ Think of state in four tiers:
 
 **Tier 1 — Local Component State**
 Use ${T}useState${T} or ${T}useReducer${T}. Keep state as close to where it's used as possible.
-${T}${T}${T}tsx
+${T}${T}${T}
 const [count, setCount] = useState(0);
 ${T}${T}${T}
 
 **Tier 2 — Shared UI State (Zustand)**
 For client-side global state: auth, theme, modal visibility, cart, notifications.
-${T}${T}${T}ts
+${T}${T}${T}
 import { create } from 'zustand';
 
 const useStore = create<{ count: number; increment: () => void }>(set => ({
@@ -496,7 +496,7 @@ ${T}${T}${T}
 
 **Tier 3 — Server State (TanStack Query / SWR)**
 For anything fetched from an API. Handles caching, background refetching, loading/error states.
-${T}${T}${T}ts
+${T}${T}${T}
 const { data, isLoading } = useQuery({
   queryKey: ['user', id],
   queryFn: () => fetchUser(id),
@@ -506,7 +506,7 @@ ${T}${T}${T}
 
 **Tier 4 — Server State in Next.js (React Server Components)**
 In Next.js 13+, fetch directly in Server Components — no useEffect, no loading spinners.
-${T}${T}${T}tsx
+${T}${T}${T}
 // This runs on the server — no client-side fetch needed
 export default async function Page() {
   const data = await db.getPosts();
@@ -539,7 +539,7 @@ ${T}${T}${T}
 ---
 
 ### Flexbox Essentials
-${T}${T}${T}css
+${T}${T}${T}
 .container {
   display: flex;
   justify-content: space-between; /* main axis */
@@ -554,7 +554,7 @@ ${T}${T}${T}
 ---
 
 ### CSS Grid Essentials
-${T}${T}${T}css
+${T}${T}${T}
 .dashboard {
   display: grid;
   grid-template-columns: 240px 1fr;          /* sidebar + main */
@@ -573,7 +573,7 @@ ${T}${T}${T}
 ---
 
 ### Responsive Design with Container Queries (2024+)
-${T}${T}${T}css
+${T}${T}${T}
 /* Style based on parent container width, not viewport */
 .card-container { container-type: inline-size; }
 
@@ -660,7 +660,7 @@ Choosing the right database and ORM is an architectural decision that's hard to 
 
 ### Prisma ORM — Type-Safe Queries
 
-${T}${T}${T}ts
+${T}${T}${T}
 // schema.prisma
 model User {
   id        String   @id @default(cuid())
@@ -688,7 +688,7 @@ Use Redis when:
 ---
 
 ### Database Indexing — The Most Underrated Performance Tool
-${T}${T}${T}sql
+${T}${T}${T}
 -- If you query users by email often, add this:
 CREATE INDEX idx_users_email ON users(email);
 
@@ -725,7 +725,7 @@ ${T}${T}${T}
 ---
 
 ### Unit Tests with Jest / Vitest
-${T}${T}${T}ts
+${T}${T}${T}
 // utils/formatSalary.test.ts
 import { formatSalary } from './formatSalary';
 
@@ -741,7 +741,7 @@ describe('formatSalary', () => {
 ${T}${T}${T}
 
 ### Integration Tests with React Testing Library
-${T}${T}${T}tsx
+${T}${T}${T}
 import { render, screen, fireEvent } from '@testing-library/react';
 import LoginForm from './LoginForm';
 
@@ -753,7 +753,7 @@ test('shows error on empty submission', async () => {
 ${T}${T}${T}
 
 ### E2E Tests with Playwright
-${T}${T}${T}ts
+${T}${T}${T}
 test('user can log in and view dashboard', async ({ page }) => {
   await page.goto('/auth/signin');
   await page.fill('[name=email]', 'test@example.com');
@@ -996,7 +996,7 @@ Most developers know ${T}git add${T}, ${T}git commit${T}, ${T}git push${T}. Here
 ### Essential Git Workflows
 
 **Feature Branch Workflow (industry standard):**
-${T}${T}${T}bash
+${T}${T}${T}
 git checkout -b feature/add-user-auth   # create feature branch
 # ... make changes ...
 git add -p                              # stage interactively (review each chunk)
@@ -1019,7 +1019,7 @@ ${T}${T}${T}
 
 ### Power Commands
 
-${T}${T}${T}bash
+${T}${T}${T}
 git log --oneline --graph --all      # visual branch history
 git diff --staged                    # review staged changes before committing
 git stash push -m "wip: trying new approach"  # save work without committing
@@ -1032,7 +1032,7 @@ ${T}${T}${T}
 
 ### Undoing Mistakes
 
-${T}${T}${T}bash
+${T}${T}${T}
 git restore <file>          # discard unstaged changes
 git restore --staged <file> # unstage a file (keep changes)
 git commit --amend          # fix the last commit message/content
@@ -1049,7 +1049,7 @@ ${T}${T}${T}
   typescript: () => `## TypeScript Mastery — Advanced Patterns
 
 ### Generic Types (The Key to Reusable Code)
-${T}${T}${T}ts
+${T}${T}${T}
 // Generic function
 function getFirst<T>(arr: T[]): T | undefined {
   return arr[0];
@@ -1068,7 +1068,7 @@ type UserResponse = ApiResponse<{ id: string; name: string }>;
 ${T}${T}${T}
 
 ### Utility Types (Use These Daily)
-${T}${T}${T}ts
+${T}${T}${T}
 type User = { id: string; name: string; email: string; age: number };
 
 type CreateUser = Omit<User, 'id'>;          // Remove id from type
@@ -1079,7 +1079,7 @@ type ReadonlyUser = Readonly<User>;           // All fields readonly
 ${T}${T}${T}
 
 ### Discriminated Unions (Safer than Booleans)
-${T}${T}${T}ts
+${T}${T}${T}
 type LoadingState = { status: 'loading' };
 type SuccessState = { status: 'success'; data: string[] };
 type ErrorState   = { status: 'error'; message: string };
@@ -1096,13 +1096,13 @@ function render(state: AsyncState) {
 ${T}${T}${T}
 
 ### Template Literal Types
-${T}${T}${T}ts
+${T}${T}${T}
 type EventName = 'click' | 'hover' | 'focus';
 type Handler = ${T}on\${Capitalize<EventName>}${T}; // 'onClick' | 'onHover' | 'onFocus'
 ${T}${T}${T}
 
 ### tsconfig Best Practices
-${T}${T}${T}json
+${T}${T}${T}
 {
   "compilerOptions": {
     "strict": true,           // Enable all strict checks
@@ -1116,7 +1116,7 @@ ${T}${T}${T}`,
   nextjs: () => `## Next.js App Router — Production Patterns
 
 ### Server Components vs Client Components
-${T}${T}${T}tsx
+${T}${T}${T}
 // Server Component (default) — runs on server, no JS sent to client
 // ✅ Can: fetch data, access env vars, read filesystem, use async/await
 // ❌ Cannot: use useState, useEffect, event handlers, browser APIs
@@ -1136,7 +1136,7 @@ export default function Counter() {
 ${T}${T}${T}
 
 ### Server Actions — Fullstack Without APIs
-${T}${T}${T}ts
+${T}${T}${T}
 // src/actions/user.ts
 'use server';
 import { db } from '@/lib/db';
@@ -1156,7 +1156,7 @@ export async function updateProfile(formData: FormData) {
 ${T}${T}${T}
 
 ### Data Fetching & Caching
-${T}${T}${T}tsx
+${T}${T}${T}
 // Cache for 1 hour, revalidate in background
 const data = await fetch('/api/data', {
   next: { revalidate: 3600 }
@@ -1210,7 +1210,7 @@ When you render a list without keys (or use index as key), React can't tell whic
 | ${T}useCallback${T} | The function reference | Passing a callback to a memoised child component |
 | Neither | — | 90% of cases — premature optimisation is real |
 
-${T}${T}${T}tsx
+${T}${T}${T}
 // ✅ useMemo — avoid re-computing on every render
 const expensiveResult = useMemo(() =>
   processLargeDataset(rawData), [rawData]
@@ -1230,7 +1230,7 @@ ${T}${T}${T}
 ### React 18 Concurrent Features
 
 **Transitions** — Mark state updates as non-urgent:
-${T}${T}${T}tsx
+${T}${T}${T}
 const [isPending, startTransition] = useTransition();
 
 const handleSearch = (query: string) => {
@@ -1242,7 +1242,7 @@ const handleSearch = (query: string) => {
 ${T}${T}${T}
 
 **Suspense + lazy loading:**
-${T}${T}${T}tsx
+${T}${T}${T}
 const HeavyChart = lazy(() => import('./HeavyChart'));
 
 <Suspense fallback={<ChartSkeleton />}>
@@ -1273,7 +1273,7 @@ src/
 ${T}${T}${T}
 
 ### Error Handling (Don't Do This Wrong)
-${T}${T}${T}ts
+${T}${T}${T}
 // ❌ Bad — unhandled promise rejections crash the server
 app.get('/users', async (req, res) => {
   const users = await db.getUsers(); // Can throw
@@ -1328,7 +1328,7 @@ Key services to learn:
 ---
 
 ### CI/CD Pipeline with GitHub Actions
-${T}${T}${T}yaml
+${T}${T}${T}
 name: Deploy to Production
 on:
   push:
@@ -1369,7 +1369,7 @@ Google uses Core Web Vitals as a ranking signal. Optimising these improves both 
 ### Immediate Wins (Can do today)
 
 **Images — The biggest LCP killer:**
-${T}${T}${T}tsx
+${T}${T}${T}
 // ✅ Next.js Image component handles WebP conversion, lazy loading, and size hints
 import Image from 'next/image';
 <Image src="/hero.jpg" width={1200} height={600} priority alt="Hero" />
@@ -1378,21 +1378,21 @@ import Image from 'next/image';
 ${T}${T}${T}
 
 **Bundle Size:**
-${T}${T}${T}bash
+${T}${T}${T}
 npx @next/bundle-analyzer  # Visualise what's in your JS bundle
 ${T}${T}${T}
 
 Common culprits: ${T}moment.js${T} (use ${T}date-fns${T} instead, 80% smaller), unused ${T}lodash${T} imports, large icon libraries imported entirely.
 
 **Font Loading:**
-${T}${T}${T}tsx
+${T}${T}${T}
 // Next.js font optimisation — zero layout shift, preloaded
 import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
 ${T}${T}${T}
 
 ### Code Splitting
-${T}${T}${T}tsx
+${T}${T}${T}
 // Split routes automatically (Next.js does this)
 // Split heavy components manually:
 const PDFViewer = dynamic(() => import('./PDFViewer'), {
@@ -1430,7 +1430,7 @@ Frontend roles don't require Competitive Programming expertise, but you need to 
 ### Essential Patterns to Master
 
 **Sliding Window:**
-${T}${T}${T}ts
+${T}${T}${T}
 function longestUniqueSubstring(s: string): number {
   const seen = new Map<string, number>();
   let left = 0, max = 0;
@@ -1447,7 +1447,7 @@ function longestUniqueSubstring(s: string): number {
 ${T}${T}${T}
 
 **HashMap — Frequency Counter:**
-${T}${T}${T}ts
+${T}${T}${T}
 function groupAnagrams(strs: string[]): string[][] {
   const map = new Map<string, string[]>();
   for (const s of strs) {
@@ -1482,7 +1482,7 @@ Open source contributions are the single best way to build credibility before yo
 
 ### Your First Contribution — Step by Step
 
-${T}${T}${T}bash
+${T}${T}${T}
 # 1. Fork the repo on GitHub
 # 2. Clone your fork
 git clone https://github.com/YOUR_USERNAME/PROJECT.git
@@ -1498,7 +1498,7 @@ git push origin fix/correct-typo-in-readme
 ${T}${T}${T}
 
 ### PR Description Template
-${T}${T}${T}markdown
+${T}${T}${T}
 ## What does this PR do?
 Fixes a typo in the README installation guide.
 
@@ -1565,7 +1565,7 @@ You don't need a PhD to integrate AI into your web apps. Here is the practical p
 Use existing AI models through APIs — no training needed.
 
 **OpenAI / Gemini / Anthropic APIs:**
-${T}${T}${T}ts
+${T}${T}${T}
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
 
@@ -1615,7 +1615,7 @@ If you know React, React Native lets you build iOS and Android apps with mostly 
 - Navigation via ${T}React Navigation${T} or ${T}Expo Router${T}
 
 **Expo — The Recommended Starting Point:**
-${T}${T}${T}bash
+${T}${T}${T}
 npx create-expo-app MyApp --template
 cd MyApp && npx expo start
 ${T}${T}${T}
@@ -1651,7 +1651,7 @@ Security vulnerabilities have ended careers and crashed companies. Here is what 
 **1. Cross-Site Scripting (XSS)**
 Attacker injects malicious scripts that run in other users' browsers.
 
-${T}${T}${T}tsx
+${T}${T}${T}
 // ❌ NEVER do this — direct HTML injection
 <div dangerouslySetInnerHTML={{ __html: userInput }} />
 
@@ -1661,7 +1661,7 @@ ${T}${T}${T}
 
 **2. SQL Injection**
 Attacker manipulates your database query through user input.
-${T}${T}${T}ts
+${T}${T}${T}
 // ❌ Vulnerable
 const query = ${T}SELECT * FROM users WHERE email = '\${email}'${T};
 
