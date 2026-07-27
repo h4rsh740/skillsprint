@@ -1,7 +1,7 @@
 "use client";
 
 import { SidebarNav } from "@/components/dashboard/SidebarNav";
-import { Shader, ChromaFlow, FilmGrain, FlutedGlass, Swirl } from "shaders/react";
+import { DynamicShaderBackground } from "@/components/backgrounds/DynamicShaderBackground";
 import { ProtectedRoute } from "@/context/AuthContext";
 
 export default function DashboardLayout({
@@ -25,12 +25,7 @@ export default function DashboardLayout({
 
       {/* Background Shader (hidden on mobile for performance) */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-40 hidden md:block">
-        <Shader>
-          <Swirl colorA="#ffffff" colorB="#e0e7ff" detail={1.7} />
-          <ChromaFlow baseColor="#ffffff" downColor="#4f46e5" leftColor="#3b82f6" rightColor="#8b5cf6" upColor="#6366f1" momentum={13} radius={3.5} />
-          <FlutedGlass aberration={0.61} angle={31} frequency={8} highlight={0.12} highlightSoftness={0} lightAngle={-90} refraction={4} shape="rounded" softness={1} speed={0.15} />
-          <FilmGrain strength={0.05} />
-        </Shader>
+        <DynamicShaderBackground />
       </div>
 
       {/* Sticky Left Sidebar Navigation */}

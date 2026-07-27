@@ -43,12 +43,14 @@ export async function getSkillSprintScores(): Promise<CareerScoresResult> {
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const dbScores = await db.getScoresByUserId(user.id);
-  const resume = await db.getLatestResumeAnalysis(user.id);
-  const github = await db.getLatestGitHubAnalysis(user.id);
-  const linkedin = await db.getLatestLinkedInAnalysis(user.id);
-  const interviews = await db.getInterviewsByUserId(user.id);
-  const profile = await db.getProfileByUserId(user.id);
+  const [dbScores, resume, github, linkedin, interviews, profile] = await Promise.all([
+    db.getScoresByUserId(user.id),
+    db.getLatestResumeAnalysis(user.id),
+    db.getLatestGitHubAnalysis(user.id),
+    db.getLatestLinkedInAnalysis(user.id),
+    db.getInterviewsByUserId(user.id),
+    db.getProfileByUserId(user.id),
+  ]);
 
   // 1. Resolve individual scores dynamically based on synced integrations
   const resumeScore = resume?.resumeScore || dbScores.resume;
@@ -231,10 +233,29 @@ export async function getDashboardData(): Promise<DashboardData> {
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const scores = await getSkillSprintScores();
-  
-  // Get recommendations (either from DB or generate if empty)
-  let recommendations = await db.getRecommendedProjects(user.id);
+  const [
+    scores,
+    recommendationsRaw,
+    activeRoadmap,
+    githubAnalysis,
+    linkedinAnalysis,
+    resumeAnalysis,
+    careerTwin,
+    syncHistory,
+    notifications,
+  ] = await Promise.all([
+    getSkillSprintScores(),
+    db.getRecommendedProjects(user.id),
+    db.getLatestRoadmap(user.id),
+    db.getLatestGitHubAnalysis(user.id),
+    db.getLatestLinkedInAnalysis(user.id),
+    db.getLatestResumeAnalysis(user.id),
+    db.getLatestCareerTwin(user.id),
+    db.getSyncHistory(user.id),
+    db.getNotifications(user.id),
+  ]);
+
+  let recommendations = recommendationsRaw;
   if (!recommendations || recommendations.length === 0) {
     try {
       const { getPersonalizedRecommendations } = await import("./projects");
@@ -244,14 +265,6 @@ export async function getDashboardData(): Promise<DashboardData> {
       recommendations = [];
     }
   }
-
-  const activeRoadmap = await db.getLatestRoadmap(user.id);
-  const githubAnalysis = await db.getLatestGitHubAnalysis(user.id);
-  const linkedinAnalysis = await db.getLatestLinkedInAnalysis(user.id);
-  const resumeAnalysis = await db.getLatestResumeAnalysis(user.id);
-  const careerTwin = await db.getLatestCareerTwin(user.id);
-  const syncHistory = await db.getSyncHistory(user.id);
-  const notifications = await db.getNotifications(user.id);
 
   return {
     scores,

@@ -146,25 +146,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Listen to Firebase Auth state
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true);
       setError(null);
 
-      // Safety: never stay stuck in loading more than 6 seconds
-      const safetyTimeout = setTimeout(() => setLoading(false), 6000);
-
-      try {
-        if (firebaseUser) {
-          await syncUserProfile(firebaseUser);
-        } else {
-          await refreshSession();
-        }
-      } catch (err: any) {
-        console.error("Critical error during auth sync:", err);
-        setError(err.message || "Authentication failed. Please try logging in again.");
-        setUser(null);
-      } finally {
-        clearTimeout(safetyTimeout);
+      if (firebaseUser) {
+        // Set optimistic profile immediately so rendering is unblocked
+        setUser((prev) => prev || {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName || "SkillSprint Candidate",
+          email: firebaseUser.email || "",
+          photoURL: firebaseUser.photoURL || "",
+          provider: firebaseUser.providerData.some((p) => p.providerId === "github.com") ? "github" : "google",
+          createdAt: new Date().toISOString(),
+          githubConnected: false,
+          linkedinConnected: false,
+          careerTwinGenerated: false,
+          onboardingCompleted: false,
+        });
         setLoading(false);
+
+        // Sync full profile from PostgreSQL and Firestore in the background
+        syncUserProfile(firebaseUser).catch((err) => {
+          console.warn("[AuthContext] Background profile sync warning:", err);
+        });
+      } else {
+        try {
+          await refreshSession();
+        } catch (err: any) {
+          console.error("Error refreshing session:", err);
+        } finally {
+          setLoading(false);
+        }
       }
     });
 

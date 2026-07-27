@@ -346,7 +346,9 @@
 }
 
 .auth-label:focus-within span,
-.auth-label .focus-span {
+.auth-label .focus-span,
+.auth-label:has(input:-webkit-autofill) span,
+.auth-label input:-webkit-autofill ~ span {
   transform: translate(0.27rem, -94%) scale(0.8);
   background-color: #fff;
 }
