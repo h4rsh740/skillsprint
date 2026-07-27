@@ -173,9 +173,10 @@ function classifyIntent(q: string): Intent {
   return "general";
 }
 
-const T = '\`'; // backtick helper for template literals inside template literals
+const T: string = String.fromCharCode(96); // backtick (ASCII 96) - avoids literal backtick in source
 
 // ─── Response library ────────────────────────────────────────────────────────
+// Response library - each handler returns markdown-formatted guidance
 const RESPONSES: Record<Intent, (q: string) => string> = {
 
   docker_devops: () => `## Docker & DevOps — A Complete Breakdown
