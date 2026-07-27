@@ -39,7 +39,7 @@ async function tryGeminiAPI(
   for (const model of GEMINI_MODELS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       const body: Record<string, unknown> = {
         contents: [{ parts: [{ text: prompt }] }],
