@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import crypto from "crypto";
 import { getSessionUser } from "@/actions/auth";
 import { db } from "@/lib/db";
 import { encrypt } from "@/lib/encryption";
@@ -13,11 +15,12 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
+  const returnedState = searchParams.get("state");
 
   console.log(`${step} Callback received. code=${code ? "present" : "missing"} error=${error || "none"}`);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 1. Resolve stable base URL (same logic as /api/auth/github/route.ts)
+  // 0. Resolve stable base URL (same logic as /api/auth/github/route.ts)
   // ─────────────────────────────────────────────────────────────────────────
   const appUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
   let baseUrl: string;
@@ -30,7 +33,6 @@ export async function GET(request: Request) {
     baseUrl = `${proto}://${host}`;
   }
 
-  // The redirect_uri sent to GitHub during token exchange must EXACTLY match the one used during authorization
   const redirectUri = `${baseUrl}/api/auth/github/callback`;
   const onboardingUrl = `${baseUrl}/onboarding`;
   const signinUrl = `${baseUrl}/auth/signin`;
@@ -38,6 +40,68 @@ export async function GET(request: Request) {
 
   console.log(`${step} Base URL: ${baseUrl}`);
   console.log(`${step} Redirect URI for token exchange: ${redirectUri}`);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // 1. Validate CSRF state — prefer HMAC verification (works cross-domain),
+  //    fall back to cookie comparison for same-domain flows.
+  // ─────────────────────────────────────────────────────────────────────────
+  const cookieStore = await cookies();
+  cookieStore.delete("github_oauth_state");
+
+  let stateValid = false;
+  let initiatorBaseUrl = "";
+
+  if (returnedState) {
+    const parts = returnedState.split(":");
+    if (parts.length >= 2) {
+      // HMAC-signed state: nonce:signature[:base64Url]
+      const [nonce, signature, base64Url] = parts;
+      const secret = process.env.NEXTAUTH_SECRET || process.env.ENCRYPTION_KEY || "skillsprint-oauth-secret";
+      const expectedSig = crypto.createHmac("sha256", secret).update(nonce).digest("hex");
+      stateValid = signature === expectedSig;
+      
+      if (stateValid && base64Url) {
+        try {
+          initiatorBaseUrl = Buffer.from(base64Url, "base64").toString("utf8");
+        } catch (_) {}
+      }
+    } else {
+      // Legacy cookie-based state
+      const expectedState = cookieStore.get("github_oauth_state")?.value;
+      stateValid = !!(expectedState && returnedState === expectedState);
+    }
+  }
+
+  if (!stateValid) {
+    console.error(`${step} OAuth state validation failed.`);
+    return NextResponse.redirect(`${onboardingUrl}?error=${encodeURIComponent("GitHub OAuth state validation failed. Please try connecting again.")}`);
+  }
+
+  // If callback was received on a different domain (e.g. production domain instead of 
+  // the initiating preview domain), redirect back to the initiator domain callback 
+  // to preserve session cookies.
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
+  const currentDomain = host.toLowerCase().split(":")[0]; // Ignore port for comparison
+  
+  if (initiatorBaseUrl) {
+    try {
+      const parsedInitiator = new URL(initiatorBaseUrl);
+      const initiatorDomain = parsedInitiator.host.toLowerCase().split(":")[0];
+      
+      if (initiatorDomain !== currentDomain) {
+        const forwardUrl = new URL(`${initiatorBaseUrl.replace(/\/$/, "")}/api/auth/github/callback`);
+        if (code) forwardUrl.searchParams.set("code", code);
+        if (returnedState) forwardUrl.searchParams.set("state", returnedState);
+        if (error) forwardUrl.searchParams.set("error", error);
+        if (errorDescription) forwardUrl.searchParams.set("error_description", errorDescription);
+        
+        console.log(`${step} Forwarding callback to initiator domain: ${forwardUrl.toString()}`);
+        return NextResponse.redirect(forwardUrl.toString());
+      }
+    } catch (fwdErr: any) {
+      console.warn(`${step} Failed to forward callback:`, fwdErr.message);
+    }
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // 2. Handle GitHub OAuth errors (user denied, etc.)
@@ -139,29 +203,29 @@ export async function GET(request: Request) {
     console.log(`${step} GitHub profile fetched: login=${profileData.login}, public_repos=${profileData.public_repos}`);
 
     // ─────────────────────────────────────────────────────────────────────
-    // 7. Persist to database
+    // 7. Persist to database — best effort (don't block OAuth success)
     // ─────────────────────────────────────────────────────────────────────
     console.log(`${step} Saving GitHub account to database...`);
 
-    await db.saveGitHubAccount(userId, {
-      username: profileData.login,
-      displayName: profileData.name || profileData.login,
-      avatarUrl: profileData.avatar_url || "",
-      email: profileData.email || currentUser.email,
-      publicRepos: profileData.public_repos || 0,
-      privateRepos: profileData.total_private_repos || 0
-    });
-
-    console.log(`${step} Saving encrypted OAuth token...`);
-    await db.saveOAuthToken(userId, "github", {
-      accessToken: encrypt(access_token),
-      scopes
-    });
-
-    console.log(`${step} Updating profile with GitHub username: ${profileData.login}`);
-    await db.updateProfile(userId, {
-      githubUsername: profileData.login
-    });
+    try {
+      await db.saveGitHubAccount(userId, {
+        username: profileData.login,
+        displayName: profileData.name || profileData.login,
+        avatarUrl: profileData.avatar_url || "",
+        email: profileData.email || currentUser.email,
+        publicRepos: profileData.public_repos || 0,
+        privateRepos: profileData.total_private_repos || 0
+      });
+      console.log(`${step} Saving encrypted OAuth token...`);
+      await db.saveOAuthToken(userId, "github", {
+        accessToken: encrypt(access_token),
+        scopes
+      });
+      console.log(`${step} Updating profile with GitHub username: ${profileData.login}`);
+      await db.updateProfile(userId, { githubUsername: profileData.login });
+    } catch (dbErr: any) {
+      console.warn(`${step} DB save failed (continuing anyway):`, dbErr.message);
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // 8. Update Firestore record (non-blocking — Firestore may be offline)
@@ -178,20 +242,22 @@ export async function GET(request: Request) {
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // 9. Log sync history
+    // 9. Log sync history — best effort
     // ─────────────────────────────────────────────────────────────────────
-    await db.createSyncHistory(userId, {
-      provider: "github",
-      status: "success",
-      details: { username: profileData.login, scopes }
-    });
+    try {
+      await db.createSyncHistory(userId, {
+        provider: "github",
+        status: "success",
+        details: { username: profileData.login, scopes }
+      });
+    } catch (_) {}
 
-    console.log(`${step} Database update complete.`);
+    console.log(`${step} GitHub OAuth complete.`);
 
     // ─────────────────────────────────────────────────────────────────────
-    // 10. Determine redirect target
+    // 10. Determine redirect target — go forward to step 3 (Resume Upload)
     // ─────────────────────────────────────────────────────────────────────
-    const targetUrl = currentUser.onboardingCompleted ? dashboardGithubUrl : onboardingUrl;
+    const targetUrl = currentUser.onboardingCompleted ? dashboardGithubUrl : `${onboardingUrl}?step=3`;
     console.log(`${step} onboardingCompleted=${currentUser.onboardingCompleted}. Redirecting to: ${targetUrl}`);
 
     return NextResponse.redirect(targetUrl);

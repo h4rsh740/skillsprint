@@ -30,6 +30,45 @@ export type GitHubAnalysisResult = {
   totalForks?: number;
 };
 
+// GitHub-aware fetch: throws a precise, user-facing error and detects
+// rate limiting. Signals a special "AUTH_RETRY" error on 401 so callers
+// can retry without the token. We deliberately do NOT silently fall back
+// to unauthenticated requests on 403 — the unauthenticated GitHub API is
+// heavily rate-limited (60/hr per IP) and that fallback is what breaks sync.
+class GitHubAuthRetry extends Error {
+  githubDetail?: string;
+  constructor(message: string, detail?: string) {
+    super(message);
+    this.name = "GitHubAuthRetry";
+    this.githubDetail = detail;
+  }
+}
+
+async function githubFetch(url: string, headers: HeadersInit, allowUnauthFallback = true): Promise<Response> {
+  const res = await fetch(url, { headers });
+  if (res.ok) return res;
+
+  let detail = "";
+  try {
+    const body = await res.json();
+    detail = body?.message || "";
+  } catch {
+    /* ignore body parse errors */
+  }
+
+  if (res.status === 403 && /rate limit/i.test(detail)) {
+    throw new Error(
+      "GitHub API rate limit exceeded. Reconnect your GitHub account (or wait for the limit to reset) and try again."
+    );
+  }
+
+  if (res.status === 401 && allowUnauthFallback) {
+    throw new GitHubAuthRetry("AUTH_RETRY", detail || `GitHub 401 for ${url}`);
+  }
+
+  throw new Error(detail || `GitHub API request failed (${res.status}) for ${url}`);
+}
+
 async function fetchRepoDetails(owner: string, name: string, headers: HeadersInit) {
   let hasReadme = false;
   let readmeSize = 0;
@@ -103,48 +142,61 @@ export async function analyzeGitHub(username?: string): Promise<GitHubAnalysisRe
     }
   }
 
+  // A mock/placeholder token can never authenticate. Surface a clear,
+  // actionable error instead of silently falling back to the rate-limited
+  // unauthenticated GitHub API (which would fail with a generic message).
+  if (token && token.startsWith("mock-")) {
+    throw new Error(
+      "Your GitHub connection has no valid access token. Please reconnect GitHub using the 'Connect GitHub' button on the GitHub page."
+    );
+  }
+
   let headers: HeadersInit = {
     Accept: "application/vnd.github.v3+json",
     "User-Agent": "SkillSprint-AI"
   };
   
-  if (token && !token.startsWith("mock-")) {
+  if (token) {
     headers = {
       ...headers,
       Authorization: `token ${token}`
     };
   }
 
-  // 1. Fetch User details and verify rate limit/auth
+  // 1. Fetch User details
   let publicRepos = 0;
   let privateRepos = 0;
   let avatarUrl = "";
   let displayName = githubUsername;
 
   try {
-    let userRes = await fetch(`https://api.github.com/users/${githubUsername}`, { headers });
-    // If rate limited or unauthorized with the token, try without authorization headers
-    if (!userRes.ok && (userRes.status === 401 || userRes.status === 403)) {
-      console.warn(`GitHub API call returned status ${userRes.status}. Retrying without token...`);
-      userRes = await fetch(`https://api.github.com/users/${githubUsername}`, {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-          "User-Agent": "SkillSprint-AI"
-        }
-      });
-    }
-
-    if (!userRes.ok) {
-      throw new Error("Unable to synchronize GitHub repositories.");
-    }
-
+    const userRes = await githubFetch(`https://api.github.com/users/${githubUsername}`, headers);
     const userData = await userRes.json();
     publicRepos = userData.public_repos || 0;
     avatarUrl = userData.avatar_url || "";
     displayName = userData.name || userData.login || githubUsername;
-  } catch (err) {
-    console.error("Failed to query live GitHub endpoints:", err);
-    throw new Error("Unable to synchronize GitHub repositories.");
+  } catch (err: any) {
+    // If the authenticated request was rejected (401, e.g. expired token),
+    // retry once without the token.
+    if (err instanceof GitHubAuthRetry) {
+      try {
+        const fallbackHeaders = {
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "SkillSprint-AI",
+        };
+        const userRes = await githubFetch(`https://api.github.com/users/${githubUsername}`, fallbackHeaders, false);
+        const userData = await userRes.json();
+        publicRepos = userData.public_repos || 0;
+        avatarUrl = userData.avatar_url || "";
+        displayName = userData.name || userData.login || githubUsername;
+      } catch (fallbackErr: any) {
+        console.error("Failed to query GitHub user (fallback):", fallbackErr);
+        throw new Error(fallbackErr?.message || "Unable to synchronize GitHub repositories.");
+      }
+    } else {
+      console.error("Failed to query live GitHub endpoints:", err);
+      throw new Error(err?.message || "Unable to synchronize GitHub repositories.");
+    }
   }
 
   // 2. Fetch authenticated user details (if token is valid) to read private repos
@@ -163,48 +215,44 @@ export async function analyzeGitHub(username?: string): Promise<GitHubAnalysisRe
   // 3. Fetch Repositories
   let repos: any[] = [];
   try {
-    let reposRes;
-    if (token && !token.startsWith("mock-")) {
-      reposRes = await fetch("https://api.github.com/user/repos?per_page=100&sort=updated", { headers });
-    } else {
-      reposRes = await fetch(`https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`, { headers });
-    }
-
-    // Fallback if token failed
-    if (!reposRes.ok && (reposRes.status === 401 || reposRes.status === 403)) {
-      reposRes = await fetch(`https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`, {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-          "User-Agent": "SkillSprint-AI"
-        }
-      });
-    }
-
-    if (!reposRes.ok) {
-      throw new Error("Unable to synchronize GitHub repositories.");
-    }
-
+    const reposUrl =
+      token && !token.startsWith("mock-")
+        ? "https://api.github.com/user/repos?per_page=100&sort=updated"
+        : `https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`;
+    const reposRes = await githubFetch(reposUrl, headers);
     repos = await reposRes.json();
     if (!Array.isArray(repos)) {
-      throw new Error("Unable to synchronize GitHub repositories.");
+      throw new Error("GitHub did not return a valid repository list.");
     }
-  } catch (err) {
-    console.error("Failed to fetch repositories:", err);
-    throw new Error("Unable to synchronize GitHub repositories.");
+  } catch (err: any) {
+    // Retry without the token only if the authenticated request was rejected.
+    if (err instanceof GitHubAuthRetry && token && !token.startsWith("mock-")) {
+      try {
+        const fallbackHeaders = {
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "SkillSprint-AI",
+        };
+        const reposRes = await githubFetch(
+          `https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`,
+          fallbackHeaders,
+          false
+        );
+        repos = await reposRes.json();
+        if (!Array.isArray(repos)) throw new Error("GitHub did not return a valid repository list.");
+      } catch (fallbackErr: any) {
+        console.error("Failed to fetch repositories (fallback):", fallbackErr);
+        throw new Error(fallbackErr?.message || "Unable to synchronize GitHub repositories.");
+      }
+    } else {
+      console.error("Failed to fetch repositories:", err);
+      throw new Error(err?.message || "Unable to synchronize GitHub repositories.");
+    }
   }
 
   // 4. Fetch User events (for streaks and consistency)
   let events: any[] = [];
   try {
-    let eventsRes = await fetch(`https://api.github.com/users/${githubUsername}/events`, { headers });
-    if (!eventsRes.ok && (eventsRes.status === 401 || eventsRes.status === 403)) {
-      eventsRes = await fetch(`https://api.github.com/users/${githubUsername}/events`, {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-          "User-Agent": "SkillSprint-AI"
-        }
-      });
-    }
+    const eventsRes = await githubFetch(`https://api.github.com/users/${githubUsername}/events`, headers, false);
     if (eventsRes.ok) {
       events = await eventsRes.json();
     }

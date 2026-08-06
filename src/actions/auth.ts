@@ -76,9 +76,14 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
     }
 
     // Resolve details to send back to client auth context
-    const details = await resolveUserSessionDetails(user.id, user.email, user.role);
+    let details: any = {};
+    try {
+      details = await resolveUserSessionDetails(user.id, user.email, user.role);
+    } catch (detailsErr: any) {
+      console.warn(`[syncOAuthUser] Could not resolve session details (DB may be unavailable):`, detailsErr.message);
+    }
 
-    // Encode session info into cookie
+    // Encode session info into cookie — always set this, even if DB sync had issues
     const sessionPayload = {
       id: user.id,
       email: user.email,
@@ -109,7 +114,26 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
       } 
     };
   } catch (error: any) {
-    console.error("[syncOAuthUser] Error syncing OAuth user:", error);
+    console.error("[syncOAuthUser] Critical error, attempting emergency cookie set:", error);
+    // Emergency fallback: even if everything fails, set the cookie from Firebase data
+    // so the user is not completely locked out.
+    try {
+      const emergencyPayload = { id: supabaseUserId, email, role };
+      const cookieValue = Buffer.from(JSON.stringify(emergencyPayload)).toString('base64');
+      const cookieStore = await cookies();
+      const secure = await isSecureOrigin();
+      cookieStore.set("session_user_id", cookieValue, {
+        httpOnly: true,
+        secure,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+      console.log(`[syncOAuthUser] Emergency cookie set for user: ${supabaseUserId}`);
+      return { success: true, user: { id: supabaseUserId, email, role } };
+    } catch (cookieErr: any) {
+      console.error(`[syncOAuthUser] Emergency cookie set also failed:`, cookieErr.message);
+    }
     return { success: false, error: error.message };
   }
 }
@@ -141,7 +165,14 @@ export async function getSessionUser() {
   const userId = sessionData ? sessionData.id : sessionVal;
 
   try {
-    let user = await db.findUserById(userId);
+    let user: any = null;
+    
+    // Try to load the user from DB — fall back to cookie data if DB is unavailable
+    try {
+      user = await db.findUserById(userId);
+    } catch (dbErr: any) {
+      console.warn(`[getSessionUser] DB lookup failed (using cookie fallback):`, dbErr.message);
+    }
 
     if (!user && sessionData) {
       user = {
@@ -160,10 +191,19 @@ export async function getSessionUser() {
     // Load profile or fallback
     let profile = user.profile;
     if (!profile) {
-      profile = await db.getProfileByUserId(userId);
+      try {
+        profile = await db.getProfileByUserId(userId);
+      } catch (profileErr: any) {
+        console.warn(`[getSessionUser] Could not load profile from DB:`, profileErr.message);
+      }
     }
 
-    const details = await resolveUserSessionDetails(user.id, user.email, user.role, profile);
+    let details: any = { name: user.email, githubConnected: false, linkedinConnected: false, resumeUploaded: false, careerTwinGenerated: false, onboardingCompleted: false };
+    try {
+      details = await resolveUserSessionDetails(user.id, user.email, user.role, profile);
+    } catch (detailsErr: any) {
+      console.warn(`[getSessionUser] Could not resolve session details:`, detailsErr.message);
+    }
 
     return {
       id: user.id,
@@ -225,8 +265,27 @@ async function resolveUserSessionDetails(userId: string, email: string, role: st
   const resumeUploaded = !!resume;
   const careerTwinGenerated = !!twin;
 
-  // Onboarding completed only if profile fields are filled and a career twin exists
-  const onboardingCompleted = !!(profile?.targetRole && profile?.college && careerTwinGenerated);
+  // Onboarding is complete if the profile has core fields filled in.
+  // We also check the DB-stored flag as a reliable override for returning users.
+  let profileOnboardingDone = !!(profile?.onboardingCompleted);
+
+  // Since onboardingCompleted is not in the Prisma schema, try raw query check on production
+  if (!profileOnboardingDone) {
+    try {
+      const { prisma } = require("@/lib/prisma");
+      const rawRes: any = await prisma.$queryRaw`
+        SELECT "onboardingCompleted" FROM profiles WHERE "userId" = ${userId} LIMIT 1
+      `;
+      if (rawRes && rawRes[0] && rawRes[0].onboardingCompleted) {
+        profileOnboardingDone = true;
+      }
+    } catch (rawErr) {
+      // Ignore if column doesn't exist or query fails
+    }
+  }
+
+  const derivedOnboardingDone = !!(profile?.targetRole && profile?.college);
+  const onboardingCompleted = profileOnboardingDone || derivedOnboardingDone;
 
   return {
     name,
@@ -352,11 +411,19 @@ export async function linkGitHubAccountOnSignIn(
       email: ""
     });
 
-    // 2. Save encrypted access token
-    await db.saveOAuthToken(userId, "github", {
-      accessToken: encrypt(accessToken),
-      scopes: ["read:user", "user:email", "repo", "read:org"]
-    });
+    // 2. Save encrypted access token — but never persist a placeholder/mock
+    //    token as a usable data-connection token (it would fail every sync).
+    if (accessToken && !accessToken.startsWith("mock-")) {
+      await db.saveOAuthToken(userId, "github", {
+        accessToken: encrypt(accessToken),
+        scopes: ["read:user", "user:email", "repo", "read:org"]
+      });
+    } else {
+      console.warn(
+        `[linkGitHubAccountOnSignIn] No valid GitHub access token provided (received a placeholder). ` +
+        `Skipping token storage. The user must connect GitHub via the dedicated 'Connect GitHub' OAuth flow to enable repository sync.`
+      );
+    }
 
     // 3. Update profile to set githubUsername
     await db.updateProfile(userId, {
@@ -399,15 +466,19 @@ export async function disconnectGitHub() {
     const user = await getSessionUser();
     if (!user) throw new Error("Unauthorized");
 
-    // 1. Delete GitHub account and tokens from database
+    // 1. Delete GitHub account, tokens, and analysis from database
     await db.deleteGitHubAccount(user.id);
 
-    // 2. Clear githubUsername from profile
-    await db.updateProfile(user.id, {
-      githubUsername: null
-    });
+    // 2. Clear githubUsername from profile so session refresh reflects disconnected state
+    try {
+      await db.updateProfile(user.id, {
+        githubUsername: null
+      });
+    } catch (profileErr) {
+      console.warn("Profile githubUsername clear failed (non-critical):", profileErr);
+    }
 
-    // 3. Clear firebase status if available
+    // 3. Clear firebase status (best-effort — don't fail if Firestore is offline)
     try {
       const userRef = doc(firestoreDb, "users", user.id);
       const docSnap = await getDoc(userRef);
@@ -418,12 +489,16 @@ export async function disconnectGitHub() {
       console.warn("Firestore update skipped during disconnect (offline/test mode):", fErr);
     }
 
-    // 4. Create sync history log
-    await db.createSyncHistory(user.id, {
-      provider: "github",
-      status: "failed",
-      details: { message: "GitHub account disconnected by user" }
-    });
+    // 4. Create sync history log (best-effort)
+    try {
+      await db.createSyncHistory(user.id, {
+        provider: "github",
+        status: "failed",
+        details: { message: "GitHub account disconnected by user" }
+      });
+    } catch (logErr) {
+      console.warn("Sync history log failed (non-critical):", logErr);
+    }
 
     return { success: true };
   } catch (error: any) {

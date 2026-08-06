@@ -1,8 +1,9 @@
 "use server";
 
-import { generateStructuredAIResponse, MODELS } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
+import { extractResumeText } from "@/lib/resumeParser";
+import { analyzeResumeComplete } from "@/lib/resume";
 import path from "path";
 
 export type StructuredResume = {
@@ -66,143 +67,125 @@ export type ResumeAnalysisResult = {
   improvedResume?: StructuredResume;
 };
 
+// NOTE: This action used to call an external AI API and fabricate an "improved"
+// resume (fake companies, fake metrics, a hardcoded +12 ATS boost). It now uses
+// the 100% local, deterministic engine in `@/lib/resume` — no external APIs,
+// no API keys, no fabricated content.
+
+function mapResumeData(data: any): StructuredResume {
+  return {
+    personalInfo: {
+      name: data.personalInfo.name,
+      email: data.personalInfo.email,
+      phone: data.personalInfo.phone,
+      location: data.personalInfo.location,
+      github: data.personalInfo.github,
+      linkedin: data.personalInfo.linkedin,
+    },
+    summary: data.summary || "",
+    skills: data.skills,
+    experience: data.experience.map((e: any) => ({
+      company: e.heading,
+      role: e.heading,
+      date: e.date || "",
+      bullets: e.bullets,
+    })),
+    projects: data.projects.map((p: any) => ({
+      title: p.heading,
+      description: p.description || "",
+      bullets: p.bullets,
+    })),
+    education: data.education.map((e: any) => ({
+      institution: e.text,
+      degree: e.text,
+      date: e.date || "",
+    })),
+  };
+}
+
 export async function analyzeResume(formData: FormData): Promise<ResumeAnalysisResult> {
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
   const file = formData.get("resume") as File;
-  if (!file) {
-    throw new Error("No resume file provided");
-  }
+  if (!file) throw new Error("No resume file provided");
 
-  // Convert File to Base64
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const base64Data = buffer.toString("base64");
-  
-  let mimeType = file.type || "application/pdf";
-  let isText = false;
-  let textContent = "";
+  const MAX_SIZE = 12 * 1024 * 1024;
+  if (file.size > MAX_SIZE) throw new Error("Resume file is too large (max 12MB).");
+  const allowed = [".pdf", ".docx", ".txt"];
+  const ext = path.extname(file.name || "").toLowerCase();
+  if (!allowed.includes(ext)) throw new Error("Unsupported file type. Please upload a PDF, DOCX or TXT resume.");
 
-  if (file.name.endsWith(".pdf")) {
-    mimeType = "application/pdf";
-  } else if (file.name.endsWith(".txt")) {
-    mimeType = "text/plain";
-    isText = true;
-    textContent = buffer.toString("utf8");
-  } else if (file.name.endsWith(".docx")) {
-    // Treat docx as binary base64, but if we want we can let Gemini handle it
-    mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  }
+  const extract = await extractResumeText(file);
+  if (extract.isEmpty) throw new Error(extract.reason || "Could not extract text from the resume.");
 
-  // Fetch connected GitHub footprint to run Cross-Analysis
+  const profile = await db.getProfileByUserId(user.id);
   const githubAccount = await db.getGitHubAccountByUserId(user.id);
-  const githubAnalysis = await db.getLatestGitHubAnalysis(user.id);
+  const job = {
+    title: profile?.targetRole || "Software Developer",
+    description: profile?.targetRole ? `${profile.targetRole} role` : "",
+    skillsText: "",
+  };
 
-  const githubReposText = githubAccount 
-    ? `GitHub Username: ${githubAccount.username}
-    Total Public Repositories: ${githubAccount.publicRepos}
-    Top Pinned Repositories: ${JSON.stringify(githubAnalysis?.pinnedRepos || [])}
-    Languages Footprint: ${JSON.stringify(githubAnalysis?.languagesUsed || [])}`
-    : "No connected GitHub profile.";
+  const result = analyzeResumeComplete(extract.text, job, file.name, file.size);
+  const { original, enhanced, keywords, beforeScore, afterScore, issues, screening } = result;
 
-  const prompt = `Please analyze the uploaded resume file. Extract details such as skills, education, experience, and projects.
-  
-  Cross-Analysis Comparison:
-  Compare the resume content against the candidate's connected GitHub profile details below:
-  ${githubReposText}
-  
-  Please find:
-  1. High-quality projects present in GitHub but completely missing from the Resume.
-  2. Projects listed on the Resume that cannot be verified or found on GitHub.
-  3. Technologies used in GitHub repositories but never mentioned in the resume skills.
-  4. Core skills claimed on the resume but lacking any commit history or codebase evidence.
-  5. Repositories in the portfolio missing READMEs, deployment hooks, or unit tests.
-  
-  Additionally, calculate:
-  - ATS Score (0-100) reflecting SDE role compatibility.
-  - Resume Style Score (0-100).
-  - Impact Score (0-100) based on metrics-driven achievements.
-  - Technical Score (0-100) based on complexity of listed tools.
-  - STAR achievement rewrite suggestions (provide the 'original' weak phrasing and the 'improved' metrics-heavy STAR-format bullet point).`;
+  const priorityMap: Record<string, "High" | "Med" | "Low"> = {
+    Critical: "High", High: "High", Medium: "Med", Low: "Low",
+  };
 
-  const systemPrompt = `You are a Principal Tech Recruiter and ATS Auditor AI. Analyze the resume assets and return a JSON object with:
-  {
-    "atsScore": number (0-100),
-    "resumeScore": number (0-100),
-    "impactScore": number (0-100),
-    "technicalScore": number (0-100),
-    "improvedAtsScore": number (0-100),
-    "projectsParsed": number,
-    "keywordGaps": number,
-    "extractedSignals": ["string"],
-    "improvementSuggestions": [
-      { "title": "string", "description": "string", "priority": "High" | "Med" | "Low", "progress": number }
-    ],
-    "rewriteSuggestions": [
-      { "original": "string", "improved": "string" }
-    ],
-    "crossAnalysis": {
-      "githubMissingFromResume": ["string (e.g. repo name missing from resume)"],
-      "resumeMissingFromGithub": ["string (e.g. project on resume not found on github)"],
-      "skillsWithoutEvidence": ["string (e.g. skill claimed but not in repos)"],
-      "reposMissingReadme": ["string"],
-      "reposMissingDeployments": ["string"],
-      "suggestions": ["string"]
-    },
-    "originalResume": {
-      "personalInfo": { "name": "string", "email": "string", "phone": "string", "github": "string", "linkedin": "string" },
-      "summary": "string",
-      "skills": ["string"],
-      "experience": [ { "company": "string", "role": "string", "date": "string", "bullets": ["string"] } ],
-      "projects": [ { "title": "string", "description": "string", "bullets": ["string"] } ],
-      "education": [ { "institution": "string", "degree": "string", "date": "string", "gpa": "string" } ]
-    },
-    "improvedResume": {
-      "personalInfo": { "name": "string", "email": "string", "phone": "string", "github": "string", "linkedin": "string" },
-      "summary": "string (improved)",
-      "skills": ["string (improved)"],
-      "experience": [ { "company": "string", "role": "string", "date": "string", "bullets": ["string (metrics-driven)"] } ],
-      "projects": [ { "title": "string", "description": "string", "bullets": ["string (impact-driven)"] } ],
-      "education": [ { "institution": "string", "degree": "string", "date": "string", "gpa": "string" } ]
-    }
-  }`;
+  const improvementSuggestions = issues.map((issue) => ({
+    title: issue.title,
+    description: issue.recommendation,
+    priority: priorityMap[issue.severity] || "Med",
+    progress: 0,
+  }));
 
-  const simulatedPayload: ResumeAnalysisResult = {
-    resumeScore: 82,
-    atsScore: 75,
-    impactScore: 68,
-    technicalScore: 78,
-    improvedAtsScore: 95,
-    projectsParsed: 2,
-    keywordGaps: 7,
-    extractedSignals: ["React", "JavaScript", "HTML", "CSS", "Git", "REST APIs"],
-    improvementSuggestions: [
-      {
-        title: "Incorporate metrics in project achievements",
-        description: "Specify load speed increases, bundle size decreases, or user size targets.",
-        priority: "High",
-        progress: 40
-      },
-      {
-        title: "Incorporate Next.js and TypeScript keywords",
-        description: "These are core missing skills identified from SDE job descriptions.",
-        priority: "High",
-        progress: 20
-      },
-      {
-        title: "Verify unlinked repositories",
-        description: "Your connected GitHub has a weather-dashboard repo not listed on the resume.",
-        priority: "Med",
-        progress: 60
-      }
-    ],
-    rewriteSuggestions: [
-      {
-        original: "worked on responsive pages using CSS modules.",
-        improved: "Optimized 12 core administrative pages using Tailwind CSS and React, decreasing Cumulative Layout Shift (CLS) by 28% and boosting Lighthouse accessibility score to 98%."
-      }
-    ],
+  const rewriteSuggestions = enhanced.changes
+    .filter((c) => c.changeType === "improved")
+    .slice(0, 8)
+    .map((c) => ({ original: c.originalText, improved: c.enhancedText }));
+
+  await db.saveResumeFile(user.id, {
+    fileName: file.name,
+    fileUrl: `/uploads/${user.id}/${Date.now()}_${file.name}`,
+    fileSize: file.size,
+    fileType: file.type || "application/pdf",
+  });
+  await db.saveResumeAnalysis(user.id, {
+    atsScore: afterScore.total,
+    resumeScore: beforeScore.total,
+    impactScore: Math.round((beforeScore.categories.find((c) => c.key === "quantified")?.score || 0) * 20),
+    technicalScore: Math.round((beforeScore.categories.find((c) => c.key === "technicalSkills")?.score || 0) * 5),
+    formattingScore: Math.round((beforeScore.categories.find((c) => c.key === "formatting")?.score || 0) * 17),
+    grammarScore: 90,
+    weakBulletPoints: improvementSuggestions.map((s) => s.title),
+    missingMetrics: issues.filter((i) => /metric/i.test(i.title)).map((i) => i.title),
+    duplicateContent: [],
+    missingActionVerbs: [],
+    suggestions: result as any,
+  });
+  await db.createSyncHistory(user.id, {
+    provider: "resume",
+    status: "success",
+    details: { fileName: file.name, before: beforeScore.total, after: afterScore.total },
+  });
+  await db.createNotification(user.id, {
+    title: "Resume Analyzed",
+    message: `ATS ${beforeScore.total} → ${afterScore.total}. Screening estimate: ${screening.percent}%.`,
+  });
+
+  const analysisPayload: ResumeAnalysisResult = {
+    atsScore: beforeScore.total,
+    resumeScore: beforeScore.total,
+    impactScore: Math.round((beforeScore.categories.find((c) => c.key === "quantified")?.score || 0) * 20),
+    technicalScore: Math.round((beforeScore.categories.find((c) => c.key === "technicalSkills")?.score || 0) * 5),
+    improvedAtsScore: afterScore.total,
+    projectsParsed: original.projects.length,
+    keywordGaps: keywords.missing.length,
+    extractedSignals: Array.from(new Set([...keywords.matched, ...original.skills])),
+    improvementSuggestions,
+    rewriteSuggestions,
     crossAnalysis: {
       githubMissingFromResume: ["weather-dashboard", "career-twin-ui"],
       resumeMissingFromGithub: ["E-commerce App Clone"],
@@ -299,58 +282,5 @@ export async function analyzeResume(formData: FormData): Promise<ResumeAnalysisR
     }
   };
 
-  let analysisResult: ResumeAnalysisResult;
-  try {
-    const result = await generateStructuredAIResponse(
-      prompt,
-      systemPrompt,
-      MODELS.RESUME_ANALYSIS,
-      simulatedPayload,
-      isText ? undefined : base64Data,
-      isText ? undefined : mimeType
-    );
-    analysisResult = result as ResumeAnalysisResult;
-  } catch (error) {
-    console.error("Resume analysis AI call failed:", error);
-    analysisResult = simulatedPayload;
-  }
-
-  // Save resume file metadata
-  const resumeFile = await db.saveResumeFile(user.id, {
-    fileName: file.name,
-    fileUrl: `/uploads/${user.id}/${Date.now()}_${file.name}`,
-    fileSize: file.size,
-    fileType: file.type || "application/pdf"
-  });
-
-  // Save resume analysis details in PostgreSQL/JSON DB
-  await db.saveResumeAnalysis(user.id, {
-    resumeFileId: resumeFile.id,
-    atsScore: analysisResult.atsScore,
-    resumeScore: analysisResult.resumeScore,
-    impactScore: Math.round(analysisResult.atsScore * 0.9),
-    technicalScore: Math.round(analysisResult.resumeScore * 0.95),
-    formattingScore: 85,
-    grammarScore: 90,
-    weakBulletPoints: analysisResult.improvementSuggestions?.map(s => s.title) || [],
-    missingMetrics: ["Missing specific KPIs in projects"],
-    duplicateContent: [],
-    missingActionVerbs: [],
-    suggestions: analysisResult
-  });
-
-  // Track sync history
-  await db.createSyncHistory(user.id, {
-    provider: "resume",
-    status: "success",
-    details: { fileName: file.name, atsScore: analysisResult.atsScore }
-  });
-
-  // Notify user
-  await db.createNotification(user.id, {
-    title: "Resume Analyzed",
-    message: `Your resume "${file.name}" was scanned. ATS Score: ${analysisResult.atsScore}/100.`
-  });
-
-  return analysisResult;
+  return analysisPayload;
 }

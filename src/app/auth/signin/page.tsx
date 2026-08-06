@@ -22,8 +22,10 @@ function SignInContent() {
 
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      const x = (event.clientX * 100) / window.innerWidth + "%";
-      const y = (event.clientY * 100) / window.innerHeight + "%";
+      const width = window.innerWidth || 1;
+      const height = window.innerHeight || 1;
+      const x = (event.clientX * 100) / width + "%";
+      const y = (event.clientY * 100) / height + "%";
 
       if (eyes1Ref.current && eyes2Ref.current) {
         eyes1Ref.current.style.left = x;

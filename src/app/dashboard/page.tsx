@@ -64,21 +64,8 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { getDashboardData, type DashboardData } from "@/actions/scores";
 import { buildRecommendedProject } from "@/actions/projects";
-import { generateRoadmapPdf } from "@/lib/generateRoadmapPdf";
-import { 
-  ResponsiveContainer, 
-  RadarChart, 
-  PolarGrid, 
-  PolarAngleAxis, 
-  PolarRadiusAxis, 
-  Radar, 
-  AreaChart, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Area,
-  Tooltip
-} from "recharts";
+import { DynamicRadarChart } from "@/components/charts/DynamicRadarChart";
+import { DynamicAreaChart } from "@/components/charts/DynamicAreaChart";
 
 export default function DashboardOverview() {
   const { user } = useAuth();
@@ -110,7 +97,10 @@ export default function DashboardOverview() {
     setBuildingProject(projectName);
     setPdfReady(null);
     try {
-      const roadmap = await buildRecommendedProject(projectName);
+      const [roadmap, { generateRoadmapPdf }] = await Promise.all([
+        buildRecommendedProject(projectName),
+        import("@/lib/generateRoadmapPdf"),
+      ]);
       // Generate and trigger PDF download — no navigation needed
       generateRoadmapPdf(roadmap);
       setPdfReady(projectName);
@@ -205,7 +195,7 @@ export default function DashboardOverview() {
           icon={resumeUploaded ? <CheckCircle2 className="text-emerald-500 w-5 h-5" /> : <AlertTriangle className="text-amber-500 w-5 h-5" />} 
           label="ATS Resume File" 
           status={resumeUploaded ? "✅ Uploaded" : "❌ Missing"} 
-          link="/dashboard/resume-intelligence"
+          link="/dashboard/resume-intel"
           actionLabel={resumeUploaded ? "Analyze Resume" : "Upload PDF"}
         />
       </div>
@@ -271,15 +261,7 @@ export default function DashboardOverview() {
             <p className="text-xs text-gray-500 mb-6">Target SDE architectural dimension alignment.</p>
           </div>
           <div className="h-64 w-full flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                <PolarGrid stroke="#cbd5e1" strokeWidth={1} />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: '#475569', fontSize: 11, fontWeight: 700 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#94a3b8' }} />
-                <Radar name="Skills" dataKey="value" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.25} />
-                <Tooltip />
-              </RadarChart>
-            </ResponsiveContainer>
+            <DynamicRadarChart data={radarData} />
           </div>
         </div>
       </div>
@@ -572,21 +554,7 @@ export default function DashboardOverview() {
         <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider mb-1">Score Progression</h3>
         <p className="text-xs text-gray-500 mb-6">Historical index tracking your Career Operating updates.</p>
         <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={historyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.2}/>
-                  <stop offset="95%" stopColor="#4f46e5" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="month" tick={{ fill: '#64748b', fontSize: 11 }} />
-              <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 11 }} />
-              <Tooltip />
-              <Area type="monotone" dataKey="score" stroke="#4f46e5" strokeWidth={2} fillOpacity={1} fill="url(#areaGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <DynamicAreaChart data={historyData} />
         </div>
       </div>
 

@@ -21,7 +21,9 @@ import {
   Link2,
   Shield,
   ArrowRight,
-  Clock
+  Clock,
+  Users,
+  ClipboardCheck
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -63,17 +65,18 @@ export function SidebarNav() {
   const links = [
     { name: "Overview", path: "/dashboard", icon: LayoutDashboard },
     { name: "Career Twin", path: "/dashboard/career-twin", icon: BrainCircuit },
-    { name: "Resume Intel", path: "/dashboard/resume-intelligence", icon: FileText },
+    { name: "Resume Intel", path: "/dashboard/resume-intel", icon: FileText },
     { name: "Learning Roadmap", path: "/dashboard/roadmap", icon: Map },
     { name: "Mock Interviews", path: "/dashboard/mock-interview", icon: Mic },
     { name: "Prep Quizzes", path: "/dashboard/prep-quiz", icon: Trophy },
     { name: "AI Career Coach", path: "/dashboard/chat", icon: Sparkles },
-    { name: "3D Skill Graph", path: "/dashboard/skill-graph", icon: Network },
+    { name: "Prep Quizzes", path: "/dashboard/prep-quizzes", icon: ClipboardCheck },
     { name: "Job Matching", path: "/dashboard/jobs", icon: Briefcase },
     { name: "Talent Leaderboard", path: "/dashboard/leaderboard", icon: Trophy },
     { name: "Portfolio Analyzer", path: "/dashboard/portfolio-analyzer", icon: Link2 },
     { name: "Hackathons", path: "/dashboard/hackathons", icon: Trophy },
     { name: "Admin Panel", path: "/dashboard/admin", icon: Shield },
+    { name: "AI Shortlisting", path: "/dashboard/shortlisting", icon: Users },
   ];
 
   const handleLogout = async () => {

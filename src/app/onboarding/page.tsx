@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { 
   BrainCircuit, 
@@ -15,6 +15,21 @@ import {
   FileText
 } from "lucide-react";
 import "../auth/auth.css";
+import { getAuth } from "firebase/auth";
+
+// Get current Firebase ID token for API auth fallback
+async function getFirebaseToken(): Promise<string | null> {
+  try {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      return await currentUser.getIdToken();
+    }
+  } catch (e) {
+    console.warn("[onboarding] Could not get Firebase ID token:", e);
+  }
+  return null;
+}
 
 // Inline custom SVG replacements for missing Lucide icons in package.json version
 function Github(props: React.SVGProps<SVGSVGElement>) {
@@ -61,8 +76,9 @@ const careerSkillsMap: Record<string, string[]> = {
   "Product Manager": ["Product Roadmap", "Agile/Scrum", "SQL", "A/B Testing", "Market Research", "User Analytics"]
 };
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const { user, loading, updateOnboarding, refreshSession } = useAuth();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -93,8 +109,10 @@ export default function OnboardingPage() {
   // Tracker movement effect
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      const x = (event.clientX * 100) / window.innerWidth + "%";
-      const y = (event.clientY * 100) / window.innerHeight + "%";
+      const width = window.innerWidth || 1;
+      const height = window.innerHeight || 1;
+      const x = (event.clientX * 100) / width + "%";
+      const y = (event.clientY * 100) / height + "%";
 
       if (eyes1Ref.current && eyes2Ref.current) {
         eyes1Ref.current.style.left = x;
@@ -114,46 +132,75 @@ export default function OnboardingPage() {
   // Fetch existing profile and set initial step on load
   const [profileLoaded, setProfileLoaded] = useState(false);
 
+  // Read ?step and ?error from URL (set by GitHub OAuth callback)
+  useEffect(() => {
+    const urlStep = searchParams.get("step");
+    const urlError = searchParams.get("error");
+    if (urlError) setError(urlError);
+    if (urlStep) {
+      const parsed = parseInt(urlStep);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 4) {
+        setStep(parsed);
+        setProfileLoaded(true);
+      }
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     if (!user) {
       setProfileLoaded(false);
       return;
     }
     if (profileLoaded) return;
-    
-    fetch("/api/onboard")
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.profile) {
-          const p = data.profile;
-          setFullName(p.fullName || user.name || "");
-          setCollege(p.college || "");
-          setBranch(p.branch || "");
-          setGraduationYear(String(p.graduationYear || "2026"));
-          setCgpa(String(p.cgpa || ""));
-          setTargetRole(p.targetRole || "Frontend Developer");
-          setSkills(Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""));
-          
-          if (user.githubConnected && user.resumeUploaded) {
-            setStep(4);
-            setTimeout(() => startTwinGeneration(), 100);
-          } else if (user.githubConnected) {
-            setStep(3);
+
+    (async () => {
+      const token = await getFirebaseToken();
+      const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+      fetch("/api/onboard", { credentials: "include", headers: authHeaders })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.profile) {
+            const p = data.profile;
+            setFullName(p.fullName || user.name || "");
+            setCollege(p.college || "");
+            setBranch(p.branch || "");
+            setGraduationYear(String(p.graduationYear || "2026"));
+            setCgpa(String(p.cgpa || ""));
+            setTargetRole(p.targetRole || "Frontend Developer");
+            setSkills(Array.isArray(p.skills) ? p.skills.join(", ") : (p.skills || ""));
+            
+            // Honor URL ?step param if set (e.g. after GitHub OAuth callback)
+            const urlStep = searchParams.get("step");
+            if (urlStep) {
+              const parsed = parseInt(urlStep);
+              if (!isNaN(parsed)) { setStep(parsed); return; }
+            }
+
+            if (user.githubConnected && user.resumeUploaded) {
+              setStep(4);
+              setTimeout(() => startTwinGeneration(), 100);
+            } else if (user.githubConnected) {
+              setStep(3);
+            } else {
+              setStep(2);
+            }
           } else {
-            setStep(2);
+            setFullName(user.name || "");
+            const urlStep = searchParams.get("step");
+            if (urlStep) { const p = parseInt(urlStep); if (!isNaN(p)) { setStep(p); setProfileLoaded(true); return; } }
+            setStep(1);
           }
-        } else {
+          setProfileLoaded(true);
+        })
+        .catch(err => {
+          console.error("Error fetching profile status:", err);
           setFullName(user.name || "");
+          const urlStep = searchParams.get("step");
+          if (urlStep) { const p = parseInt(urlStep); if (!isNaN(p)) { setStep(p); setProfileLoaded(true); return; } }
           setStep(1);
-        }
-        setProfileLoaded(true);
-      })
-      .catch(err => {
-        console.error("Error fetching profile status:", err);
-        setFullName(user.name || "");
-        setStep(1);
-        setProfileLoaded(true);
-      });
+          setProfileLoaded(true);
+        });
+    })();
   }, [user, profileLoaded]);
 
   // If onboarding completed, redirect to dashboard
@@ -163,7 +210,7 @@ export default function OnboardingPage() {
     }
   }, [user, loading, router]);
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     setError("");
     if (step === 1) {
       if (!fullName || !college || !branch || !graduationYear || !cgpa || !skills) {
@@ -189,9 +236,14 @@ export default function OnboardingPage() {
       formData.append("skills", skillsArray.join(","));
       formData.append("githubUsername", user?.email.split("@")[0] || "candidate");
 
+      const token = await getFirebaseToken();
+      const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
       // We call the server action onboardStudent or API
       fetch("/api/onboard", {
         method: "POST",
+        credentials: "include",
+        headers: authHeaders,
         body: formData
       })
       .then(res => res.json())
@@ -307,29 +359,42 @@ export default function OnboardingPage() {
   const completeOnboarding = async () => {
     setSaving(true);
     try {
-      // Trigger Career Twin build endpoint
-      const res = await fetch("/api/career-twin/build", { method: "POST" });
-      const data = await res.json();
-      
-      if (data.success) {
-        // Mark onboardCompleted in Firestore
+      // 1. Trigger Career Twin build (non-blocking — don't fail onboarding if this errors)
+      try {
+        await fetch("/api/career-twin/build", { method: "POST" });
+      } catch (twinErr) {
+        console.warn("Career twin build failed (non-critical):", twinErr);
+      }
+
+      // 2. Mark onboarding complete in PostgreSQL (critical — this is what session refresh reads)
+      const patchToken = await getFirebaseToken();
+      const patchAuthHeaders: Record<string, string> = patchToken ? { Authorization: `Bearer ${patchToken}` } : {};
+      const patchRes = await fetch("/api/onboard", { method: "PATCH", credentials: "include", headers: patchAuthHeaders });
+
+      const patchData = await patchRes.json();
+      if (!patchData.success) {
+        throw new Error(patchData.error || "Failed to mark onboarding complete");
+      }
+
+      // 3. Also update Firestore for real-time listeners
+      try {
         await updateOnboarding({
           onboardingCompleted: true,
           careerTwinGenerated: true
         });
-
-        // Trigger refresh
-        await refreshSession();
-
-        setAuthStatus("success");
-        setTimeout(() => {
-          router.push("/dashboard");
-          router.refresh();
-        }, 1000);
-      } else {
-        setError(data.error || "Failed to generate career twin.");
-        setSaving(false);
+      } catch (fsErr) {
+        console.warn("Firestore onboarding update failed (non-critical):", fsErr);
       }
+
+      // 4. Refresh session so the new onboardingCompleted=true is reflected
+      await refreshSession();
+
+      setAuthStatus("success");
+
+      // 5. Hard redirect — forces a fresh page load so ProtectedRoute reads the new session
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 800);
     } catch (err: any) {
       setError(err.message || "Failed to save onboarding details");
       setAuthStatus("error");
@@ -874,5 +939,13 @@ export default function OnboardingPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F0F2F5] flex items-center justify-center"><div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" /></div>}>
+      <OnboardingContent />
+    </Suspense>
   );
 }

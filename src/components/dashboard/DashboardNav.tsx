@@ -36,7 +36,7 @@ export function DashboardNav() {
   const links = [
     { name: "Overview", path: "/dashboard" },
     { name: "Twin", path: "/dashboard/career-twin" },
-    { name: "Resume", path: "/dashboard/resume-intelligence" },
+    { name: "Resume", path: "/dashboard/resume-intel" },
     { name: "GitHub", path: "/dashboard/github" },
     { name: "Roadmap", path: "/dashboard/roadmap" },
     { name: "Interviews", path: "/dashboard/mock-interview" },

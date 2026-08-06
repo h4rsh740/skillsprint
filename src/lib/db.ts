@@ -9,6 +9,16 @@ const DB_FILE = path.join(process.cwd(), "prisma", "db.json");
 
 // Helper to initialize the local JSON database with all 17 tables if it doesn't exist
 function getLocalDB() {
+  if (DB_CONFIGURED) {
+    const originalError = (globalThis as any).latestPrismaError;
+    if (originalError) {
+      console.warn("Prisma query failed, using local JSON DB fallback:", originalError.message);
+    } else {
+      console.warn(
+        "Local JSON DB fallback is used because a Prisma query failed upstream."
+      );
+    }
+  }
   if (!fs.existsSync(DB_FILE)) {
     const initialData = {
       users: [],
@@ -91,6 +101,16 @@ function getLocalDB() {
 }
 
 function saveLocalDB(data: any) {
+  if (DB_CONFIGURED) {
+    const originalError = (globalThis as any).latestPrismaError;
+    if (originalError) {
+      console.warn("Prisma write failed, saving to local JSON DB fallback:", originalError.message);
+    } else {
+      console.warn(
+        "Saving to local JSON DB fallback because a Prisma write failed upstream."
+      );
+    }
+  }
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf8");
   } catch (err) {
@@ -100,6 +120,9 @@ function saveLocalDB(data: any) {
 
 // Check if we should use local JSON database
 const useLocalDB = !process.env.DATABASE_URL;
+// When a real database is configured, NEVER fall back to the ephemeral local
+// JSON file (it does not persist on serverless). Fail loudly instead.
+const DB_CONFIGURED = !!process.env.DATABASE_URL;
 
 export const db = {
   // --- USERS ---
@@ -173,7 +196,8 @@ export const db = {
       try {
         return await prisma.profile.findUnique({ where: { userId } });
       } catch (err) {
-        console.warn("Prisma getProfileByUserId failed, falling back to local JSON db:", err);
+        console.error("Prisma getProfileByUserId failed on production:", err);
+        return null;
       }
     }
     const store = getLocalDB();
@@ -198,7 +222,8 @@ export const db = {
           create: { userId, ...data }
         });
       } catch (err) {
-        console.warn("Prisma upsertProfile failed, falling back to local JSON db:", err);
+        console.error("Prisma upsertProfile failed on production:", err);
+        throw err;
       }
     }
     const store = getLocalDB();
@@ -233,12 +258,32 @@ export const db = {
   async updateProfile(userId: string, data: any) {
     if (!useLocalDB) {
       try {
-        return await prisma.profile.update({
-          where: { userId },
-          data
-        });
+        // If data contains onboardingCompleted, update it via raw query since it's not in the Prisma schema
+        if ("onboardingCompleted" in data) {
+          const { onboardingCompleted, ...rest } = data;
+          try {
+            await prisma.$executeRaw`
+              UPDATE profiles 
+              SET "onboardingCompleted" = ${onboardingCompleted} 
+              WHERE "userId" = ${userId}
+            `;
+          } catch (rawErr) {
+            console.warn("Raw SQL update of onboardingCompleted failed:", rawErr);
+          }
+          data = rest;
+        }
+
+        if (Object.keys(data).length > 0) {
+          return await prisma.profile.update({
+            where: { userId },
+            data
+          });
+        } else {
+          return await prisma.profile.findUnique({ where: { userId } });
+        }
       } catch (err) {
-        console.warn("Prisma updateProfile failed, falling back to local JSON db:", err);
+        console.error("Prisma updateProfile failed on production:", err);
+        return null;
       }
     }
     const store = getLocalDB();
@@ -1243,33 +1288,45 @@ export const db = {
 
   // --- PORTFOLIOS (LEGACY FALLBACK COMPATIBILITY) ---
   async getPortfolioAudit(userId: string) {
-    const store = getLocalDB();
-    return store.portfolios.find((p: any) => p.userId === userId) || null;
+    try {
+      const store = getLocalDB();
+      return store.portfolios.find((p: any) => p.userId === userId) || null;
+    } catch {
+      return null;
+    }
   },
 
   async savePortfolioAudit(userId: string, data: any) {
-    const store = getLocalDB();
-    let index = store.portfolios.findIndex((p: any) => p.userId === userId);
-    const audit = {
-      id: Math.random().toString(36).substring(2, 15),
-      userId,
-      ...data,
-      createdAt: new Date().toISOString()
-    };
-    if (index !== -1) {
-      store.portfolios[index] = audit;
-    } else {
-      store.portfolios.push(audit);
+    try {
+      const store = getLocalDB();
+      let index = store.portfolios.findIndex((p: any) => p.userId === userId);
+      const audit = {
+        id: Math.random().toString(36).substring(2, 15),
+        userId,
+        ...data,
+        createdAt: new Date().toISOString()
+      };
+      if (index !== -1) {
+        store.portfolios[index] = audit;
+      } else {
+        store.portfolios.push(audit);
+      }
+      saveLocalDB(store);
+      return audit;
+    } catch {
+      return null;
     }
-    saveLocalDB(store);
-    return audit;
   },
 
   // --- HACKATHONS (LEGACY COMPATIBILITY) ---
   async getHackathonsByUserId(userId: string) {
-    const store = getLocalDB();
-    const list = store.hackathons.filter((h: any) => h.userId === userId);
-    if (list.length > 0) return list;
+    try {
+      const store = getLocalDB();
+      const list = store.hackathons.filter((h: any) => h.userId === userId);
+      if (list.length > 0) return list;
+    } catch {
+      // Local JSON DB disabled in production — fall through to defaults.
+    }
     return [
       { id: "h1", userId, title: "Smart India Hackathon 2026", matchScore: 92, platform: "Govt of India", skills: ["React", "SQL", "Cloud"] },
       { id: "h2", userId, title: "Co:here AI Hackathon", matchScore: 84, platform: "Lablab.ai", skills: ["Next.js", "Python", "API Design"] },
