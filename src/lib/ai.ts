@@ -16,10 +16,12 @@ export const MODELS = {
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // ─── Gemini models to try in order (most capable first) ────────────────────
+// Free-tier Gemini models — verified working with this API key ✅
 const GEMINI_MODELS = [
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
+  "gemini-3.5-flash",      // ✅ verified — most capable
+  "gemini-3.5-flash-lite", // ✅ verified — fast & lightweight
+  "gemini-3.1-flash-lite", // ✅ verified — reliable fallback
+  "gemini-flash-latest",   // ✅ verified — always-updated alias
 ];
 
 // ─── Try Gemini API ─────────────────────────────────────────────────────────
@@ -36,10 +38,24 @@ async function tryGeminiAPI(
 
   if (!geminiApiKey) return null;
 
+  // Default system instruction — natural, conversational, Claude/ChatGPT/Gemini style
+  const defaultSystem = systemInstruction ||
+    `You are SkillSprint AI, an expert career coach for software engineering students. Respond exactly like a helpful senior engineer would in a real conversation — natural, direct, and warm.
+
+Core style rules:
+- Match your response length to the complexity of the question. Simple question = short answer. Deep technical question = thorough answer.
+- Write in flowing prose first, using markdown only where it genuinely helps (code blocks for code, bullet lists for truly list-like things, bold for key terms). Avoid gratuitous headers on every paragraph.
+- For greetings (hi, hello, hey, sup) → 1-2 warm sentences max. Introduce yourself, invite a question. No headers, no bullets.
+- For thanks → one warm sentence, offer to help further.
+- For technical or career questions → explain clearly, give concrete examples or code where relevant, end with one specific actionable next step.
+- Never start with a generic filler like "Great question!" or "Certainly!".
+- Sound like a knowledgeable friend, not a corporate chatbot.`;
+
+
   for (const model of GEMINI_MODELS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // raised from 4s → 8s
 
       const body: Record<string, unknown> = {
         contents: [{ parts: [{ text: prompt }] }],
@@ -50,9 +66,8 @@ async function tryGeminiAPI(
         },
       };
 
-      if (systemInstruction) {
-        body.systemInstruction = { parts: [{ text: systemInstruction }] };
-      }
+      // Always attach system instruction
+      body.systemInstruction = { parts: [{ text: defaultSystem }] };
 
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
@@ -106,6 +121,8 @@ function has(lower: string, ...terms: string[]): boolean {
 
 // ─── Intent classifier ───────────────────────────────────────────────────────
 type Intent =
+  | "greeting"
+  | "thanks"
   | "docker_devops"
   | "project_portfolio"
   | "3d_web"
@@ -139,6 +156,10 @@ type Intent =
 
 function classifyIntent(q: string): Intent {
   const l = norm(q);
+
+  // Casual / social intents — must be checked first
+  if (has(l, "hii", "hi", "hey", "hello", "helo", "sup", "what s up", "whats up", "good morning", "good evening", "good afternoon", "namaste", "yo ", "howdy")) return "greeting";
+  if (has(l, "thank", "thanks", "thx", "ty ", "appreciate", "helpful", "great answer", "nice", "awesome", "cool", "perfect")) return "thanks";
 
   if (has(l, "docker", "kubernetes", "k8s", "container", "devops", "ci cd", "cicd", "pipeline", "deploy", "deployment", "aws ecs", "helm")) return "docker_devops";
   if (has(l, "project idea", "portfolio", "build something", "side project", "mini project", "personal project", "what to build", "project to build")) return "project_portfolio";
@@ -1571,7 +1592,7 @@ import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
 
 const { text } = await generateText({
-  model: google('gemini-2.0-flash'),
+  model: google('gemini-2.0-flash-lite'), // free tier
   prompt: 'Summarise this resume for ATS optimisation: ' + resumeText,
 });
 ${T}${T}${T}
@@ -1735,53 +1756,49 @@ ${T}${T}${T}
 - Don't take on new work mid-sprint without removing something else
 - Don't skip retrospectives — they're how teams actually improve`,
 
-  general: (q) => `## Career Coach Response
+  greeting: () =>
+    `Hey! 👋 I'm SkillSprint AI — your career coach for breaking into tech. What are you working on or trying to figure out?`,
 
-You asked: *"${q}"*
+  thanks: () =>
+    `Happy to help! What else can I assist you with?`,
 
-Here is my analysis and recommendations:
+  general: (q) => {
+    if (q.trim().length < 15) {
+      return `Could you share a bit more about what you're looking for? I'm here to help with resumes, interview prep, career planning, tech questions, LinkedIn strategy, salary negotiation — whatever's on your mind.`;
+    }
 
-### Understanding Your Question
-
-${q.trim().length > 10
-  ? `Your question touches on an important area of your tech career development. Let me provide structured guidance.`
-  : `Let me provide some general guidance on advancing your tech career.`}
-
-### Recommended Approach
-
-**1. Research & Foundation**
-Start by understanding the core concepts behind your question. Break it down into:
-- What specific outcome are you trying to achieve?
-- What do you already know, and where is the gap?
-- What resources (documentation, courses, mentors) can fill that gap?
-
-**2. Practical Application**
-The best way to learn anything in tech is to build something with it:
-- Create a small proof-of-concept project
-- Deploy it publicly and document what you learned
-- Add it to your portfolio with a write-up
-
-**3. Leverage Your Network**
-- Search for developers on LinkedIn who have experience in this area
-- Join relevant Discord communities (Reactiflux, Next.js Discord, freeCodeCamp)
-- Ask specific, detailed questions — vague questions get vague answers
-
-### Immediate Next Step
-Share more context about your specific situation — what you're trying to build, your current skill level, and your target role — and I can give you a much more targeted, actionable response.
-
-> 💡 **Pro tip:** The clearer your question, the more specific my answer can be. Try asking about a specific technology, problem, or career stage.`,
+    return `I want to give you the most useful answer I can for "${q}" — could you share a bit more context? For example, what's your current background, what tech stack are you working with, or what outcome are you aiming for? The more specific you are, the better I can help.`;
+  },
 };
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 export async function generateAIResponse(prompt: string, _model: string = MODELS.CAREER_TWIN): Promise<string> {
-  // 1. Extract the user's actual message
+  // 1. Extract the student's actual last message from the full context prompt
   const userQuery = extractUserQuery(prompt);
 
-  // 2. Try Gemini API first — if it responds, use that
-  const geminiResponse = await tryGeminiAPI(prompt);
+  // 2. Build a structured system instruction that tells Gemini to ANALYSE first
+  const systemInstruction = `You are SkillSprint AI — an expert career coach for software engineering students. Your responses should feel exactly like Claude, Gemini, or ChatGPT: natural, thoughtful, and genuinely helpful.
+
+Response style:
+- **Match length to complexity.** A greeting gets 1-2 sentences. A system design question gets a thorough breakdown.
+- **Write like a knowledgeable friend**, not a corporate manual. Use natural prose as the default. Use markdown (bold, bullets, code blocks) only when it genuinely adds clarity — not to pad every response.
+- **Never open with filler phrases** like "Great question!", "Certainly!", "Of course!", or "Sure!".
+- **For greetings** (hi, hello, hey, sup, namaste, hii) → respond warmly in 1-2 sentences. Introduce yourself briefly and invite the student to ask anything. No bullets, no headers.
+- **For thanks** → one warm sentence, offer to continue helping.
+- **For vague messages** → ask one specific clarifying question. Don't over-explain.
+- **For technical or career questions** → explain with clarity and depth. Use code blocks for code. Use bullets only for genuinely list-like content. End with one concrete action the student can take today.
+- **For emotional or stressed messages** → lead with empathy, then be practical.
+- Always personalise using any student context available (name, target role, skills, ATS score).`;
+
+  // 3. Try Gemini with structured system+user call
+  const geminiResponse = await tryGeminiAPI(userQuery, systemInstruction);
   if (geminiResponse) return geminiResponse;
 
-  // 3. Classify intent and return high-quality local response
+  // 4. Gemini failed — retry with the full prompt (no separate system instruction)
+  const geminiRetry = await tryGeminiAPI(prompt);
+  if (geminiRetry) return geminiRetry;
+
+  // 5. Both Gemini calls failed — use intent-matched local response as last resort
   const intent = classifyIntent(userQuery);
   const responseFn = RESPONSES[intent];
   return responseFn ? responseFn(userQuery) : RESPONSES.general(userQuery);
