@@ -13,9 +13,16 @@ export async function askCareerCoach(chatHistory: ChatMessage[]): Promise<string
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const profile = await db.getProfileByUserId(user.id);
-  const resume = await db.getLatestResumeByUserId(user.id);
-  const careerTwin = await db.getLatestCareerTwin(user.id);
+  // Run DB lookups in parallel with a 3s timeout guard
+  // A dead/slow DB on Vercel must NOT eat the entire function execution window
+  const withTimeout = <T>(p: Promise<T>, fallback: T, ms = 3000): Promise<T> =>
+    Promise.race([p, new Promise<T>(res => setTimeout(() => res(fallback), ms))]);
+
+  const [profile, resume, careerTwin] = await Promise.all([
+    withTimeout(db.getProfileByUserId(user.id), null),
+    withTimeout(db.getLatestResumeByUserId(user.id), null),
+    withTimeout(db.getLatestCareerTwin(user.id), null),
+  ]);
 
   // Build a rich, conversational history for the AI
   const conversationHistory = chatHistory
