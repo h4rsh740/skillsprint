@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pdf-parse", "mammoth", "xlsx", "unpdf", "openai"],
+  serverExternalPackages: ["pdf-parse", "mammoth", "xlsx", "unpdf", "openai", "three"],
   compress: true,
   poweredByHeader: false,
   turbopack: {
