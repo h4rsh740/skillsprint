@@ -8,6 +8,7 @@ import { getDashboardData } from "@/actions/scores";
 import { useAuth } from "@/context/AuthContext";
 import { disconnectGitHub } from "@/actions/auth";
 import { useRouter } from "next/navigation";
+import { x402Fetch } from "@/lib/x402/client";
 
 // Custom Github SVG replacement
 function Github(props: React.SVGProps<SVGSVGElement>) {
@@ -117,6 +118,18 @@ export default function GitHubIntelPage() {
     setIsAnalyzing(true);
     setError(null);
     try {
+      // Trigger x402 Micropayment flow via API route ($0.01 USDC)
+      const x402Res = await x402Fetch("/api/github-analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username || undefined }),
+      });
+
+      if (!x402Res.ok) {
+        const errJson = await x402Res.json().catch(() => ({}));
+        throw new Error(errJson.message || errJson.error || `HTTP ${x402Res.status}`);
+      }
+
       const data = await analyzeGitHub();
       setResult(data);
     } catch (e: any) {

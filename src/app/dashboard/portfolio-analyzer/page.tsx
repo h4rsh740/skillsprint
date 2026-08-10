@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Link2, Sparkles, CheckCircle2, RotateCw, RefreshCw, BarChart2, Award, Zap, Search } from "lucide-react";
+import { Link2, Sparkles, CheckCircle2, RotateCw, RefreshCw, Award, Zap, Search, Globe, Cpu } from "lucide-react";
 import { getPortfolioAudit, auditPortfolio, type PortfolioAuditResult } from "@/actions/portfolio";
 
 export default function PortfolioAnalyzerPage() {
@@ -51,17 +51,23 @@ export default function PortfolioAnalyzerPage() {
       {/* Header */}
       <div className="bg-[#0f172a] rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-lg relative overflow-hidden mb-8">
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/40 via-purple-950/25 to-slate-900/10 opacity-70 pointer-events-none" />
-        <div className="relative z-10 flex items-center gap-4">
-          <div className="p-3 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-md shadow-inner flex-shrink-0">
-            <Link2 className="h-6 w-6 text-indigo-300" />
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-md shadow-inner flex-shrink-0">
+              <Link2 className="h-6 w-6 text-indigo-300" />
+            </div>
+            <div>
+              <h1 className="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight tracking-tight text-white flex items-center gap-3">
+                Portfolio Analyzer
+              </h1>
+              <p className="text-slate-300 mt-1.5 text-[14.5px] font-medium">
+                Audit developer domains for visual design, DOM latency, SEO markup, and recruiter appeal.
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight tracking-tight text-white flex items-center gap-3">
-              Portfolio Analyzer
-            </h1>
-            <p className="text-slate-300 mt-1.5 text-[14.5px] font-medium">
-              Audit your custom developer domain for visual design, performance, and search engine optimization.
-            </p>
+          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-400/30 px-3.5 py-1.5 rounded-full text-indigo-200 text-xs font-semibold self-start sm:self-auto backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-indigo-300" />
+            <span>✨ Powered by Google Gemini API</span>
           </div>
         </div>
       </div>
@@ -69,16 +75,16 @@ export default function PortfolioAnalyzerPage() {
       {!audit ? (
         <div className="liquid-glass rounded-3xl p-8 sm:p-12 max-w-2xl mx-auto border border-white/50 shadow-sm text-center">
           <div className="w-16 h-16 bg-[#4f46e5]/10 text-[#4f46e5] rounded-full flex items-center justify-center mx-auto mb-6">
-            <Link2 className="w-8 h-8" />
+            <Globe className="w-8 h-8 text-indigo-600" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900">Audit Your Domain</h3>
+          <h3 className="text-xl font-semibold text-gray-900">Audit Your Developer Domain</h3>
           <p className="text-gray-500 mt-2 mb-8 text-[14px] max-w-md mx-auto">
-            Provide your live portfolio website link. Our system runs a simulated Lighthouse audit to score performance, SEO, and accessibility.
+            Provide your live portfolio URL. Google Gemini AI inspects DOM structure, metadata headers, responsive design polish, and performance indicators.
           </p>
 
           <form onSubmit={handleAudit} className="space-y-5 max-w-md mx-auto">
             <div className="space-y-2 text-left">
-              <label className="text-[13px] font-medium text-gray-700 block">Portfolio URL</label>
+              <label className="text-[13px] font-medium text-gray-700 block">Portfolio Website Link</label>
               <input 
                 required
                 name="portfolioUrl"
@@ -96,11 +102,12 @@ export default function PortfolioAnalyzerPage() {
               {auditing ? (
                 <>
                   <RefreshCw className="w-5 h-5 animate-spin" />
-                  Running Performance Audits...
+                  Running Gemini AI Domain Audit...
                 </>
               ) : (
                 <>
-                  Analyze Portfolio
+                  <Cpu className="w-5 h-5" />
+                  Analyze with Gemini AI
                 </>
               )}
             </button>
@@ -108,6 +115,23 @@ export default function PortfolioAnalyzerPage() {
         </div>
       ) : (
         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
+          {/* Executive Overview Card */}
+          {audit.overview && (
+            <div className="bg-gradient-to-r from-indigo-900/90 via-slate-900 to-purple-950/90 text-white rounded-3xl p-6 sm:p-7 border border-indigo-500/20 shadow-lg relative overflow-hidden">
+              <div className="flex items-start gap-4">
+                <div className="p-2.5 bg-indigo-500/20 rounded-2xl border border-indigo-400/30 text-indigo-300 flex-shrink-0 mt-0.5">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Gemini AI Executive Summary</h4>
+                  <p className="text-[14.5px] leading-relaxed text-slate-200 font-medium">
+                    {audit.overview}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Audit Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <AuditCard title="Performance" score={audit.performanceScore} icon={<Zap className="w-5 h-5 text-amber-500" />} color="text-amber-500" />
@@ -120,11 +144,11 @@ export default function PortfolioAnalyzerPage() {
             <div className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/50 shadow-sm flex flex-col justify-between">
               <div>
                 <h3 className="text-lg font-medium text-gray-900 pb-3 border-b border-gray-100 flex items-center gap-2 mb-6">
-                  <Sparkles className="w-5 h-5 text-[#8b5cf6]" /> Improvement Recommendations
+                  <Sparkles className="w-5 h-5 text-[#8b5cf6]" /> Gemini Improvement Recommendations
                 </h3>
                 <ul className="space-y-4">
                   {audit.suggestions.map((s, idx) => (
-                    <li key={idx} className="flex gap-3 text-xs text-gray-700 leading-normal">
+                    <li key={idx} className="flex gap-3 text-xs text-gray-700 leading-normal bg-white/70 p-3.5 rounded-2xl border border-gray-100/80 shadow-xs">
                       <div className="mt-0.5 flex-shrink-0 w-2 h-2 rounded-full bg-[#4f46e5]" />
                       <p>{s}</p>
                     </li>
@@ -138,7 +162,7 @@ export default function PortfolioAnalyzerPage() {
                   className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-800 text-[13.5px] font-medium shadow-sm transition-all"
                 >
                   <RotateCw className="w-4 h-4" />
-                  Analyze New Domain
+                  Audit New Domain
                 </button>
               </div>
             </div>

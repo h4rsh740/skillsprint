@@ -1,9 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pdf-parse", "mammoth", "xlsx", "unpdf", "openai"],
+  serverExternalPackages: ["pdf-parse", "mammoth", "xlsx", "unpdf", "openai", "three", "shaders"],
   compress: true,
   poweredByHeader: false,
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        os: false,
+        crypto: false,
+      };
+    }
+    return config;
+  },
   turbopack: {
     root: __dirname,
   },

@@ -7,7 +7,8 @@ import {
   Target, Award, TrendingUp, ChevronRight, X, Info, FileCheck2, RotateCcw,
   Bug, ListChecks,
 } from "lucide-react";
-import { extractResumeFile, saveResumeInsight, type ExtractResult } from "@/actions/resumeAnalyzer";
+import { extractResumeFile, saveResumeInsight, analyzeResumeIntelAction, type ExtractResult } from "@/actions/resumeAnalyzer";
+import { x402Fetch } from "@/lib/x402/client";
 import {
   analyzeResumeComplete,
 } from "@/lib/resume";
@@ -177,6 +178,18 @@ export default function ResumeIntelPage() {
     try {
       const fd = new FormData();
       fd.append("resume", file);
+
+      // Trigger x402 Micropayment flow via API route
+      const x402Res = await x402Fetch("/api/resume/upload", {
+        method: "POST",
+        body: fd,
+      });
+
+      if (!x402Res.ok) {
+        const errJson = await x402Res.json().catch(() => ({}));
+        throw new Error(errJson.message || errJson.error || `HTTP ${x402Res.status}`);
+      }
+
       const res: ExtractResult = await extractResumeFile(fd);
       if (!res.ok || !res.text) {
         setUploadError(res.reason || "Could not extract text from the resume.");
@@ -196,24 +209,27 @@ export default function ResumeIntelPage() {
     if (!resumeText) return;
     setStage("analyzing");
     setLoadingMsg(ANALYZE_STAGES[0]);
-    // Compute synchronously (deterministic, local) then walk through the
-    // pipeline stages as honest loading feedback.
-    const result = analyzeResumeComplete(resumeText, job, fileName, fileSize);
+
+    // Kick off Gemini AI analysis on server
+    const aiPromise = analyzeResumeIntelAction(resumeText, job, fileName, fileSize);
+
     for (let i = 1; i < ANALYZE_STAGES.length; i++) {
-      await delay(280);
+      await delay(320);
       setLoadingMsg(ANALYZE_STAGES[i]);
     }
-    await delay(300);
-    setAnalysis(result);
-    setStage("results");
-    setActiveTab("score");
-    saveResumeInsight({
-      fileName, fileSize,
-      beforeScore: result.beforeScore.total,
-      afterScore: result.afterScore.total,
-      screeningPercent: result.screening.percent,
-      issuesCount: result.issues.length,
-    }).catch(() => {});
+
+    try {
+      const result = await aiPromise;
+      setAnalysis(result);
+      setStage("results");
+      setActiveTab("score");
+    } catch (err: any) {
+      console.error("Gemini AI Resume Intel analysis failed, falling back to local:", err);
+      const fallbackResult = analyzeResumeComplete(resumeText, job, fileName, fileSize);
+      setAnalysis(fallbackResult);
+      setStage("results");
+      setActiveTab("score");
+    }
   };
 
   const reset = () => {
@@ -267,8 +283,8 @@ export default function ResumeIntelPage() {
             <h1 className="text-[clamp(1.5rem,3.5vw,2.25rem)] font-bold leading-tight tracking-tight text-white">
               Resume ATS Analyzer & AI Enhancer
             </h1>
-            <p className="text-slate-300 mt-1.5 text-[14.5px] font-medium">
-              100% local analysis — no external AI APIs, no API keys, your resume never leaves your browser session.
+            <p className="text-slate-300 mt-1.5 text-[14.5px] font-medium flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-400" /> AI-Powered Resume Intel & STAR Enhancer — Powered by Google Gemini API
             </p>
           </div>
         </div>

@@ -4,10 +4,6 @@
 // indicating whether any text was found. PDFs that are image-only / scanned
 // will yield empty text — callers must handle that honestly (no fake data).
 
-import fs from "fs";
-import os from "os";
-import path from "path";
-
 export type ExtractResult = {
   text: string;
   isEmpty: boolean; // true when no usable text could be extracted
@@ -140,7 +136,11 @@ export async function extractResumeTextFromBuffer(
 
 // Re-export for backwards compatibility with any code that needs a temp path.
 export function writeToTemp(buffer: Buffer, ext: string): string {
-  const tmp = path.join(os.tmpdir(), `skillsprint-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`);
-  fs.writeFileSync(tmp, buffer);
+  const fsNode = typeof window === "undefined" ? eval('require("fs")') : null;
+  const osNode = typeof window === "undefined" ? eval('require("os")') : null;
+  const pathNode = typeof window === "undefined" ? eval('require("path")') : null;
+  if (!fsNode || !pathNode || !osNode) throw new Error("writeToTemp is server-only");
+  const tmp = pathNode.join(osNode.tmpdir(), `skillsprint-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`);
+  fsNode.writeFileSync(tmp, buffer);
   return tmp;
 }

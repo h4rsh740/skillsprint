@@ -1,11 +1,14 @@
+import "server-only";
 import { prisma } from "./prisma";
-import fs from "fs";
-import path from "path";
 import { db as firestoreDb } from "./firebase";
 import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 
+// Safely resolve Node.js modules only in server environment
+const fs = typeof window === "undefined" ? eval('require("fs")') : null;
+const path = typeof window === "undefined" ? eval('require("path")') : null;
+
 // Define the file path for local fallback database
-const DB_FILE = path.join(process.cwd(), "prisma", "db.json");
+const DB_FILE = path ? path.join(process.cwd(), "prisma", "db.json") : "";
 
 // Helper to initialize the local JSON database with all 17 tables if it doesn't exist
 function getLocalDB() {

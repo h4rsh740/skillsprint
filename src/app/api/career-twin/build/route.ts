@@ -3,11 +3,15 @@ import { getSessionUser } from "@/actions/auth";
 import { db } from "@/lib/db";
 import { getPersonalizedRecommendations } from "@/actions/projects";
 import { generateStructuredAIResponse, MODELS } from "@/lib/ai";
+import { requirePayment } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
+    const paymentError = await requirePayment(req as any, { endpoint: "careerTwin" });
+    if (paymentError) return paymentError;
+
     const user = await getSessionUser();
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });

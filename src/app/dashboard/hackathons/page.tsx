@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Trophy, Calendar, Sparkles, Target, ArrowUpRight, HelpCircle, CheckCircle } from "lucide-react";
 import { getDashboardData } from "@/actions/onboarding";
-import { db } from "@/lib/db";
+
 
 type HackathonMatch = {
   id: string;

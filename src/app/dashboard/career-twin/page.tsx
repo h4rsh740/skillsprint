@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BrainCircuit, Briefcase, ChevronDown, TrendingUp, RefreshCw, ArrowRight, Award, Compass, ShieldAlert, ShieldCheck, Zap, Rocket, Coins, Sparkles, Download, BarChart2, GitBranch, CheckCircle2, Circle } from "lucide-react";
 import Link from "next/link";
 import { generateCareerTwin, getStudentProfileForTwin, type CareerTwinResult } from "@/actions/career-twin";
+import { x402Fetch } from "@/lib/x402/client";
 import "../../auth/auth.css";
 
 // ──────────────────────────────────────────────
@@ -389,6 +390,18 @@ export default function CareerTwinPage() {
 
     try {
       const formData = new FormData(e.currentTarget);
+      
+      // Enforce x402 Micropayment flow via API route
+      const apiRes = await x402Fetch("/api/career-twin/build", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!apiRes.ok) {
+        const errJson = await apiRes.json().catch(() => ({}));
+        throw new Error(errJson.message || errJson.error || `HTTP ${apiRes.status}`);
+      }
+
       const data = await generateCareerTwin(formData);
       setGenerationStatus("success");
       setTimeout(() => {

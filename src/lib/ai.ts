@@ -17,10 +17,26 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // ─── Gemini models to try in order (most capable first) ────────────────────
 const GEMINI_MODELS = [
+  "gemini-flash-latest",
+  "gemini-flash-lite-latest",
   "gemini-2.0-flash",
   "gemini-1.5-flash",
-  "gemini-1.5-pro",
 ];
+
+// Helper to strip markdown code blocks and parse JSON cleanly
+function cleanAndParseJson(text: string): any {
+  let cleaned = text.trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.slice(7);
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.slice(3);
+  }
+  if (cleaned.endsWith("```")) {
+    cleaned = cleaned.slice(0, -3);
+  }
+  cleaned = cleaned.trim();
+  return JSON.parse(cleaned);
+}
 
 // ─── Try Gemini API ─────────────────────────────────────────────────────────
 async function tryGeminiAPI(
@@ -39,7 +55,7 @@ async function tryGeminiAPI(
   for (const model of GEMINI_MODELS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       const body: Record<string, unknown> = {
         contents: [{ parts: [{ text: prompt }] }],
@@ -84,15 +100,25 @@ async function tryGeminiAPI(
 
 // ─── Extract only the user's latest message ──────────────────────────────────
 function extractUserQuery(prompt: string): string {
-  if (prompt.includes("Student:")) {
-    const parts = prompt.split("Student:");
-    const lastPart = parts[parts.length - 1];
-    const beforeCoach = lastPart.split(/\nCoach:/i)[0];
-    return beforeCoach
-      .replace(/Answer the last question with concrete steps\./gi, "")
-      .trim();
+  let cleaned = prompt;
+  if (cleaned.includes("## User's Latest Request:")) {
+    const parts = cleaned.split("## User's Latest Request:");
+    cleaned = parts[parts.length - 1];
+  } else if (cleaned.includes("Student:")) {
+    const parts = cleaned.split("Student:");
+    cleaned = parts[parts.length - 1];
+    if (cleaned.includes("Coach:")) {
+      cleaned = cleaned.split("Coach:")[0];
+    }
   }
-  return prompt.trim();
+  return cleaned
+    .replace(/^"/, "")
+    .replace(/"$/, "")
+    .replace(/Respond to the student's last message.*/gi, "")
+    .replace(/Answer the last question.*/gi, "")
+    .replace(/If the question is ambiguous.*/gi, "")
+    .replace(/Instructions for AI Coach:.*/gi, "")
+    .trim();
 }
 
 // ─── Normalise query text for matching ───────────────────────────────────────
@@ -1806,6 +1832,9 @@ export async function generateStructuredAIResponse(
   if (geminiApiKey) {
     for (const m of GEMINI_MODELS) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
         const bodyParts: Record<string, unknown>[] = [];
         if (fileBase64 && fileMimeType) {
           bodyParts.push({ inlineData: { mimeType: fileMimeType, data: fileBase64 } });
@@ -1817,6 +1846,7 @@ export async function generateStructuredAIResponse(
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
             body: JSON.stringify({
               contents: [{ parts: bodyParts }],
               systemInstruction: { parts: [{ text: systemPrompt }] },
@@ -1829,14 +1859,17 @@ export async function generateStructuredAIResponse(
           }
         );
 
+        clearTimeout(timeoutId);
+
         if (response.ok) {
           const data = await response.json();
           const text: string | undefined = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) {
             try {
-              return JSON.parse(text);
-            } catch {
-              console.warn(`[AI] Structured response from ${m} was not valid JSON`);
+              const parsed = cleanAndParseJson(text);
+              return parsed;
+            } catch (jsonErr) {
+              console.warn(`[AI] Structured response from ${m} was not valid JSON:`, jsonErr);
             }
           }
         } else {

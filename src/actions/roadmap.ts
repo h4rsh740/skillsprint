@@ -13,6 +13,10 @@ export type RoadmapResult = {
   id: string;
   targetCompany: string;
   targetRole: string;
+  duration?: string;
+  experienceLevel?: string;
+  weeklyCommitment?: string;
+  overview?: string;
   missingSkills: string[];
   dailyTasks: TaskItem[];
   weeklyTasks: TaskItem[];
@@ -31,7 +35,11 @@ export async function getRoadmap(): Promise<RoadmapResult | null> {
     id: latest.id,
     targetCompany: latest.targetCompany || "Google",
     targetRole: latest.targetRole || "Software Engineer",
-    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    duration: latest.duration || "90",
+    experienceLevel: latest.experienceLevel || "Intermediate",
+    weeklyCommitment: latest.weeklyCommitment || "15 hrs/week",
+    overview: latest.overview || "Customized Gemini AI career development roadmap.",
+    missingSkills: latest.missingSkills || ["Advanced TypeScript", "Next.js", "System Design", "Testing"],
     dailyTasks: (latest.dailyTasks as TaskItem[]) || [],
     weeklyTasks: (latest.weeklyTasks as TaskItem[]) || [],
     monthlyTasks: (latest.monthlyTasks as TaskItem[]) || [],
@@ -43,50 +51,77 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const targetCompany = (formData.get("targetCompany") as string) || "Google";
-  const duration = (formData.get("duration") as string) || "90";
+  // Read brief questionnaire inputs
   const profile = await db.getProfileByUserId(user.id);
-  const targetRole = profile?.targetRole || "Software Developer";
-  const skills = profile?.skills?.join(", ") || "React, JavaScript";
+  const targetRole = (formData.get("targetRole") as string) || profile?.targetRole || "Full Stack Engineer";
+  const targetCompany = (formData.get("targetCompany") as string) || "Google / FAANG";
+  const experienceLevel = (formData.get("experienceLevel") as string) || "Intermediate";
+  const duration = (formData.get("duration") as string) || "90";
+  const weeklyCommitment = (formData.get("weeklyCommitment") as string) || "15 hrs/week";
 
-  const prompt = `Generate a highly structured ${duration}-day learning roadmap for a student aiming to land a ${targetRole} position at ${targetCompany}.
-  Current Skills: ${skills}
-  Provide exactly:
-  - 4 daily habits/tasks (e.g. solve 2 DSA questions, write 1 code commit)
-  - 4 weekly core milestones/goals suitable for a ${duration}-day timeline
-  - 4 monthly checkpoints/milestones that divide this ${duration}-day roadmap evenly.`;
+  const userSkills = profile?.skills?.join(", ") || "React, JavaScript, Node.js";
 
-  const systemPrompt = `You are a career development architect. Design a roadmap for a tech student. Return a JSON object matching this schema:
-  {
-    "dailyTasks": [
-      { "text": "task description (e.g. solve 2 DSA problems)", "completed": false }
-    ],
-    "weeklyTasks": [
-      { "text": "weekly target (e.g. build a Node/Express API)", "completed": false }
-    ],
-    "monthlyTasks": [
-      { "text": "monthly milestone (e.g. publish full-stack portfolio)", "completed": false }
-    ]
-  }`;
+  const prompt = `Generate a customized ${duration}-day learning roadmap for a student aiming to become a "${targetRole}" at "${targetCompany}".
+Candidate Parameters:
+- Target Role: ${targetRole}
+- Target Company / Tier: ${targetCompany}
+- Current Level: ${experienceLevel}
+- Duration: ${duration} Days
+- Time Commitment: ${weeklyCommitment}
+- Current Skills: ${userSkills}
+
+Provide:
+1. dailyTasks (4-6 daily habits): actionable routines tailored for ${targetRole}.
+2. weeklyTasks (4-6 weekly milestones): concrete project & skill goals for the ${duration}-day timeline.
+3. monthlyTasks (4 monthly checkpoints): major career checkpoints.
+4. missingSkills (4-6 items): top technical gaps to master for ${targetRole} at ${targetCompany}.
+5. overview: 2 concise sentences summarizing the learning strategy and focus area created by Gemini.`;
+
+  const systemPrompt = `You are a Principal Engineering Lead & Career Architect using Google Gemini AI.
+Generate a structured learning roadmap. Return a JSON object matching this exact schema:
+{
+  "overview": "<2 concise sentences summarizing the roadmap strategy created by Gemini>",
+  "missingSkills": ["<skill 1>", "<skill 2>", "<skill 3>", "<skill 4>"],
+  "dailyTasks": [
+    { "text": "<daily routine 1>", "completed": false },
+    { "text": "<daily routine 2>", "completed": false },
+    { "text": "<daily routine 3>", "completed": false },
+    { "text": "<daily routine 4>", "completed": false }
+  ],
+  "weeklyTasks": [
+    { "text": "<weekly goal 1>", "completed": false },
+    { "text": "<weekly goal 2>", "completed": false },
+    { "text": "<weekly goal 3>", "completed": false },
+    { "text": "<weekly goal 4>", "completed": false }
+  ],
+  "monthlyTasks": [
+    { "text": "<monthly milestone 1>", "completed": false },
+    { "text": "<monthly milestone 2>", "completed": false },
+    { "text": "<monthly milestone 3>", "completed": false },
+    { "text": "<monthly milestone 4>", "completed": false }
+  ]
+}`;
 
   const simulatedPayload = {
+    overview: `Google Gemini AI generated a ${duration}-day roadmap for ${targetRole} at ${targetCompany}, focusing on project building and system fundamentals.`,
+    missingSkills: ["System Architecture & Caching", "TypeScript Generics", "CI/CD & Docker", "API Design & Testing"],
     dailyTasks: [
-      { text: "Solve 2 LeetCode problems (Array / String) in Python/JS", completed: false },
-      { text: "Review 1 System Design concept (Caching, Load Balancers)", completed: false },
-      { text: "Commit at least once to GitHub project repositories", completed: false },
-      { text: "Read 1 technical blog post or framework documentation page", completed: false },
+      { text: `Solve 2 DSA problems tailored for ${targetCompany} interview patterns`, completed: false },
+      { text: `Review 1 core ${targetRole} concept (System Design, Async Patterns)`, completed: false },
+      { text: `Commit production code updates to active GitHub repositories`, completed: false },
+      { text: `Read 1 official technical documentation guide or engineering post`, completed: false },
     ],
     weeklyTasks: [
-      { text: "Build a responsive Next.js page integrating third-party APIs", completed: false },
-      { text: "Conduct a mock interview on behavioral/technical fundamentals", completed: false },
-      { text: "Refactor a project using TypeScript and ESLint configuration", completed: false },
-      { text: "Review mock interview transcripts and fix suggested gaps", completed: false },
+      { text: `Build a production-grade ${targetRole} project module with unit tests`, completed: false },
+      { text: `Conduct a technical mock interview focused on core algorithms`, completed: false },
+      { text: `Refactor backend/frontend codebase using strict TypeScript & ESLint`, completed: false },
+      { text: `Review AI resume ATS feedback and update project bullet points`, completed: false },
     ],
     monthlyTasks: [
-      { text: "Complete a full portfolio project with complete unit tests", completed: false },
-      { text: "Write and publish a detailed blog post on a coding pattern", completed: false },
-      { text: "Get resume ATS score above 85/100 using AI suggestions", completed: false },
-      { text: "Contribute 1 PR to an open source library or public repository", completed: false },
+      { text: `Deploy a full-stack portfolio application with live database & auth`, completed: false },
+      { text: `Publish a technical blog post detailing a complex coding solution`, completed: false },
+      { text: `Achieve 85+ ATS resume match score for ${targetCompany} roles`, completed: false },
+      { text: `Submit 1 open-source contribution to a public GitHub repository`, completed: false },
     ]
   };
 
@@ -97,13 +132,19 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
     simulatedPayload
   );
 
+  const missingSkills = Array.isArray(aiResult.missingSkills) ? aiResult.missingSkills : simulatedPayload.missingSkills;
+  const dailyTasks = Array.isArray(aiResult.dailyTasks) ? aiResult.dailyTasks : simulatedPayload.dailyTasks;
+  const weeklyTasks = Array.isArray(aiResult.weeklyTasks) ? aiResult.weeklyTasks : simulatedPayload.weeklyTasks;
+  const monthlyTasks = Array.isArray(aiResult.monthlyTasks) ? aiResult.monthlyTasks : simulatedPayload.monthlyTasks;
+  const overview = aiResult.overview || simulatedPayload.overview;
+
   const roadmap = await db.createRoadmap({
     userId: user.id,
     targetCompany,
     targetRole,
-    dailyTasks: aiResult.dailyTasks,
-    weeklyTasks: aiResult.weeklyTasks,
-    monthlyTasks: aiResult.monthlyTasks,
+    dailyTasks,
+    weeklyTasks,
+    monthlyTasks,
     completionPercentage: 0,
   });
 
@@ -111,10 +152,14 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
     id: roadmap.id,
     targetCompany,
     targetRole,
-    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
-    dailyTasks: aiResult.dailyTasks,
-    weeklyTasks: aiResult.weeklyTasks,
-    monthlyTasks: aiResult.monthlyTasks,
+    duration,
+    experienceLevel,
+    weeklyCommitment,
+    overview,
+    missingSkills,
+    dailyTasks,
+    weeklyTasks,
+    monthlyTasks,
     completionPercentage: 0,
   };
 }

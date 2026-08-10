@@ -48,6 +48,13 @@
       "passwordHash": null,
       "role": "STUDENT",
       "createdAt": "2026-06-26T19:26:03.494Z"
+    },
+    {
+      "id": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "email": "kartikeyan.gkp@gmail.com",
+      "passwordHash": null,
+      "role": "STUDENT",
+      "createdAt": "2026-08-06T17:37:37.527Z"
     }
   ],
   "profiles": [
@@ -128,6 +135,24 @@
       ],
       "studyHoursPerWeek": 10,
       "updatedAt": "2026-06-26T19:32:32.938Z"
+    },
+    {
+      "id": "x5bv9aam58",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fullName": "kartikeyan.gkp",
+      "college": "ddugu",
+      "branch": "Information Technology",
+      "graduationYear": 2026,
+      "cgpa": 7.24,
+      "githubUsername": null,
+      "targetRole": "Frontend Developer",
+      "skills": [
+        "React",
+        "TypeScript"
+      ],
+      "studyHoursPerWeek": 10,
+      "updatedAt": "2026-08-08T09:21:23.772Z",
+      "onboardingCompleted": true
     }
   ],
   "resumes": [
@@ -783,6 +808,22 @@
         "Include a formal 'Contact Me' section with a functional form or direct email link."
       ],
       "createdAt": "2026-06-26T20:35:51.045Z"
+    },
+    {
+      "id": "jc9yaf4cgg8",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "portfolioUrl": "https://hacker-house-goa-2026.devfolio.co/",
+      "designScore": 72,
+      "performanceScore": 58,
+      "seoScore": 68,
+      "overview": "The target page is structured as a Devfolio event listing rather than an individualized React/TypeScript developer portfolio, missing key personal branding signals. While visually engaging for a hackathon landing, performance is bogged down by excessive client-side scripts and heavy DOM payloads.",
+      "suggestions": [
+        "Optimize script execution and asset load by consolidating the 61 external scripts, code-splitting dynamic modules, and serving the 41 images in optimized WebP/AVIF formats with lazy loading.",
+        "Resolve metadata character encoding issues (e.g., fixing '&#x27;' in meta description) and implement custom Open Graph tags and Person JSON-LD schema for search visibility.",
+        "Transition from an event platform page to a custom-built React and TypeScript portfolio showcasing modern UI polish, custom animations, accessible markup, and cohesive dark mode aesthetics.",
+        "Add a dedicated projects showcase highlighting individual contributions, deep-dive architecture decisions, linkable GitHub repositories, and embedded live frontend demos."
+      ],
+      "createdAt": "2026-08-08T09:31:04.843Z"
     }
   ],
   "hackathons": [],
@@ -907,6 +948,69 @@
       "fileSize": 74602,
       "fileType": "application/pdf",
       "createdAt": "2026-07-11T19:34:30.774Z"
+    },
+    {
+      "id": "ykf3kh9nirr",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fileName": "kartikeyan_Lead_genration_Resume.pdf",
+      "fileUrl": "/uploads/SVaNXElKZFQmz8MX9gpg9kql1I03/1786038824544_kartikeyan_Lead_genration_Resume.pdf",
+      "fileSize": 99343,
+      "fileType": "application/pdf",
+      "createdAt": "2026-08-06T17:53:44.550Z"
+    },
+    {
+      "id": "5ehkcp211zg",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fileName": "kartikeyan_Lead_genration_Resume.pdf",
+      "fileUrl": "/uploads/SVaNXElKZFQmz8MX9gpg9kql1I03/1786038831737_kartikeyan_Lead_genration_Resume.pdf",
+      "fileSize": 99343,
+      "fileType": "application/pdf",
+      "createdAt": "2026-08-06T17:53:51.749Z"
+    },
+    {
+      "id": "sp63iyaktmb",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__ (1).pdf",
+      "fileUrl": "/uploads/SVaNXElKZFQmz8MX9gpg9kql1I03/1786038873966_Kartikeyan_Dubey_Resume___Red_Teaming__ (1).pdf",
+      "fileSize": 76148,
+      "fileType": "application/pdf",
+      "createdAt": "2026-08-06T17:54:33.972Z"
+    },
+    {
+      "id": "8jlskas4uc5",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__.pdf",
+      "fileUrl": "/uploads/SVaNXElKZFQmz8MX9gpg9kql1I03/1786040600138_Kartikeyan_Dubey_Resume___Red_Teaming__.pdf",
+      "fileSize": 76148,
+      "fileType": "application/pdf",
+      "createdAt": "2026-08-06T18:23:20.143Z"
+    },
+    {
+      "id": "jsjk9vbn5z",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__.pdf",
+      "fileUrl": "/uploads/SVaNXElKZFQmz8MX9gpg9kql1I03/1786040654683_Kartikeyan_Dubey_Resume___Red_Teaming__.pdf",
+      "fileSize": 76148,
+      "fileType": "application/pdf",
+      "createdAt": "2026-08-06T18:24:14.690Z"
+    },
+    {
+      "id": "pxz2j10b4z",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fileName": "Kartikeyan_Cybersecurity_Resume.pdf",
+      "fileUrl": "/uploads/SVaNXElKZFQmz8MX9gpg9kql1I03/1786181211562_Kartikeyan_Cybersecurity_Resume.pdf",
+      "fileSize": 109809,
+      "fileType": "application/pdf",
+      "createdAt": "2026-08-08T09:26:51.572Z"
+    },
+    {
+      "id": "5s4t8runpx8",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "fileName": "Kartikeyan_Cybersecurity_Resume.pdf",
+      "fileUrl": "/uploads/SVaNXElKZFQmz8MX9gpg9kql1I03/1786181265004_Kartikeyan_Cybersecurity_Resume.pdf",
+      "fileSize": 109809,
+      "fileType": "application/pdf",
+      "createdAt": "2026-08-08T09:27:45.016Z"
     }
   ],
   "resume_analysis": [
@@ -2377,6 +2481,2196 @@
         }
       },
       "createdAt": "2026-07-11T19:34:30.780Z"
+    },
+    {
+      "id": "fnkgmrjr7d",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "atsScore": 54,
+      "resumeScore": 49,
+      "impactScore": 0,
+      "technicalScore": 35,
+      "formattingScore": 85,
+      "grammarScore": 90,
+      "weakBulletPoints": [
+        "Major target-keyword gaps",
+        "Missing measurable achievements",
+        "Repeated words across bullets",
+        "Skills not tailored to the role"
+      ],
+      "missingMetrics": [],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "original": {
+          "personalInfo": {
+            "name": "Kartikeyan Dubey",
+            "email": "kartikeyan.gkp@gmail.com",
+            "phone": "+91 7007739645",
+            "github": "github.com/kartikeyan-sudo",
+            "linkedin": "linkedin.com/in",
+            "location": "Kartikeyan Dubey"
+          },
+          "summary": "Computer Science undergraduate with experience in lead generation, business research, and cybersecurity. Worked with a startup to identify potential clients, build lead databases, conduct cold email outreach, and schedule meetings. Skilled in internet research, OSINT, data validation, and information gathering using advanced search techniques. Passionate about solving problems and contributing to startup growth.",
+          "skills": [
+            "business development",
+            "lead generation",
+            "prospect research",
+            "cold email outreach",
+            "meeting scheduling",
+            "business research",
+            "client communication",
+            "market research",
+            "data validation",
+            "technical",
+            "javascript",
+            "html",
+            "css",
+            "git",
+            "github",
+            "basic sql",
+            "web scraping",
+            "cybersecurity",
+            "open source intelligence (osint)",
+            "google dorking",
+            "information gathering",
+            "reconnaissance",
+            "owasp top",
+            "10",
+            "tools",
+            "microsoft excel",
+            "google sheets",
+            "microsoft o ce",
+            "google workspace"
+          ],
+          "experience": [
+            {
+              "id": "exp-0",
+              "heading": "Business Development & Lead Generation Freelance Sept 2025 – May 2026 BrandScalar",
+              "bullets": [
+                "Researched businesses using Yellow Pages, LinkedIn, company websites, and online directories.",
+                "Used advanced Google search operators (Google Dorking) to discover publicly available business email",
+                "Quali ed prospects by verifying company information and maintaining organised lead databases in",
+                "Executed personalised cold email campaigns and maintained follow-up records.",
+                "Scheduled meetings between quali ed prospects and the business development team.",
+                "Worked closely with the startup team to support client acquisition and improve lead generation strategies.",
+                "Conducted Open Source Intelligence (OSINT) investigations using publicly available information.",
+                "Collected and veri ed business emails, phone numbers, employee information, domains, websites, and",
+                "Applied advanced Google search operators and OSINT methodologies to improve research accuracy.",
+                "Automated repetitive information gathering tasks using JavaScript-based web scraping.",
+                "Organised research ndings into structured datasets for reporting and analysis.",
+                "Developed strong analytical, research, and data veri cation skills."
+              ]
+            }
+          ],
+          "projects": [
+            {
+              "id": "proj-0",
+              "heading": "Cybersecurity Research",
+              "bullets": [
+                "Conducted reconnaissance and information gathering using OSINT methodologies.",
+                "Researched publicly available business and technical information to support cybersecurity investigations.",
+                "Built responsive web applications using HTML, CSS, JavaScript, and modern frontend technologies.",
+                "Used AI-assisted development tools while understanding, debugging, and improving generated code."
+              ]
+            }
+          ],
+          "education": [
+            {
+              "id": "edu-0",
+              "text": "Bachelor of Technology (B.Tech)"
+            },
+            {
+              "id": "edu-1",
+              "text": "Computer Science & Engineering"
+            },
+            {
+              "id": "edu-2",
+              "text": "Institute of Engineering and Technology (IET),"
+            },
+            {
+              "id": "edu-3",
+              "text": "Deen Dayal Upadhyay Gorakhpur University"
+            },
+            {
+              "id": "edu-4",
+              "text": "Expected Graduation: 2028"
+            }
+          ],
+          "certifications": [
+            {
+              "id": "cert-0",
+              "text": "Amroha Cyber Police Internship Program (APCSIP)"
+            },
+            {
+              "id": "cert-1",
+              "text": "Cybersecurity Training & Practical Labs"
+            },
+            {
+              "id": "cert-2",
+              "text": "OWASP Top 10 Fundamentals"
+            },
+            {
+              "id": "cert-3",
+              "text": "Capture The Flag (CTF) Participation"
+            }
+          ],
+          "achievements": [],
+          "sectionsPresent": {
+            "summary": true,
+            "experience": true,
+            "education": true,
+            "skills": true,
+            "projects": true,
+            "certifications": true,
+            "contact": true
+          },
+          "rawText": "Kartikeyan Dubey\nGorakhpur, Uttar Pradesh\n+91 7007739645 | kartikeyan.gkp@gmail.com\ngithub.com/kartikeyan-sudo | linkedin.com/in/kartikeyan-dubey-3963372b6\nProfessional Summary\nComputer Science undergraduate with experience in lead generation, business research, and cybersecurity.\nWorked with a startup to identify potential clients, build lead databases, conduct cold email outreach, and\nschedule meetings. Skilled in internet research, OSINT, data validation, and information gathering using\nadvanced search techniques. Passionate about solving problems and contributing to startup growth.\nExperience\nBusiness Development & Lead Generation Freelance Sept 2025 – May 2026\nBrandScalar\n• Researched businesses using Yellow Pages, LinkedIn, company websites, and online directories.\n• Used advanced Google search operators (Google Dorking) to discover publicly available business email\naddresses, phone numbers, Instagram pro les, websites, and decision-maker information.\n• Quali ed prospects by verifying company information and maintaining organised lead databases in\nMicrosoft Excel and Google Sheets.\n• Executed personalised cold email campaigns and maintained follow-up records.\n• Scheduled meetings between quali ed prospects and the business development team.\n• Worked closely with the startup team to support client acquisition and improve lead generation strategies.\nOSINT Researcher (Cybersecurity)\n• Conducted Open Source Intelligence (OSINT) investigations using publicly available information.\n• Collected and veri ed business emails, phone numbers, employee information, domains, websites, and\nsocial media pro les.\n• Applied advanced Google search operators and OSINT methodologies to improve research accuracy.\n• Automated repetitive information gathering tasks using JavaScript-based web scraping.\n• Organised research ndings into structured datasets for reporting and analysis.\n• Developed strong analytical, research, and data veri cation skills.\nSkills\nBusiness Development\n• Lead Generation, Prospect Research, Cold Email Outreach, Meeting Scheduling, Business Research,\nClient Communication, Market Research, Data Validation\nTechnical\n• JavaScript, HTML, CSS, Git, GitHub, Basic SQL, Web Scraping\nCybersecurity\n• Open Source Intelligence (OSINT), Google Dorking, Information Gathering, Reconnaissance, OWASP Top\n10\nTools\n• Microsoft Excel, Google Sheets, Microsoft O ce, Google Workspace\nProjects\nCybersecurity Research\n• Conducted reconnaissance and information gathering using OSINT methodologies.\n• Researched publicly available business and technical information to support cybersecurity investigations.\nWeb Development\n• Built responsive web applications using HTML, CSS, JavaScript, and modern frontend technologies.\n• Used AI-assisted development tools while understanding, debugging, and improving generated code.\nEducation\nBachelor of Technology (B.Tech)\nComputer Science & Engineering\nInstitute of Engineering and Technology (IET),\nDeen Dayal Upadhyay Gorakhpur University\nExpected Graduation: 2028\nCertifications\n• Amroha Cyber Police Internship Program (APCSIP)\n• Cybersecurity Training & Practical Labs\n• OWASP Top 10 Fundamentals\n• Capture The Flag (CTF) Participation\nSoft Skills\nCommunication Problem Solving Analytical Thinking\nTeam Collaboration Adaptability Attention to Detail\nLanguages\nEnglish\nHindi"
+        },
+        "enhanced": {
+          "data": {
+            "personalInfo": {
+              "name": "Kartikeyan Dubey",
+              "email": "kartikeyan.gkp@gmail.com",
+              "phone": "+91 7007739645",
+              "github": "github.com/kartikeyan-sudo",
+              "linkedin": "linkedin.com/in",
+              "location": "Kartikeyan Dubey"
+            },
+            "summary": "Frontend Developer with computer Science undergraduate with experience in lead generation, business research, and cybersecurity. Worked with a startup to identify potential clients, build lead databases, conduct cold email outreach, and schedule meetings. Skilled in internet research, OSINT, data validation, and information gathering using advanced search techniques. Passionate about solving problems and contributing to startup growth.",
+            "skills": [
+              "javascript",
+              "html",
+              "css",
+              "git",
+              "github",
+              "business development",
+              "lead generation",
+              "prospect research",
+              "cold email outreach",
+              "meeting scheduling",
+              "business research",
+              "client communication",
+              "market research",
+              "data validation",
+              "technical",
+              "basic sql",
+              "web scraping",
+              "cybersecurity",
+              "open source intelligence (osint)",
+              "google dorking",
+              "information gathering",
+              "reconnaissance",
+              "owasp top",
+              "10",
+              "tools",
+              "microsoft excel",
+              "google sheets",
+              "microsoft o ce",
+              "google workspace"
+            ],
+            "experience": [
+              {
+                "id": "exp-0",
+                "heading": "Business Development & Lead Generation Freelance Sept 2025 – May 2026 BrandScalar",
+                "bullets": [
+                  "Researched businesses using Yellow Pages, LinkedIn, company websites, and online directories.",
+                  "Leveraged advanced Google search operators (Google Dorking) to discover publicly available business email",
+                  "Designed quali ed prospects by verifying company information and maintaining organised lead databases in",
+                  "Executed personalised cold email campaigns and maintained follow-up records.",
+                  "Developed scheduled meetings between quali ed prospects and the business development team.",
+                  "Developed closely with the startup team to support client acquisition and improve lead generation strategies.",
+                  "Developed conducted Open Source Intelligence (OSINT) investigations using publicly available information.",
+                  "Built collected and veri ed business emails, phone numbers, employee information, domains, websites, and",
+                  "Applied advanced Google search operators and OSINT methodologies to improve research accuracy.",
+                  "Automated repetitive information gathering tasks using JavaScript-based web scraping.",
+                  "Developed organised research ndings into structured datasets for reporting and analysis.",
+                  "Developed strong analytical, research, and data veri cation skills."
+                ]
+              }
+            ],
+            "projects": [
+              {
+                "id": "proj-0",
+                "heading": "Cybersecurity Research",
+                "bullets": [
+                  "Developed conducted reconnaissance and information gathering using OSINT methodologies.",
+                  "Researched publicly available business and technical information to support cybersecurity investigations.",
+                  "Built responsive web applications using HTML, CSS, JavaScript, and modern frontend technologies. using Responsive Design",
+                  "Leveraged AI-assisted development tools while understanding, debugging, and improving generated code."
+                ]
+              }
+            ],
+            "education": [
+              {
+                "id": "edu-0",
+                "text": "Bachelor of Technology (B.Tech)"
+              },
+              {
+                "id": "edu-1",
+                "text": "Computer Science & Engineering"
+              },
+              {
+                "id": "edu-2",
+                "text": "Institute of Engineering and Technology (IET),"
+              },
+              {
+                "id": "edu-3",
+                "text": "Deen Dayal Upadhyay Gorakhpur University"
+              },
+              {
+                "id": "edu-4",
+                "text": "Expected Graduation: 2028"
+              }
+            ],
+            "certifications": [
+              {
+                "id": "cert-0",
+                "text": "Amroha Cyber Police Internship Program (APCSIP)"
+              },
+              {
+                "id": "cert-1",
+                "text": "Cybersecurity Training & Practical Labs"
+              },
+              {
+                "id": "cert-2",
+                "text": "OWASP Top 10 Fundamentals"
+              },
+              {
+                "id": "cert-3",
+                "text": "Capture The Flag (CTF) Participation"
+              }
+            ],
+            "achievements": [],
+            "sectionsPresent": {
+              "summary": true,
+              "experience": true,
+              "education": true,
+              "skills": true,
+              "projects": true,
+              "certifications": true,
+              "contact": true
+            },
+            "rawText": "Kartikeyan Dubey\nkartikeyan.gkp@gmail.com | +91 7007739645 | github.com/kartikeyan-sudo | linkedin.com/in\nPROFESSIONAL SUMMARY\nFrontend Developer with computer Science undergraduate with experience in lead generation, business research, and cybersecurity. Worked with a startup to identify potential clients, build lead databases, conduct cold email outreach, and schedule meetings. Skilled in internet research, OSINT, data validation, and information gathering using advanced search techniques. Passionate about solving problems and contributing to startup growth.\nTECHNICAL SKILLS\nJavascript, Html, Css, Git, Github, Business Development, Lead Generation, Prospect Research, Cold Email Outreach, Meeting Scheduling, Business Research, Client Communication, Market Research, Data Validation, Technical, Basic Sql, Web Scraping, Cybersecurity, Open Source Intelligence (Osint), Google Dorking, Information Gathering, Reconnaissance, Owasp Top, 10, Tools, Microsoft Excel, Google Sheets, Microsoft O Ce, Google Workspace\nEXPERIENCE\nBusiness Development & Lead Generation Freelance Sept 2025 – May 2026 BrandScalar\n- Researched businesses using Yellow Pages, LinkedIn, company websites, and online directories.\n- Leveraged advanced Google search operators (Google Dorking) to discover publicly available business email\n- Designed quali ed prospects by verifying company information and maintaining organised lead databases in\n- Executed personalised cold email campaigns and maintained follow-up records.\n- Developed scheduled meetings between quali ed prospects and the business development team.\n- Developed closely with the startup team to support client acquisition and improve lead generation strategies.\n- Developed conducted Open Source Intelligence (OSINT) investigations using publicly available information.\n- Built collected and veri ed business emails, phone numbers, employee information, domains, websites, and\n- Applied advanced Google search operators and OSINT methodologies to improve research accuracy.\n- Automated repetitive information gathering tasks using JavaScript-based web scraping.\n- Developed organised research ndings into structured datasets for reporting and analysis.\n- Developed strong analytical, research, and data veri cation skills.\nPROJECTS\nCybersecurity Research\n- Developed conducted reconnaissance and information gathering using OSINT methodologies.\n- Researched publicly available business and technical information to support cybersecurity investigations.\n- Built responsive web applications using HTML, CSS, JavaScript, and modern frontend technologies. using Responsive Design\n- Leveraged AI-assisted development tools while understanding, debugging, and improving generated code.\nEDUCATION\nBachelor of Technology (B.Tech)\nComputer Science & Engineering\nInstitute of Engineering and Technology (IET),\nDeen Dayal Upadhyay Gorakhpur University\nExpected Graduation: 2028\nCERTIFICATIONS\nAmroha Cyber Police Internship Program (APCSIP)\nCybersecurity Training & Practical Labs\nOWASP Top 10 Fundamentals\nCapture The Flag (CTF) Participation"
+          },
+          "changes": [
+            {
+              "id": "ch-summary",
+              "section": "Summary",
+              "originalText": "Computer Science undergraduate with experience in lead generation, business research, and cybersecurity. Worked with a startup to identify potential clients, build lead databases, conduct cold email outreach, and schedule meetings. Skilled in internet research, OSINT, data validation, and information gathering using advanced search techniques. Passionate about solving problems and contributing to startup growth.",
+              "enhancedText": "Frontend Developer with computer Science undergraduate with experience in lead generation, business research, and cybersecurity. Worked with a startup to identify potential clients, build lead databases, conduct cold email outreach, and schedule meetings. Skilled in internet research, OSINT, data validation, and information gathering using advanced search techniques. Passionate about solving problems and contributing to startup growth.",
+              "changeType": "improved",
+              "reason": "Rephrased to open with the target role and surface matched keywords; removed generic objective phrasing.",
+              "atsImpact": "+ Keyword & structure relevance"
+            },
+            {
+              "id": "ch-skills",
+              "section": "Skills",
+              "originalText": "Business Development, Lead Generation, Prospect Research, Cold Email Outreach, Meeting Scheduling, Business Research, Client Communication, Market Research, Data Validation, Technical, Javascript, Html, Css, Git, Github, Basic Sql, Web Scraping, Cybersecurity, Open Source Intelligence (Osint), Google Dorking, Information Gathering, Reconnaissance, Owasp Top, 10, Tools, Microsoft Excel, Google Sheets, Microsoft O Ce, Google Workspace",
+              "enhancedText": "Languages: Javascript, Html, Css  |  Tools & Testing: Git, Github  |  Other: Business Development, Lead Generation, Prospect Research, Cold Email Outreach, Meeting Scheduling, Business Research, Client Communication, Market Research, Data Validation, Technical, Basic Sql, Web Scraping, Cybersecurity, Open Source Intelligence (Osint), Google Dorking, Information Gathering, Reconnaissance, Owasp Top, 10, Tools, Microsoft Excel, Google Sheets, Microsoft O Ce, Google Workspace",
+              "changeType": "reordered",
+              "reason": "Grouped skills by category and ordered target-matched skills first; canonical spellings used (e.g. JavaScript, not js).",
+              "atsImpact": "+ Technical skill & keyword relevance"
+            },
+            {
+              "id": "ch-exp-exp-0-2",
+              "section": "Experience",
+              "originalText": "Used advanced Google search operators (Google Dorking) to discover publicly available business email",
+              "enhancedText": "Leveraged advanced Google search operators (Google Dorking) to discover publicly available business email",
+              "changeType": "improved",
+              "reason": "Strengthened the opening verb and added technical context / canonical keyword where evidenced.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-exp-exp-0-3",
+              "section": "Experience",
+              "originalText": "Quali ed prospects by verifying company information and maintaining organised lead databases in",
+              "enhancedText": "Designed quali ed prospects by verifying company information and maintaining organised lead databases in",
+              "changeType": "improved",
+              "reason": "Strengthened the opening verb and added technical context / canonical keyword where evidenced.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-exp-exp-0-4",
+              "section": "Experience",
+              "originalText": "Scheduled meetings between quali ed prospects and the business development team.",
+              "enhancedText": "Developed scheduled meetings between quali ed prospects and the business development team.",
+              "changeType": "improved",
+              "reason": "Strengthened the opening verb and added technical context / canonical keyword where evidenced.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-exp-exp-0-5",
+              "section": "Experience",
+              "originalText": "Worked closely with the startup team to support client acquisition and improve lead generation strategies.",
+              "enhancedText": "Developed closely with the startup team to support client acquisition and improve lead generation strategies.",
+              "changeType": "improved",
+              "reason": "Strengthened the opening verb and added technical context / canonical keyword where evidenced.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-exp-exp-0-6",
+              "section": "Experience",
+              "originalText": "Conducted Open Source Intelligence (OSINT) investigations using publicly available information.",
+              "enhancedText": "Developed conducted Open Source Intelligence (OSINT) investigations using publicly available information.",
+              "changeType": "improved",
+              "reason": "Strengthened the opening verb and added technical context / canonical keyword where evidenced.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-exp-exp-0-7",
+              "section": "Experience",
+              "originalText": "Collected and veri ed business emails, phone numbers, employee information, domains, websites, and",
+              "enhancedText": "Built collected and veri ed business emails, phone numbers, employee information, domains, websites, and",
+              "changeType": "improved",
+              "reason": "Strengthened the opening verb and added technical context / canonical keyword where evidenced.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-exp-exp-0-8",
+              "section": "Experience",
+              "originalText": "Organised research ndings into structured datasets for reporting and analysis.",
+              "enhancedText": "Developed organised research ndings into structured datasets for reporting and analysis.",
+              "changeType": "improved",
+              "reason": "Strengthened the opening verb and added technical context / canonical keyword where evidenced.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-9",
+              "section": "Projects",
+              "originalText": "Conducted reconnaissance and information gathering using OSINT methodologies.",
+              "enhancedText": "Developed conducted reconnaissance and information gathering using OSINT methodologies.",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-10",
+              "section": "Projects",
+              "originalText": "Built responsive web applications using HTML, CSS, JavaScript, and modern frontend technologies.",
+              "enhancedText": "Built responsive web applications using HTML, CSS, JavaScript, and modern frontend technologies. using Responsive Design",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-11",
+              "section": "Projects",
+              "originalText": "Used AI-assisted development tools while understanding, debugging, and improving generated code.",
+              "enhancedText": "Leveraged AI-assisted development tools while understanding, debugging, and improving generated code.",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-structure",
+              "section": "Structure",
+              "originalText": "Original section headings & layout",
+              "enhancedText": "Standardized ATS-friendly headings (Professional Summary, Technical Skills, Experience, Projects, Education) in a single-column layout.",
+              "changeType": "reordered",
+              "reason": "Standard headings and a single-column structure maximize ATS parseability and recruiter scannability.",
+              "atsImpact": "+ Structure & formatting compatibility"
+            }
+          ]
+        },
+        "keywords": {
+          "targetKeywords": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "testing",
+            "responsive design"
+          ],
+          "matched": [
+            "javascript",
+            "html",
+            "css",
+            "git"
+          ],
+          "missing": [
+            "typescript",
+            "react",
+            "next.js",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "testing",
+            "responsive design"
+          ],
+          "weak": [],
+          "recommended": [
+            "typescript",
+            "react",
+            "next.js",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "testing",
+            "responsive design"
+          ],
+          "byCategory": {
+            "Languages": {
+              "matched": [
+                "javascript",
+                "html",
+                "css"
+              ],
+              "missing": [
+                "typescript"
+              ]
+            },
+            "Frameworks & Libraries": {
+              "matched": [],
+              "missing": [
+                "react",
+                "next.js",
+                "tailwind",
+                "redux",
+                "webpack"
+              ]
+            },
+            "APIs & Protocols": {
+              "matched": [],
+              "missing": []
+            },
+            "Databases": {
+              "matched": [],
+              "missing": []
+            },
+            "Cloud & DevOps": {
+              "matched": [],
+              "missing": []
+            },
+            "Data & ML": {
+              "matched": [],
+              "missing": []
+            },
+            "Tools & Testing": {
+              "matched": [
+                "git"
+              ],
+              "missing": [
+                "figma",
+                "testing"
+              ]
+            },
+            "Methodology & Soft Skills": {
+              "matched": [],
+              "missing": [
+                "responsive design"
+              ]
+            }
+          }
+        },
+        "beforeScore": {
+          "total": 49,
+          "grade": "Needs Improvement",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 9,
+              "max": 30,
+              "explanation": "4/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 7,
+              "max": 20,
+              "explanation": "5 distinct technical skills detected; 1 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 10,
+              "max": 15,
+              "explanation": "Experience section present with 1 role-relevant technical signals."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 6,
+              "max": 10,
+              "explanation": "1 project(s) with 3 technical keyword signals."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 10,
+              "max": 10,
+              "explanation": "5/5 standard sections present; ATS-friendly headings detected."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 2,
+              "max": 5,
+              "explanation": "7/16 bullets begin with a strong action verb."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 5,
+              "max": 5,
+              "explanation": "Word count 421, 16 bullet points, 5/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "afterScore": {
+          "total": 54,
+          "grade": "Needs Improvement",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 12,
+              "max": 30,
+              "explanation": "4/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 7,
+              "max": 20,
+              "explanation": "5 distinct technical skills detected; 1 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 10,
+              "max": 15,
+              "explanation": "Experience section present with 1 role-relevant technical signals."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 6,
+              "max": 10,
+              "explanation": "1 project(s) with 3 technical keyword signals."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 10,
+              "max": 10,
+              "explanation": "5/5 standard sections present; ATS-friendly headings detected."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 5,
+              "max": 5,
+              "explanation": "16/16 bullets begin with a strong action verb."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 4,
+              "max": 5,
+              "explanation": "Word count 384, 16 bullet points, 5/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "issues": [
+          {
+            "id": "issue-0",
+            "severity": "High",
+            "title": "Major target-keyword gaps",
+            "why": "Only 4 of 13 target keywords appear in the resume.",
+            "recommendation": "Incorporate the missing keywords where you have genuine experience: typescript, react, next.js, tailwind, redux, webpack.",
+            "section": "Keywords"
+          },
+          {
+            "id": "issue-1",
+            "severity": "High",
+            "title": "Missing measurable achievements",
+            "why": "Without metrics, impact is hard for recruiters and ATS to gauge.",
+            "recommendation": "Add real numbers (%, scale, time saved) to at least 2-3 bullets. Never invent metrics.",
+            "section": "Experience"
+          },
+          {
+            "id": "issue-2",
+            "severity": "Low",
+            "title": "Repeated words across bullets",
+            "why": "Words like \"using, business, information\" recur heavily, reducing variety.",
+            "recommendation": "Vary vocabulary; use synonyms and different action verbs to keep bullets fresh.",
+            "section": "Experience"
+          },
+          {
+            "id": "issue-3",
+            "severity": "Low",
+            "title": "Skills not tailored to the role",
+            "why": "Many listed skills are unrelated to the target role, diluting relevance.",
+            "recommendation": "Prioritize skills that match the job description; group unrelated ones lower.",
+            "section": "Skills"
+          }
+        ],
+        "screening": {
+          "percent": 48,
+          "disclaimer": "This percentage is an estimate based on resume-to-job alignment and ATS compatibility. Actual hiring decisions depend on the employer and recruitment process.",
+          "factorsIncreasing": [
+            "Relevant work experience section detected.",
+            "1 project(s) demonstrate applied skills.",
+            "Clear, ATS-friendly resume structure."
+          ],
+          "factorsDecreasing": [
+            "9 target keyword(s) missing from the resume.",
+            "Few or no quantified metrics to demonstrate impact."
+          ]
+        },
+        "job": {
+          "title": "Frontend Developer",
+          "description": "Frontend Developer role",
+          "skillsText": ""
+        },
+        "fileName": "kartikeyan_Lead_genration_Resume.pdf",
+        "fileSize": 99343
+      },
+      "createdAt": "2026-08-06T17:53:44.564Z"
+    },
+    {
+      "id": "3zwpq1yaln9",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "atsScore": 43,
+      "resumeScore": 38,
+      "impactScore": 33,
+      "technicalScore": 43,
+      "formattingScore": 37,
+      "grammarScore": 90,
+      "weakBulletPoints": [],
+      "missingMetrics": [],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "before": 38,
+        "after": 43,
+        "issues": 5
+      },
+      "createdAt": "2026-08-06T17:53:51.765Z"
+    },
+    {
+      "id": "gefycf1cmvd",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "atsScore": 19,
+      "resumeScore": 19,
+      "impactScore": 0,
+      "technicalScore": 40,
+      "formattingScore": 51,
+      "grammarScore": 90,
+      "weakBulletPoints": [
+        "Incomplete contact information",
+        "Missing professional summary",
+        "Major target-keyword gaps",
+        "Skill mismatch with target role",
+        "Missing measurable achievements",
+        "Weak or non-standard section structure",
+        "No projects section"
+      ],
+      "missingMetrics": [],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "original": {
+          "personalInfo": {
+            "name": "KARTIKEYAN DUBEY",
+            "email": "kartikeyan.gkp@gmail.com",
+            "phone": "",
+            "location": "Gorakhpur, Uttar Pradesh"
+          },
+          "summary": "",
+          "skills": [
+            "python",
+            "c++",
+            "c",
+            "go",
+            "sql",
+            "bash",
+            "authentication",
+            "authorization",
+            "linux",
+            "github",
+            "testing"
+          ],
+          "experience": [],
+          "projects": [],
+          "education": [],
+          "certifications": [],
+          "achievements": [],
+          "sectionsPresent": {
+            "summary": false,
+            "experience": false,
+            "education": false,
+            "skills": true,
+            "projects": false,
+            "certifications": false,
+            "contact": true
+          },
+          "rawText": "Montserrat\n]\nKARTIKEYAN DUBEY\nGorakhpur, Uttar Pradesh, India | kartikeyan.gkp@gmail.com | LinkedIn | GitHub |\nTryHackMe\n[Professional Summary\nCybersecurity enthusiast and Computer Science Engineering student with hands-on experience in pene-\ntration testing, vulnerability assessment, digital forensics, network security, web-application testing, and\nOSINT. Pro cient with industry-standard tooling—Nmap, Wireshark, Burp Suite, Metasploit, FFUF, Go-\nbuster, Amass, and more—gained through TryHackMe labs, PicoCTF challenges, CTF competitions, and\na competitive internship program.\n[Education\nBachelor of Technology (B.Tech) – Computer Science Engineering 2024 –\n2028 Institute of Engineering and Technology (IET), Deen Dayal Upadhyay Gorakhpur University CGPA:\n7.66/10 Latest SGPA: 8.26/10 Relevant Coursework: Computer Networks, Operating Systems,\nDBMS, Computer Organization & Architecture, Software Engineering, Cybersecurity Fundamentals\n[Cybersecurity Internship Experience\nAmroha Cyber Police Internship Program (APCSIP-2026) June2026\n– Selected for a program focused on cybersecurity awareness and cybercrime investigation fundamentals.\n– Participated in workshops covering threat modeling, digital forensics, and incident response.\n– Gained exposure to real-world security work ows and reporting pipelines.\n[Technical Skills\nCybersecurity: Penetration Testing | Vulnerability Assessment | Web Application Security | Network\nSecurity | OSINT | Digital Forensics | Packet Analysis | Enumeration\nSecurity Tools: Nmap | Wireshark | Burp Suite | Metasploit | FFUF | Gobuster | Amass | Sub nder |\nNetdiscover | Bettercap | Wi te | Fern WiFi Cracker\nProgramming: Python | Bash Scripting | C/C++ | SQL\nOperating Systems: Kali Linux | Ubuntu Linux | Windows\nNetworking Concepts: TCP/IP | DNS | HTTP/HTTPS | Authentication | Authorization | Vulnerability\nScanning | Service Enumeration\n[Hands-On Cybersecurity Experience\nTryHackMe Practical Labs\n– Completed labs covering Linux fundamentals, network security, enumeration, Nmap scanning, web secu-\nrity, and o ensive security basics.\n– Performed service discovery, vulnerability identi cation, and attack-path analysis in controlled environ-\nments.\n– Practiced penetration-testing methodologies and security-assessment work ows.\nPicoCTF Challenges\n– Solved challenges across Digital Forensics, Web Exploitation, Cryptography, General Skills, and Recon-\nnaissance.\n– Utilized Wireshark, Binwalk, Strings, Steghide, and Linux command-line utilities.\nWeb Application Security Practice\n– Intercepted and modi ed HTTP requests via Burp Suite.\n– Tested authentication ows and session handling in safe lab environments.\n– Practiced vulnerability discovery and exploitation in legal settings.\n[Security Operations & Blue-Team Skills\nSecurity Monitoring & Analysis\n– Analyzed network tra c and security events with Wireshark to spot suspicious patterns.\n– Investigated authentication attempts, network connections, and system logs in lab simulations.\n– Practiced incident-investigation methodologies via TryHackMe SOC and Cyber Defense rooms.\n– Performed packet inspection and log analysis to surface Indicators of Compromise (IOCs).\nSOC Concepts & Frameworks\n– Familiar with SOC work ows: alert triage, incident response, threat detection.\n– Understanding of the MITRE ATT&CK framework for adversary behavior mapping.\n– Knowledge of the Cyber Kill Chain, IOC identi cation, and threat-intel fundamentals.\n– Exposure to Windows Event Logs, Sysmon telemetry, and endpoint-monitoring concepts.\nSecurity Monitoring Tools Wireshark | Windows Event Viewer | Sysmon (learning) | Wazuh (learning)\n| Splunk (learning) | VirusTotal | MITRE ATT&CK\n[Projects\nPersonal Cybersecurity Lab Environment\n– Built and maintain a labs-only environment using Kali Linux, Ubuntu, and multiple VMs.\n– Conduct regular penetration tests, reconnaissance, network analysis, and vulnerability assessments.\nSecurity Reconnaissance Toolkit Practice\n– Leveraged Nmap, Amass, Sub nder, Gobuster, and FFUF for asset discovery and attack-surface mapping.\n– Executed service enumeration, information gathering, and directory fuzzing.\n[Achievements\n– Ranked 646th in Apoorv CTF.\n– Active participant in multiple CTF competitions.\n– Regular practitioner on TryHackMe and PicoCTF.\n– Self-driven learner with practical exposure to industry-standard security tools.\n[Areas of Interest\nEthical Hacking | Penetration Testing | Vulnerability Research | Bug Bounty Hunting | Digital Forensics |\nNetwork Security | Web Application Security | Red Teaming | Security Operations (SOC)\n[Additional Information\nLanguages: English, Hindi Availability: Cybersecurity Internships | Security Research Opportunities |\nSOC Analyst Intern Roles | VAPT Internships"
+        },
+        "enhanced": {
+          "data": {
+            "personalInfo": {
+              "name": "KARTIKEYAN DUBEY",
+              "email": "kartikeyan.gkp@gmail.com",
+              "phone": "",
+              "location": "Gorakhpur, Uttar Pradesh"
+            },
+            "summary": "",
+            "skills": [
+              "python",
+              "c++",
+              "c",
+              "go",
+              "sql",
+              "bash",
+              "authentication",
+              "authorization",
+              "linux",
+              "github",
+              "testing"
+            ],
+            "experience": [],
+            "projects": [],
+            "education": [],
+            "certifications": [],
+            "achievements": [],
+            "sectionsPresent": {
+              "summary": false,
+              "experience": false,
+              "education": false,
+              "skills": true,
+              "projects": false,
+              "certifications": false,
+              "contact": true
+            },
+            "rawText": "Montserrat\n]\nKARTIKEYAN DUBEY\nGorakhpur, Uttar Pradesh, India | kartikeyan.gkp@gmail.com | LinkedIn | GitHub |\nTryHackMe\n[Professional Summary\nCybersecurity enthusiast and Computer Science Engineering student with hands-on experience in pene-\ntration testing, vulnerability assessment, digital forensics, network security, web-application testing, and\nOSINT. Pro cient with industry-standard tooling—Nmap, Wireshark, Burp Suite, Metasploit, FFUF, Go-\nbuster, Amass, and more—gained through TryHackMe labs, PicoCTF challenges, CTF competitions, and\na competitive internship program.\n[Education\nBachelor of Technology (B.Tech) – Computer Science Engineering 2024 –\n2028 Institute of Engineering and Technology (IET), Deen Dayal Upadhyay Gorakhpur University CGPA:\n7.66/10 Latest SGPA: 8.26/10 Relevant Coursework: Computer Networks, Operating Systems,\nDBMS, Computer Organization & Architecture, Software Engineering, Cybersecurity Fundamentals\n[Cybersecurity Internship Experience\nAmroha Cyber Police Internship Program (APCSIP-2026) June2026\n– Selected for a program focused on cybersecurity awareness and cybercrime investigation fundamentals.\n– Participated in workshops covering threat modeling, digital forensics, and incident response.\n– Gained exposure to real-world security work ows and reporting pipelines.\n[Technical Skills\nCybersecurity: Penetration Testing | Vulnerability Assessment | Web Application Security | Network\nSecurity | OSINT | Digital Forensics | Packet Analysis | Enumeration\nSecurity Tools: Nmap | Wireshark | Burp Suite | Metasploit | FFUF | Gobuster | Amass | Sub nder |\nNetdiscover | Bettercap | Wi te | Fern WiFi Cracker\nProgramming: Python | Bash Scripting | C/C++ | SQL\nOperating Systems: Kali Linux | Ubuntu Linux | Windows\nNetworking Concepts: TCP/IP | DNS | HTTP/HTTPS | Authentication | Authorization | Vulnerability\nScanning | Service Enumeration\n[Hands-On Cybersecurity Experience\nTryHackMe Practical Labs\n– Completed labs covering Linux fundamentals, network security, enumeration, Nmap scanning, web secu-\nrity, and o ensive security basics.\n– Performed service discovery, vulnerability identi cation, and attack-path analysis in controlled environ-\nments.\n– Practiced penetration-testing methodologies and security-assessment work ows.\nPicoCTF Challenges\n– Solved challenges across Digital Forensics, Web Exploitation, Cryptography, General Skills, and Recon-\nnaissance.\n– Utilized Wireshark, Binwalk, Strings, Steghide, and Linux command-line utilities.\nWeb Application Security Practice\n– Intercepted and modi ed HTTP requests via Burp Suite.\n– Tested authentication ows and session handling in safe lab environments.\n– Practiced vulnerability discovery and exploitation in legal settings.\n[Security Operations & Blue-Team Skills\nSecurity Monitoring & Analysis\n– Analyzed network tra c and security events with Wireshark to spot suspicious patterns.\n– Investigated authentication attempts, network connections, and system logs in lab simulations.\n– Practiced incident-investigation methodologies via TryHackMe SOC and Cyber Defense rooms.\n– Performed packet inspection and log analysis to surface Indicators of Compromise (IOCs).\nSOC Concepts & Frameworks\n– Familiar with SOC work ows: alert triage, incident response, threat detection.\n– Understanding of the MITRE ATT&CK framework for adversary behavior mapping.\n– Knowledge of the Cyber Kill Chain, IOC identi cation, and threat-intel fundamentals.\n– Exposure to Windows Event Logs, Sysmon telemetry, and endpoint-monitoring concepts.\nSecurity Monitoring Tools Wireshark | Windows Event Viewer | Sysmon (learning) | Wazuh (learning)\n| Splunk (learning) | VirusTotal | MITRE ATT&CK\n[Projects\nPersonal Cybersecurity Lab Environment\n– Built and maintain a labs-only environment using Kali Linux, Ubuntu, and multiple VMs.\n– Conduct regular penetration tests, reconnaissance, network analysis, and vulnerability assessments.\nSecurity Reconnaissance Toolkit Practice\n– Leveraged Nmap, Amass, Sub nder, Gobuster, and FFUF for asset discovery and attack-surface mapping.\n– Executed service enumeration, information gathering, and directory fuzzing.\n[Achievements\n– Ranked 646th in Apoorv CTF.\n– Active participant in multiple CTF competitions.\n– Regular practitioner on TryHackMe and PicoCTF.\n– Self-driven learner with practical exposure to industry-standard security tools.\n[Areas of Interest\nEthical Hacking | Penetration Testing | Vulnerability Research | Bug Bounty Hunting | Digital Forensics |\nNetwork Security | Web Application Security | Red Teaming | Security Operations (SOC)\n[Additional Information\nLanguages: English, Hindi Availability: Cybersecurity Internships | Security Research Opportunities |\nSOC Analyst Intern Roles | VAPT Internships"
+          },
+          "changes": []
+        },
+        "keywords": {
+          "targetKeywords": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "testing",
+            "responsive design"
+          ],
+          "matched": [
+            "testing"
+          ],
+          "missing": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "responsive design"
+          ],
+          "weak": [],
+          "recommended": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "responsive design"
+          ],
+          "byCategory": {
+            "Languages": {
+              "matched": [],
+              "missing": [
+                "javascript",
+                "typescript",
+                "html",
+                "css"
+              ]
+            },
+            "Frameworks & Libraries": {
+              "matched": [],
+              "missing": [
+                "react",
+                "next.js",
+                "tailwind",
+                "redux",
+                "webpack"
+              ]
+            },
+            "APIs & Protocols": {
+              "matched": [],
+              "missing": []
+            },
+            "Databases": {
+              "matched": [],
+              "missing": []
+            },
+            "Cloud & DevOps": {
+              "matched": [],
+              "missing": []
+            },
+            "Data & ML": {
+              "matched": [],
+              "missing": []
+            },
+            "Tools & Testing": {
+              "matched": [
+                "testing"
+              ],
+              "missing": [
+                "figma",
+                "git"
+              ]
+            },
+            "Methodology & Soft Skills": {
+              "matched": [],
+              "missing": [
+                "responsive design"
+              ]
+            }
+          }
+        },
+        "beforeScore": {
+          "total": 19,
+          "grade": "Poor",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 2,
+              "max": 30,
+              "explanation": "1/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 8,
+              "max": 20,
+              "explanation": "11 distinct technical skills detected; 0 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 4,
+              "max": 15,
+              "explanation": "No clearly detected work experience section."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 0,
+              "max": 10,
+              "explanation": "No clearly detected projects section."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 2,
+              "max": 10,
+              "explanation": "1/5 standard sections present; some non-standard headings."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 0,
+              "max": 5,
+              "explanation": "No bullet points detected to evaluate."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 3,
+              "max": 5,
+              "explanation": "Word count 628, 0 bullet points, 1/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "afterScore": {
+          "total": 19,
+          "grade": "Poor",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 2,
+              "max": 30,
+              "explanation": "1/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 8,
+              "max": 20,
+              "explanation": "11 distinct technical skills detected; 0 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 4,
+              "max": 15,
+              "explanation": "No clearly detected work experience section."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 0,
+              "max": 10,
+              "explanation": "No clearly detected projects section."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 2,
+              "max": 10,
+              "explanation": "1/5 standard sections present; some non-standard headings."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 0,
+              "max": 5,
+              "explanation": "No bullet points detected to evaluate."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 3,
+              "max": 5,
+              "explanation": "Word count 628, 0 bullet points, 1/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "issues": [
+          {
+            "id": "issue-0",
+            "severity": "High",
+            "title": "Incomplete contact information",
+            "why": "Missing email or phone reduces recruiter reachability.",
+            "recommendation": "Include both a professional email and a phone number.",
+            "section": "Contact"
+          },
+          {
+            "id": "issue-1",
+            "severity": "High",
+            "title": "Missing professional summary",
+            "why": "A summary gives recruiters and ATS an immediate snapshot of your fit.",
+            "recommendation": "Add a 2-3 sentence professional summary that names your role and top skills.",
+            "section": "Summary"
+          },
+          {
+            "id": "issue-2",
+            "severity": "High",
+            "title": "Major target-keyword gaps",
+            "why": "Only 1 of 13 target keywords appear in the resume.",
+            "recommendation": "Incorporate the missing keywords where you have genuine experience: javascript, typescript, react, next.js, html, css.",
+            "section": "Keywords"
+          },
+          {
+            "id": "issue-3",
+            "severity": "High",
+            "title": "Skill mismatch with target role",
+            "why": "The resume's skills barely overlap with the target job profile.",
+            "recommendation": "Target the resume to the role, or consider building the missing skills before applying.",
+            "section": "Skills"
+          },
+          {
+            "id": "issue-4",
+            "severity": "High",
+            "title": "Missing measurable achievements",
+            "why": "Without metrics, impact is hard for recruiters and ATS to gauge.",
+            "recommendation": "Add real numbers (%, scale, time saved) to at least 2-3 bullets. Never invent metrics.",
+            "section": "Experience"
+          },
+          {
+            "id": "issue-5",
+            "severity": "Medium",
+            "title": "Weak or non-standard section structure",
+            "why": "Missing or non-standard headings hurt ATS parsing and scannability.",
+            "recommendation": "Use clear headings: Professional Summary, Technical Skills, Experience, Projects, Education.",
+            "section": "Structure"
+          },
+          {
+            "id": "issue-6",
+            "severity": "Medium",
+            "title": "No projects section",
+            "why": "Projects prove applied skills, especially for students and career switchers.",
+            "recommendation": "Add 2-3 projects with the tech stack and your specific contribution.",
+            "section": "Projects"
+          }
+        ],
+        "screening": {
+          "percent": 14,
+          "disclaimer": "This percentage is an estimate based on resume-to-job alignment and ATS compatibility. Actual hiring decisions depend on the employer and recruitment process.",
+          "factorsIncreasing": [],
+          "factorsDecreasing": [
+            "12 target keyword(s) missing from the resume.",
+            "Few or no quantified metrics to demonstrate impact.",
+            "No clearly detected work experience section.",
+            "Missing a professional summary."
+          ]
+        },
+        "job": {
+          "title": "Frontend Developer",
+          "description": "Frontend Developer role",
+          "skillsText": ""
+        },
+        "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__ (1).pdf",
+        "fileSize": 76148
+      },
+      "createdAt": "2026-08-06T17:54:33.983Z"
+    },
+    {
+      "id": "1sw2pxeiog8",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "atsScore": 19,
+      "resumeScore": 19,
+      "impactScore": 0,
+      "technicalScore": 40,
+      "formattingScore": 51,
+      "grammarScore": 90,
+      "weakBulletPoints": [
+        "Incomplete contact information",
+        "Missing professional summary",
+        "Major target-keyword gaps",
+        "Skill mismatch with target role",
+        "Missing measurable achievements",
+        "Weak or non-standard section structure",
+        "No projects section"
+      ],
+      "missingMetrics": [],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "original": {
+          "personalInfo": {
+            "name": "KARTIKEYAN DUBEY",
+            "email": "kartikeyan.gkp@gmail.com",
+            "phone": "",
+            "location": "Gorakhpur, Uttar Pradesh"
+          },
+          "summary": "",
+          "skills": [
+            "python",
+            "c++",
+            "c",
+            "go",
+            "sql",
+            "bash",
+            "authentication",
+            "authorization",
+            "linux",
+            "github",
+            "testing"
+          ],
+          "experience": [],
+          "projects": [],
+          "education": [],
+          "certifications": [],
+          "achievements": [],
+          "sectionsPresent": {
+            "summary": false,
+            "experience": false,
+            "education": false,
+            "skills": true,
+            "projects": false,
+            "certifications": false,
+            "contact": true
+          },
+          "rawText": "Montserrat\n]\nKARTIKEYAN DUBEY\nGorakhpur, Uttar Pradesh, India | kartikeyan.gkp@gmail.com | LinkedIn | GitHub |\nTryHackMe\n[Professional Summary\nCybersecurity enthusiast and Computer Science Engineering student with hands-on experience in pene-\ntration testing, vulnerability assessment, digital forensics, network security, web-application testing, and\nOSINT. Pro cient with industry-standard tooling—Nmap, Wireshark, Burp Suite, Metasploit, FFUF, Go-\nbuster, Amass, and more—gained through TryHackMe labs, PicoCTF challenges, CTF competitions, and\na competitive internship program.\n[Education\nBachelor of Technology (B.Tech) – Computer Science Engineering 2024 –\n2028 Institute of Engineering and Technology (IET), Deen Dayal Upadhyay Gorakhpur University CGPA:\n7.66/10 Latest SGPA: 8.26/10 Relevant Coursework: Computer Networks, Operating Systems,\nDBMS, Computer Organization & Architecture, Software Engineering, Cybersecurity Fundamentals\n[Cybersecurity Internship Experience\nAmroha Cyber Police Internship Program (APCSIP-2026) June2026\n– Selected for a program focused on cybersecurity awareness and cybercrime investigation fundamentals.\n– Participated in workshops covering threat modeling, digital forensics, and incident response.\n– Gained exposure to real-world security work ows and reporting pipelines.\n[Technical Skills\nCybersecurity: Penetration Testing | Vulnerability Assessment | Web Application Security | Network\nSecurity | OSINT | Digital Forensics | Packet Analysis | Enumeration\nSecurity Tools: Nmap | Wireshark | Burp Suite | Metasploit | FFUF | Gobuster | Amass | Sub nder |\nNetdiscover | Bettercap | Wi te | Fern WiFi Cracker\nProgramming: Python | Bash Scripting | C/C++ | SQL\nOperating Systems: Kali Linux | Ubuntu Linux | Windows\nNetworking Concepts: TCP/IP | DNS | HTTP/HTTPS | Authentication | Authorization | Vulnerability\nScanning | Service Enumeration\n[Hands-On Cybersecurity Experience\nTryHackMe Practical Labs\n– Completed labs covering Linux fundamentals, network security, enumeration, Nmap scanning, web secu-\nrity, and o ensive security basics.\n– Performed service discovery, vulnerability identi cation, and attack-path analysis in controlled environ-\nments.\n– Practiced penetration-testing methodologies and security-assessment work ows.\nPicoCTF Challenges\n– Solved challenges across Digital Forensics, Web Exploitation, Cryptography, General Skills, and Recon-\nnaissance.\n– Utilized Wireshark, Binwalk, Strings, Steghide, and Linux command-line utilities.\nWeb Application Security Practice\n– Intercepted and modi ed HTTP requests via Burp Suite.\n– Tested authentication ows and session handling in safe lab environments.\n– Practiced vulnerability discovery and exploitation in legal settings.\n[Security Operations & Blue-Team Skills\nSecurity Monitoring & Analysis\n– Analyzed network tra c and security events with Wireshark to spot suspicious patterns.\n– Investigated authentication attempts, network connections, and system logs in lab simulations.\n– Practiced incident-investigation methodologies via TryHackMe SOC and Cyber Defense rooms.\n– Performed packet inspection and log analysis to surface Indicators of Compromise (IOCs).\nSOC Concepts & Frameworks\n– Familiar with SOC work ows: alert triage, incident response, threat detection.\n– Understanding of the MITRE ATT&CK framework for adversary behavior mapping.\n– Knowledge of the Cyber Kill Chain, IOC identi cation, and threat-intel fundamentals.\n– Exposure to Windows Event Logs, Sysmon telemetry, and endpoint-monitoring concepts.\nSecurity Monitoring Tools Wireshark | Windows Event Viewer | Sysmon (learning) | Wazuh (learning)\n| Splunk (learning) | VirusTotal | MITRE ATT&CK\n[Projects\nPersonal Cybersecurity Lab Environment\n– Built and maintain a labs-only environment using Kali Linux, Ubuntu, and multiple VMs.\n– Conduct regular penetration tests, reconnaissance, network analysis, and vulnerability assessments.\nSecurity Reconnaissance Toolkit Practice\n– Leveraged Nmap, Amass, Sub nder, Gobuster, and FFUF for asset discovery and attack-surface mapping.\n– Executed service enumeration, information gathering, and directory fuzzing.\n[Achievements\n– Ranked 646th in Apoorv CTF.\n– Active participant in multiple CTF competitions.\n– Regular practitioner on TryHackMe and PicoCTF.\n– Self-driven learner with practical exposure to industry-standard security tools.\n[Areas of Interest\nEthical Hacking | Penetration Testing | Vulnerability Research | Bug Bounty Hunting | Digital Forensics |\nNetwork Security | Web Application Security | Red Teaming | Security Operations (SOC)\n[Additional Information\nLanguages: English, Hindi Availability: Cybersecurity Internships | Security Research Opportunities |\nSOC Analyst Intern Roles | VAPT Internships"
+        },
+        "enhanced": {
+          "data": {
+            "personalInfo": {
+              "name": "KARTIKEYAN DUBEY",
+              "email": "kartikeyan.gkp@gmail.com",
+              "phone": "",
+              "location": "Gorakhpur, Uttar Pradesh"
+            },
+            "summary": "",
+            "skills": [
+              "python",
+              "c++",
+              "c",
+              "go",
+              "sql",
+              "bash",
+              "authentication",
+              "authorization",
+              "linux",
+              "github",
+              "testing"
+            ],
+            "experience": [],
+            "projects": [],
+            "education": [],
+            "certifications": [],
+            "achievements": [],
+            "sectionsPresent": {
+              "summary": false,
+              "experience": false,
+              "education": false,
+              "skills": true,
+              "projects": false,
+              "certifications": false,
+              "contact": true
+            },
+            "rawText": "Montserrat\n]\nKARTIKEYAN DUBEY\nGorakhpur, Uttar Pradesh, India | kartikeyan.gkp@gmail.com | LinkedIn | GitHub |\nTryHackMe\n[Professional Summary\nCybersecurity enthusiast and Computer Science Engineering student with hands-on experience in pene-\ntration testing, vulnerability assessment, digital forensics, network security, web-application testing, and\nOSINT. Pro cient with industry-standard tooling—Nmap, Wireshark, Burp Suite, Metasploit, FFUF, Go-\nbuster, Amass, and more—gained through TryHackMe labs, PicoCTF challenges, CTF competitions, and\na competitive internship program.\n[Education\nBachelor of Technology (B.Tech) – Computer Science Engineering 2024 –\n2028 Institute of Engineering and Technology (IET), Deen Dayal Upadhyay Gorakhpur University CGPA:\n7.66/10 Latest SGPA: 8.26/10 Relevant Coursework: Computer Networks, Operating Systems,\nDBMS, Computer Organization & Architecture, Software Engineering, Cybersecurity Fundamentals\n[Cybersecurity Internship Experience\nAmroha Cyber Police Internship Program (APCSIP-2026) June2026\n– Selected for a program focused on cybersecurity awareness and cybercrime investigation fundamentals.\n– Participated in workshops covering threat modeling, digital forensics, and incident response.\n– Gained exposure to real-world security work ows and reporting pipelines.\n[Technical Skills\nCybersecurity: Penetration Testing | Vulnerability Assessment | Web Application Security | Network\nSecurity | OSINT | Digital Forensics | Packet Analysis | Enumeration\nSecurity Tools: Nmap | Wireshark | Burp Suite | Metasploit | FFUF | Gobuster | Amass | Sub nder |\nNetdiscover | Bettercap | Wi te | Fern WiFi Cracker\nProgramming: Python | Bash Scripting | C/C++ | SQL\nOperating Systems: Kali Linux | Ubuntu Linux | Windows\nNetworking Concepts: TCP/IP | DNS | HTTP/HTTPS | Authentication | Authorization | Vulnerability\nScanning | Service Enumeration\n[Hands-On Cybersecurity Experience\nTryHackMe Practical Labs\n– Completed labs covering Linux fundamentals, network security, enumeration, Nmap scanning, web secu-\nrity, and o ensive security basics.\n– Performed service discovery, vulnerability identi cation, and attack-path analysis in controlled environ-\nments.\n– Practiced penetration-testing methodologies and security-assessment work ows.\nPicoCTF Challenges\n– Solved challenges across Digital Forensics, Web Exploitation, Cryptography, General Skills, and Recon-\nnaissance.\n– Utilized Wireshark, Binwalk, Strings, Steghide, and Linux command-line utilities.\nWeb Application Security Practice\n– Intercepted and modi ed HTTP requests via Burp Suite.\n– Tested authentication ows and session handling in safe lab environments.\n– Practiced vulnerability discovery and exploitation in legal settings.\n[Security Operations & Blue-Team Skills\nSecurity Monitoring & Analysis\n– Analyzed network tra c and security events with Wireshark to spot suspicious patterns.\n– Investigated authentication attempts, network connections, and system logs in lab simulations.\n– Practiced incident-investigation methodologies via TryHackMe SOC and Cyber Defense rooms.\n– Performed packet inspection and log analysis to surface Indicators of Compromise (IOCs).\nSOC Concepts & Frameworks\n– Familiar with SOC work ows: alert triage, incident response, threat detection.\n– Understanding of the MITRE ATT&CK framework for adversary behavior mapping.\n– Knowledge of the Cyber Kill Chain, IOC identi cation, and threat-intel fundamentals.\n– Exposure to Windows Event Logs, Sysmon telemetry, and endpoint-monitoring concepts.\nSecurity Monitoring Tools Wireshark | Windows Event Viewer | Sysmon (learning) | Wazuh (learning)\n| Splunk (learning) | VirusTotal | MITRE ATT&CK\n[Projects\nPersonal Cybersecurity Lab Environment\n– Built and maintain a labs-only environment using Kali Linux, Ubuntu, and multiple VMs.\n– Conduct regular penetration tests, reconnaissance, network analysis, and vulnerability assessments.\nSecurity Reconnaissance Toolkit Practice\n– Leveraged Nmap, Amass, Sub nder, Gobuster, and FFUF for asset discovery and attack-surface mapping.\n– Executed service enumeration, information gathering, and directory fuzzing.\n[Achievements\n– Ranked 646th in Apoorv CTF.\n– Active participant in multiple CTF competitions.\n– Regular practitioner on TryHackMe and PicoCTF.\n– Self-driven learner with practical exposure to industry-standard security tools.\n[Areas of Interest\nEthical Hacking | Penetration Testing | Vulnerability Research | Bug Bounty Hunting | Digital Forensics |\nNetwork Security | Web Application Security | Red Teaming | Security Operations (SOC)\n[Additional Information\nLanguages: English, Hindi Availability: Cybersecurity Internships | Security Research Opportunities |\nSOC Analyst Intern Roles | VAPT Internships"
+          },
+          "changes": []
+        },
+        "keywords": {
+          "targetKeywords": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "testing",
+            "responsive design"
+          ],
+          "matched": [
+            "testing"
+          ],
+          "missing": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "responsive design"
+          ],
+          "weak": [],
+          "recommended": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "responsive design"
+          ],
+          "byCategory": {
+            "Languages": {
+              "matched": [],
+              "missing": [
+                "javascript",
+                "typescript",
+                "html",
+                "css"
+              ]
+            },
+            "Frameworks & Libraries": {
+              "matched": [],
+              "missing": [
+                "react",
+                "next.js",
+                "tailwind",
+                "redux",
+                "webpack"
+              ]
+            },
+            "APIs & Protocols": {
+              "matched": [],
+              "missing": []
+            },
+            "Databases": {
+              "matched": [],
+              "missing": []
+            },
+            "Cloud & DevOps": {
+              "matched": [],
+              "missing": []
+            },
+            "Data & ML": {
+              "matched": [],
+              "missing": []
+            },
+            "Tools & Testing": {
+              "matched": [
+                "testing"
+              ],
+              "missing": [
+                "figma",
+                "git"
+              ]
+            },
+            "Methodology & Soft Skills": {
+              "matched": [],
+              "missing": [
+                "responsive design"
+              ]
+            }
+          }
+        },
+        "beforeScore": {
+          "total": 19,
+          "grade": "Poor",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 2,
+              "max": 30,
+              "explanation": "1/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 8,
+              "max": 20,
+              "explanation": "11 distinct technical skills detected; 0 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 4,
+              "max": 15,
+              "explanation": "No clearly detected work experience section."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 0,
+              "max": 10,
+              "explanation": "No clearly detected projects section."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 2,
+              "max": 10,
+              "explanation": "1/5 standard sections present; some non-standard headings."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 0,
+              "max": 5,
+              "explanation": "No bullet points detected to evaluate."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 3,
+              "max": 5,
+              "explanation": "Word count 628, 0 bullet points, 1/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "afterScore": {
+          "total": 19,
+          "grade": "Poor",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 2,
+              "max": 30,
+              "explanation": "1/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 8,
+              "max": 20,
+              "explanation": "11 distinct technical skills detected; 0 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 4,
+              "max": 15,
+              "explanation": "No clearly detected work experience section."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 0,
+              "max": 10,
+              "explanation": "No clearly detected projects section."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 2,
+              "max": 10,
+              "explanation": "1/5 standard sections present; some non-standard headings."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 0,
+              "max": 5,
+              "explanation": "No bullet points detected to evaluate."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 3,
+              "max": 5,
+              "explanation": "Word count 628, 0 bullet points, 1/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "issues": [
+          {
+            "id": "issue-0",
+            "severity": "High",
+            "title": "Incomplete contact information",
+            "why": "Missing email or phone reduces recruiter reachability.",
+            "recommendation": "Include both a professional email and a phone number.",
+            "section": "Contact"
+          },
+          {
+            "id": "issue-1",
+            "severity": "High",
+            "title": "Missing professional summary",
+            "why": "A summary gives recruiters and ATS an immediate snapshot of your fit.",
+            "recommendation": "Add a 2-3 sentence professional summary that names your role and top skills.",
+            "section": "Summary"
+          },
+          {
+            "id": "issue-2",
+            "severity": "High",
+            "title": "Major target-keyword gaps",
+            "why": "Only 1 of 13 target keywords appear in the resume.",
+            "recommendation": "Incorporate the missing keywords where you have genuine experience: javascript, typescript, react, next.js, html, css.",
+            "section": "Keywords"
+          },
+          {
+            "id": "issue-3",
+            "severity": "High",
+            "title": "Skill mismatch with target role",
+            "why": "The resume's skills barely overlap with the target job profile.",
+            "recommendation": "Target the resume to the role, or consider building the missing skills before applying.",
+            "section": "Skills"
+          },
+          {
+            "id": "issue-4",
+            "severity": "High",
+            "title": "Missing measurable achievements",
+            "why": "Without metrics, impact is hard for recruiters and ATS to gauge.",
+            "recommendation": "Add real numbers (%, scale, time saved) to at least 2-3 bullets. Never invent metrics.",
+            "section": "Experience"
+          },
+          {
+            "id": "issue-5",
+            "severity": "Medium",
+            "title": "Weak or non-standard section structure",
+            "why": "Missing or non-standard headings hurt ATS parsing and scannability.",
+            "recommendation": "Use clear headings: Professional Summary, Technical Skills, Experience, Projects, Education.",
+            "section": "Structure"
+          },
+          {
+            "id": "issue-6",
+            "severity": "Medium",
+            "title": "No projects section",
+            "why": "Projects prove applied skills, especially for students and career switchers.",
+            "recommendation": "Add 2-3 projects with the tech stack and your specific contribution.",
+            "section": "Projects"
+          }
+        ],
+        "screening": {
+          "percent": 14,
+          "disclaimer": "This percentage is an estimate based on resume-to-job alignment and ATS compatibility. Actual hiring decisions depend on the employer and recruitment process.",
+          "factorsIncreasing": [],
+          "factorsDecreasing": [
+            "12 target keyword(s) missing from the resume.",
+            "Few or no quantified metrics to demonstrate impact.",
+            "No clearly detected work experience section.",
+            "Missing a professional summary."
+          ]
+        },
+        "job": {
+          "title": "Frontend Developer",
+          "description": "Frontend Developer role",
+          "skillsText": ""
+        },
+        "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__.pdf",
+        "fileSize": 76148
+      },
+      "createdAt": "2026-08-06T18:23:20.155Z"
+    },
+    {
+      "id": "hin5sshmu8",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "atsScore": 58,
+      "resumeScore": 58,
+      "impactScore": 50,
+      "technicalScore": 58,
+      "formattingScore": 49,
+      "grammarScore": 90,
+      "weakBulletPoints": [],
+      "missingMetrics": [],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "before": 58,
+        "after": 58,
+        "issues": 5
+      },
+      "createdAt": "2026-08-06T18:24:14.702Z"
+    },
+    {
+      "id": "7tcrkd7vz1",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "atsScore": 24,
+      "resumeScore": 20,
+      "impactScore": 0,
+      "technicalScore": 10,
+      "formattingScore": 68,
+      "grammarScore": 90,
+      "weakBulletPoints": [
+        "Major target-keyword gaps",
+        "Skill mismatch with target role",
+        "Missing measurable achievements",
+        "Repeated words across bullets",
+        "Skills not tailored to the role"
+      ],
+      "missingMetrics": [],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "original": {
+          "personalInfo": {
+            "name": "Kartikeyan Dubey",
+            "email": "kartikeyan.gkp@gmail.com",
+            "phone": "+91 7007739645",
+            "github": "github.com/kartikeyan-sudo",
+            "linkedin": "linkedin.com/in",
+            "location": "Kartikeyan Dubey"
+          },
+          "summary": "B.Tech Computer Science (2nd Year) student with a strong passion for cybersecurity, ethical hacking, and network security. Hands-on experience in reconnaissance, OSINT, penetration testing, and network attack simulations in controlled lab environments. Keen to explore real-world security challenges through bug bounty hunting and responsible vulnerability research.",
+          "skills": [
+            "cybersecurity & networking:",
+            "osint & reconnaissance",
+            "network scanning & enumeration",
+            "packet analysis (wireshark)",
+            "web application security testing",
+            "mitm attacks (lab environments)",
+            "tools & frameworks:",
+            "nmap",
+            "wireshark",
+            "netdiscover",
+            "amass",
+            "sub nder",
+            "gobuster",
+            "ffuf",
+            "burp suite",
+            "metasploit (basic)",
+            "bettercap",
+            "wi te",
+            "fern wifi cracker",
+            "crunch",
+            "cupp",
+            "programming & scripting:",
+            "bash scripting",
+            "python (basic)",
+            "c",
+            "c++ (basic)",
+            "sql (basic queries)",
+            "platforms:",
+            "kali linux",
+            "ubuntu",
+            "linux command line"
+          ],
+          "experience": [],
+          "projects": [
+            {
+              "id": "proj-0",
+              "heading": "Reconnaissance & OSINT Practice",
+              "bullets": [
+                "Performed extensive domain and subdomain enumeration using Amass and Sub nder",
+                "Conducted network scanning and service detection using Nmap",
+                "Directory brute-forcing and fuzzing using Gobuster and FFUF",
+                "Captured and analyzed network packets using Wireshark",
+                "Simulated Man-in-the-Middle attacks using Bettercap in isolated lab environments",
+                "Discovered and mapped local network devices using Netdiscover",
+                "Intercepted and manipulated HTTP requests using Burp Suite",
+                "Explored vulnerability exploitation work ows using Metasploit Framework",
+                "Practiced complete penetration testing methodology in controlled labs"
+              ]
+            }
+          ],
+          "education": [
+            {
+              "id": "edu-0",
+              "text": "Bachelor of Technology (B.Tech) in Computer Science"
+            },
+            {
+              "id": "edu-1",
+              "text": "Currently in 2nd Year"
+            },
+            {
+              "id": "edu-2",
+              "text": "Deen Dayal Upadhyay Gorakhpur University 2024 – Present"
+            },
+            {
+              "id": "edu-3",
+              "text": "Areas of Interest"
+            },
+            {
+              "id": "edu-4",
+              "text": "Ethical Hacking & Penetration Testing"
+            },
+            {
+              "id": "edu-5",
+              "text": "Bug Bounty Hunting"
+            },
+            {
+              "id": "edu-6",
+              "text": "Network Security & Web Application Security"
+            },
+            {
+              "id": "edu-7",
+              "text": "Red Teaming & Vulnerability Research"
+            },
+            {
+              "id": "edu-8",
+              "text": "§ github.com/kartikeyan-sudo"
+            },
+            {
+              "id": "edu-9",
+              "text": "2"
+            }
+          ],
+          "certifications": [],
+          "achievements": [
+            "Apoorv CTF — Secured 646th rank",
+            "Actively practicing cybersecurity through hands-on labs and CTF challenges",
+            "Self-driven learner with consistent practical exposure to industry-standard security tools",
+            "1"
+          ],
+          "sectionsPresent": {
+            "summary": true,
+            "experience": false,
+            "education": true,
+            "skills": true,
+            "projects": true,
+            "certifications": false,
+            "contact": true
+          },
+          "rawText": "Kartikeyan Dubey\nB.Tech Computer Science — Cybersecurity Enthusiast\nGorakhpur, Uttar Pradesh, India § kartikeyan-sudo\n# kartikeyan.gkp@gmail.com  +91 7007739645 ï\nwww.linkedin.com/in/kartikeyan-dubey-3963372b6\nSummary\nB.Tech Computer Science (2nd Year) student with a strong passion for cybersecurity, ethical\nhacking, and network security. Hands-on experience in reconnaissance, OSINT, penetration testing,\nand network attack simulations in controlled lab environments. Keen to explore real-world security\nchallenges through bug bounty hunting and responsible vulnerability research.\nSkills\nCybersecurity & Networking:\n• OSINT & Reconnaissance\n• Network Scanning & Enumeration\n• Packet Analysis (Wireshark)\n• Web Application Security Testing\n• MITM Attacks (Lab Environments)\nTools & Frameworks:\n• Nmap, Wireshark, Netdiscover\n• Amass, Sub nder, Gobuster, FFUF\n• Burp Suite, Metasploit (Basic)\n• Bettercap, Wi te, Fern WiFi Cracker\n• Crunch, CUPP\nProgramming & Scripting:\n• Bash Scripting\n• Python (Basic)\n• C/C++ (Basic)\n• SQL (Basic Queries)\nPlatforms:\n• Kali Linux\n• Ubuntu\n• Linux Command Line\nProjects\nReconnaissance & OSINT Practice\n• Performed extensive domain and subdomain enumeration using Amass and Sub nder\n• Conducted network scanning and service detection using Nmap\n• Directory brute-forcing and fuzzing using Gobuster and FFUF\nNetwork Tra c Analysis & MITM Simulation\n• Captured and analyzed network packets using Wireshark\n• Simulated Man-in-the-Middle attacks using Bettercap in isolated lab environments\n• Discovered and mapped local network devices using Netdiscover\nWeb Application & Exploitation Practice\n• Intercepted and manipulated HTTP requests using Burp Suite\n• Explored vulnerability exploitation work ows using Metasploit Framework\n• Practiced complete penetration testing methodology in controlled labs\nAchievements\n• Apoorv CTF — Secured 646th rank\n• Actively practicing cybersecurity through hands-on labs and CTF challenges\n• Self-driven learner with consistent practical exposure to industry-standard security tools\n1\nEducation\nBachelor of Technology (B.Tech) in Computer Science\nCurrently in 2nd Year\nDeen Dayal Upadhyay Gorakhpur University 2024 – Present\nAreas of Interest\n• Ethical Hacking & Penetration Testing\n• Bug Bounty Hunting\n• Network Security & Web Application Security\n• Red Teaming & Vulnerability Research\n§ github.com/kartikeyan-sudo\n2"
+        },
+        "enhanced": {
+          "data": {
+            "personalInfo": {
+              "name": "Kartikeyan Dubey",
+              "email": "kartikeyan.gkp@gmail.com",
+              "phone": "+91 7007739645",
+              "github": "github.com/kartikeyan-sudo",
+              "linkedin": "linkedin.com/in",
+              "location": "Kartikeyan Dubey"
+            },
+            "summary": "Frontend Developer with b.Tech Computer Science (2nd Year) student with a strong passion for cybersecurity, ethical hacking, and network security. Hands-on experience in reconnaissance, OSINT, penetration testing, and network attack simulations in controlled lab environments. Keen to explore real-world security challenges through bug bounty hunting and responsible vulnerability research.",
+            "skills": [
+              "c",
+              "cybersecurity & networking:",
+              "osint & reconnaissance",
+              "network scanning & enumeration",
+              "packet analysis (wireshark)",
+              "web application security testing",
+              "mitm attacks (lab environments)",
+              "tools & frameworks:",
+              "nmap",
+              "wireshark",
+              "netdiscover",
+              "amass",
+              "sub nder",
+              "gobuster",
+              "ffuf",
+              "burp suite",
+              "metasploit (basic)",
+              "bettercap",
+              "wi te",
+              "fern wifi cracker",
+              "crunch",
+              "cupp",
+              "programming & scripting:",
+              "bash scripting",
+              "python (basic)",
+              "c++ (basic)",
+              "sql (basic queries)",
+              "platforms:",
+              "kali linux",
+              "ubuntu",
+              "linux command line"
+            ],
+            "experience": [],
+            "projects": [
+              {
+                "id": "proj-0",
+                "heading": "Reconnaissance & OSINT Practice",
+                "bullets": [
+                  "Developed performed extensive domain and subdomain enumeration using Amass and Sub nder",
+                  "Developed conducted network scanning and service detection using Nmap",
+                  "Developed directory brute-forcing and fuzzing using Gobuster and FFUF",
+                  "Developed captured and analyzed network packets using Wireshark",
+                  "Developed simulated Man-in-the-Middle attacks using Bettercap in isolated lab environments",
+                  "Developed discovered and mapped local network devices using Netdiscover",
+                  "Implemented intercepted and manipulated HTTP requests using Burp Suite",
+                  "Explored vulnerability exploitation work ows using Metasploit Framework",
+                  "Tested practiced complete penetration testing methodology in controlled labs"
+                ]
+              }
+            ],
+            "education": [
+              {
+                "id": "edu-0",
+                "text": "Bachelor of Technology (B.Tech) in Computer Science"
+              },
+              {
+                "id": "edu-1",
+                "text": "Currently in 2nd Year"
+              },
+              {
+                "id": "edu-2",
+                "text": "Deen Dayal Upadhyay Gorakhpur University 2024 – Present"
+              },
+              {
+                "id": "edu-3",
+                "text": "Areas of Interest"
+              },
+              {
+                "id": "edu-4",
+                "text": "Ethical Hacking & Penetration Testing"
+              },
+              {
+                "id": "edu-5",
+                "text": "Bug Bounty Hunting"
+              },
+              {
+                "id": "edu-6",
+                "text": "Network Security & Web Application Security"
+              },
+              {
+                "id": "edu-7",
+                "text": "Red Teaming & Vulnerability Research"
+              },
+              {
+                "id": "edu-8",
+                "text": "§ github.com/kartikeyan-sudo"
+              },
+              {
+                "id": "edu-9",
+                "text": "2"
+              }
+            ],
+            "certifications": [],
+            "achievements": [
+              "Apoorv CTF — Secured 646th rank",
+              "Actively practicing cybersecurity through hands-on labs and CTF challenges",
+              "Self-driven learner with consistent practical exposure to industry-standard security tools",
+              "1"
+            ],
+            "sectionsPresent": {
+              "summary": true,
+              "experience": false,
+              "education": true,
+              "skills": true,
+              "projects": true,
+              "certifications": false,
+              "contact": true
+            },
+            "rawText": "Kartikeyan Dubey\nkartikeyan.gkp@gmail.com | +91 7007739645 | github.com/kartikeyan-sudo | linkedin.com/in\nPROFESSIONAL SUMMARY\nFrontend Developer with b.Tech Computer Science (2nd Year) student with a strong passion for cybersecurity, ethical hacking, and network security. Hands-on experience in reconnaissance, OSINT, penetration testing, and network attack simulations in controlled lab environments. Keen to explore real-world security challenges through bug bounty hunting and responsible vulnerability research.\nTECHNICAL SKILLS\nC, Cybersecurity & Networking:, Osint & Reconnaissance, Network Scanning & Enumeration, Packet Analysis (Wireshark), Web Application Security Testing, Mitm Attacks (Lab Environments), Tools & Frameworks:, Nmap, Wireshark, Netdiscover, Amass, Sub Nder, Gobuster, Ffuf, Burp Suite, Metasploit (Basic), Bettercap, Wi Te, Fern Wifi Cracker, Crunch, Cupp, Programming & Scripting:, Bash Scripting, Python (Basic), C++ (Basic), Sql (Basic Queries), Platforms:, Kali Linux, Ubuntu, Linux Command Line\nPROJECTS\nReconnaissance & OSINT Practice\n- Developed performed extensive domain and subdomain enumeration using Amass and Sub nder\n- Developed conducted network scanning and service detection using Nmap\n- Developed directory brute-forcing and fuzzing using Gobuster and FFUF\n- Developed captured and analyzed network packets using Wireshark\n- Developed simulated Man-in-the-Middle attacks using Bettercap in isolated lab environments\n- Developed discovered and mapped local network devices using Netdiscover\n- Implemented intercepted and manipulated HTTP requests using Burp Suite\n- Explored vulnerability exploitation work ows using Metasploit Framework\n- Tested practiced complete penetration testing methodology in controlled labs\nEDUCATION\nBachelor of Technology (B.Tech) in Computer Science\nCurrently in 2nd Year\nDeen Dayal Upadhyay Gorakhpur University 2024 – Present\nAreas of Interest\nEthical Hacking & Penetration Testing\nBug Bounty Hunting\nNetwork Security & Web Application Security\nRed Teaming & Vulnerability Research\n§ github.com/kartikeyan-sudo\n2\nACHIEVEMENTS\n- Apoorv CTF — Secured 646th rank\n- Actively practicing cybersecurity through hands-on labs and CTF challenges\n- Self-driven learner with consistent practical exposure to industry-standard security tools\n- 1"
+          },
+          "changes": [
+            {
+              "id": "ch-summary",
+              "section": "Summary",
+              "originalText": "B.Tech Computer Science (2nd Year) student with a strong passion for cybersecurity, ethical hacking, and network security. Hands-on experience in reconnaissance, OSINT, penetration testing, and network attack simulations in controlled lab environments. Keen to explore real-world security challenges through bug bounty hunting and responsible vulnerability research.",
+              "enhancedText": "Frontend Developer with b.Tech Computer Science (2nd Year) student with a strong passion for cybersecurity, ethical hacking, and network security. Hands-on experience in reconnaissance, OSINT, penetration testing, and network attack simulations in controlled lab environments. Keen to explore real-world security challenges through bug bounty hunting and responsible vulnerability research.",
+              "changeType": "improved",
+              "reason": "Rephrased to open with the target role and surface matched keywords; removed generic objective phrasing.",
+              "atsImpact": "+ Keyword & structure relevance"
+            },
+            {
+              "id": "ch-skills",
+              "section": "Skills",
+              "originalText": "Cybersecurity & Networking:, Osint & Reconnaissance, Network Scanning & Enumeration, Packet Analysis (Wireshark), Web Application Security Testing, Mitm Attacks (Lab Environments), Tools & Frameworks:, Nmap, Wireshark, Netdiscover, Amass, Sub Nder, Gobuster, Ffuf, Burp Suite, Metasploit (Basic), Bettercap, Wi Te, Fern Wifi Cracker, Crunch, Cupp, Programming & Scripting:, Bash Scripting, Python (Basic), C, C++ (Basic), Sql (Basic Queries), Platforms:, Kali Linux, Ubuntu, Linux Command Line",
+              "enhancedText": "Languages: C  |  Other: Cybersecurity & Networking:, Osint & Reconnaissance, Network Scanning & Enumeration, Packet Analysis (Wireshark), Web Application Security Testing, Mitm Attacks (Lab Environments), Tools & Frameworks:, Nmap, Wireshark, Netdiscover, Amass, Sub Nder, Gobuster, Ffuf, Burp Suite, Metasploit (Basic), Bettercap, Wi Te, Fern Wifi Cracker, Crunch, Cupp, Programming & Scripting:, Bash Scripting, Python (Basic), C++ (Basic), Sql (Basic Queries), Platforms:, Kali Linux, Ubuntu, Linux Command Line",
+              "changeType": "reordered",
+              "reason": "Grouped skills by category and ordered target-matched skills first; canonical spellings used (e.g. JavaScript, not js).",
+              "atsImpact": "+ Technical skill & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-2",
+              "section": "Projects",
+              "originalText": "Performed extensive domain and subdomain enumeration using Amass and Sub nder",
+              "enhancedText": "Developed performed extensive domain and subdomain enumeration using Amass and Sub nder",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-3",
+              "section": "Projects",
+              "originalText": "Conducted network scanning and service detection using Nmap",
+              "enhancedText": "Developed conducted network scanning and service detection using Nmap",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-4",
+              "section": "Projects",
+              "originalText": "Directory brute-forcing and fuzzing using Gobuster and FFUF",
+              "enhancedText": "Developed directory brute-forcing and fuzzing using Gobuster and FFUF",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-5",
+              "section": "Projects",
+              "originalText": "Captured and analyzed network packets using Wireshark",
+              "enhancedText": "Developed captured and analyzed network packets using Wireshark",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-6",
+              "section": "Projects",
+              "originalText": "Simulated Man-in-the-Middle attacks using Bettercap in isolated lab environments",
+              "enhancedText": "Developed simulated Man-in-the-Middle attacks using Bettercap in isolated lab environments",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-7",
+              "section": "Projects",
+              "originalText": "Discovered and mapped local network devices using Netdiscover",
+              "enhancedText": "Developed discovered and mapped local network devices using Netdiscover",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-8",
+              "section": "Projects",
+              "originalText": "Intercepted and manipulated HTTP requests using Burp Suite",
+              "enhancedText": "Implemented intercepted and manipulated HTTP requests using Burp Suite",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-proj-proj-0-9",
+              "section": "Projects",
+              "originalText": "Practiced complete penetration testing methodology in controlled labs",
+              "enhancedText": "Tested practiced complete penetration testing methodology in controlled labs",
+              "changeType": "improved",
+              "reason": "Rewrote the bullet with a stronger action verb and clearer technical context.",
+              "atsImpact": "+ Action verb & keyword relevance"
+            },
+            {
+              "id": "ch-structure",
+              "section": "Structure",
+              "originalText": "Original section headings & layout",
+              "enhancedText": "Standardized ATS-friendly headings (Professional Summary, Technical Skills, Experience, Projects, Education) in a single-column layout.",
+              "changeType": "reordered",
+              "reason": "Standard headings and a single-column structure maximize ATS parseability and recruiter scannability.",
+              "atsImpact": "+ Structure & formatting compatibility"
+            }
+          ]
+        },
+        "keywords": {
+          "targetKeywords": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "testing",
+            "responsive design"
+          ],
+          "matched": [
+            "testing"
+          ],
+          "missing": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "responsive design"
+          ],
+          "weak": [],
+          "recommended": [
+            "javascript",
+            "typescript",
+            "react",
+            "next.js",
+            "html",
+            "css",
+            "tailwind",
+            "redux",
+            "webpack",
+            "figma",
+            "git",
+            "responsive design"
+          ],
+          "byCategory": {
+            "Languages": {
+              "matched": [],
+              "missing": [
+                "javascript",
+                "typescript",
+                "html",
+                "css"
+              ]
+            },
+            "Frameworks & Libraries": {
+              "matched": [],
+              "missing": [
+                "react",
+                "next.js",
+                "tailwind",
+                "redux",
+                "webpack"
+              ]
+            },
+            "APIs & Protocols": {
+              "matched": [],
+              "missing": []
+            },
+            "Databases": {
+              "matched": [],
+              "missing": []
+            },
+            "Cloud & DevOps": {
+              "matched": [],
+              "missing": []
+            },
+            "Data & ML": {
+              "matched": [],
+              "missing": []
+            },
+            "Tools & Testing": {
+              "matched": [
+                "testing"
+              ],
+              "missing": [
+                "figma",
+                "git"
+              ]
+            },
+            "Methodology & Soft Skills": {
+              "matched": [],
+              "missing": [
+                "responsive design"
+              ]
+            }
+          }
+        },
+        "beforeScore": {
+          "total": 20,
+          "grade": "Poor",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 2,
+              "max": 30,
+              "explanation": "1/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 2,
+              "max": 20,
+              "explanation": "1 distinct technical skills detected; 0 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 0,
+              "max": 15,
+              "explanation": "No clearly detected work experience section."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 5,
+              "max": 10,
+              "explanation": "1 project(s) with 1 technical keyword signals."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 6,
+              "max": 10,
+              "explanation": "4/5 standard sections present; some non-standard headings."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 1,
+              "max": 5,
+              "explanation": "1/9 bullets begin with a strong action verb."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 4,
+              "max": 5,
+              "explanation": "Word count 329, 9 bullet points, 4/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "afterScore": {
+          "total": 24,
+          "grade": "Poor",
+          "categories": [
+            {
+              "key": "keywordMatch",
+              "label": "Keyword Match",
+              "score": 2,
+              "max": 30,
+              "explanation": "1/13 target keywords present."
+            },
+            {
+              "key": "technicalSkills",
+              "label": "Technical Skills Match",
+              "score": 2,
+              "max": 20,
+              "explanation": "1 distinct technical skills detected; 0 relevant technical keywords found in experience/project context."
+            },
+            {
+              "key": "experienceRelevance",
+              "label": "Experience Relevance",
+              "score": 1,
+              "max": 15,
+              "explanation": "No clearly detected work experience section."
+            },
+            {
+              "key": "projectRelevance",
+              "label": "Project Relevance",
+              "score": 5,
+              "max": 10,
+              "explanation": "1 project(s) with 1 technical keyword signals."
+            },
+            {
+              "key": "resumeStructure",
+              "label": "Resume Structure",
+              "score": 6,
+              "max": 10,
+              "explanation": "4/5 standard sections present; some non-standard headings."
+            },
+            {
+              "key": "actionVerbs",
+              "label": "Action Verbs & Impact",
+              "score": 4,
+              "max": 5,
+              "explanation": "8/9 bullets begin with a strong action verb."
+            },
+            {
+              "key": "quantified",
+              "label": "Quantified Achievements",
+              "score": 0,
+              "max": 5,
+              "explanation": "No quantified metrics (%, $, scale) detected."
+            },
+            {
+              "key": "formatting",
+              "label": "ATS Formatting Compatibility",
+              "score": 4,
+              "max": 5,
+              "explanation": "Word count 300, 9 bullet points, 4/5 sections — single-column, parseable layout."
+            }
+          ]
+        },
+        "issues": [
+          {
+            "id": "issue-0",
+            "severity": "High",
+            "title": "Major target-keyword gaps",
+            "why": "Only 1 of 13 target keywords appear in the resume.",
+            "recommendation": "Incorporate the missing keywords where you have genuine experience: javascript, typescript, react, next.js, html, css.",
+            "section": "Keywords"
+          },
+          {
+            "id": "issue-1",
+            "severity": "High",
+            "title": "Skill mismatch with target role",
+            "why": "The resume's skills barely overlap with the target job profile.",
+            "recommendation": "Target the resume to the role, or consider building the missing skills before applying.",
+            "section": "Skills"
+          },
+          {
+            "id": "issue-2",
+            "severity": "High",
+            "title": "Missing measurable achievements",
+            "why": "Without metrics, impact is hard for recruiters and ATS to gauge.",
+            "recommendation": "Add real numbers (%, scale, time saved) to at least 2-3 bullets. Never invent metrics.",
+            "section": "Experience"
+          },
+          {
+            "id": "issue-3",
+            "severity": "Low",
+            "title": "Repeated words across bullets",
+            "why": "Words like \"using\" recur heavily, reducing variety.",
+            "recommendation": "Vary vocabulary; use synonyms and different action verbs to keep bullets fresh.",
+            "section": "Experience"
+          },
+          {
+            "id": "issue-4",
+            "severity": "Low",
+            "title": "Skills not tailored to the role",
+            "why": "Many listed skills are unrelated to the target role, diluting relevance.",
+            "recommendation": "Prioritize skills that match the job description; group unrelated ones lower.",
+            "section": "Skills"
+          }
+        ],
+        "screening": {
+          "percent": 15,
+          "disclaimer": "This percentage is an estimate based on resume-to-job alignment and ATS compatibility. Actual hiring decisions depend on the employer and recruitment process.",
+          "factorsIncreasing": [
+            "1 project(s) demonstrate applied skills."
+          ],
+          "factorsDecreasing": [
+            "12 target keyword(s) missing from the resume.",
+            "Few or no quantified metrics to demonstrate impact.",
+            "No clearly detected work experience section."
+          ]
+        },
+        "job": {
+          "title": "Frontend Developer",
+          "description": "Frontend Developer role",
+          "skillsText": ""
+        },
+        "fileName": "Kartikeyan_Cybersecurity_Resume.pdf",
+        "fileSize": 109809
+      },
+      "createdAt": "2026-08-08T09:26:51.591Z"
+    },
+    {
+      "id": "ecggawl30d",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "atsScore": 42,
+      "resumeScore": 24,
+      "impactScore": 78,
+      "technicalScore": 42,
+      "formattingScore": 36,
+      "grammarScore": 90,
+      "weakBulletPoints": [],
+      "missingMetrics": [],
+      "duplicateContent": [],
+      "missingActionVerbs": [],
+      "suggestions": {
+        "before": 24,
+        "after": 42,
+        "issues": 9
+      },
+      "createdAt": "2026-08-08T09:27:45.037Z"
     }
   ],
   "github_analysis": [
@@ -3479,6 +5773,32 @@
         ]
       },
       "updatedAt": "2026-07-11T18:39:47.958Z"
+    },
+    {
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "overallScore": 37,
+      "resumeScore": 24,
+      "githubScore": 0,
+      "portfolioScore": 50,
+      "interviewReadiness": 83,
+      "hiringScore": 27,
+      "details": {
+        "history": [
+          {
+            "month": "April",
+            "score": 58
+          },
+          {
+            "month": "May",
+            "score": 67
+          },
+          {
+            "month": "June",
+            "score": 37
+          }
+        ]
+      },
+      "updatedAt": "2026-08-10T12:32:12.416Z"
     }
   ],
   "career_twins": [
@@ -5733,6 +8053,293 @@
         }
       ],
       "createdAt": "2026-07-27T06:02:42.812Z"
+    },
+    {
+      "id": "9r2239dh2zu",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "currentSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "strongSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "weakSkills": [
+        "Docker",
+        "System Design",
+        "AWS Deployments"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Missing GitHub profile connection (irregular code streaks).",
+        "Missing resume upload (weak keyword alignment).",
+        "Missing automated unit tests in portfolio repositories."
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Docker and microservices",
+          "impact": "+24% placement probability SDE-1"
+        },
+        {
+          "title": "Optimize resume keywords using AI suggestions",
+          "impact": "+15% ATS matching"
+        }
+      ],
+      "createdAt": "2026-08-06T17:51:14.804Z"
+    },
+    {
+      "id": "m7y43ec3sa",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "currentSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "strongSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "weakSkills": [
+        "Docker",
+        "System Design",
+        "AWS Deployments"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Missing GitHub profile connection (irregular code streaks).",
+        "Lacks deployment links for projects.",
+        "Missing automated unit tests in portfolio repositories."
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Docker and microservices",
+          "impact": "+24% placement probability SDE-1"
+        },
+        {
+          "title": "Optimize resume keywords using AI suggestions",
+          "impact": "+15% ATS matching"
+        }
+      ],
+      "createdAt": "2026-08-06T18:17:11.174Z"
+    },
+    {
+      "id": "szfnk30lr59",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "currentSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "strongSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "weakSkills": [
+        "Docker",
+        "System Design",
+        "AWS Deployments"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Missing GitHub profile connection (irregular code streaks).",
+        "Lacks deployment links for projects.",
+        "Missing automated unit tests in portfolio repositories."
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Docker and microservices",
+          "impact": "+24% placement probability SDE-1"
+        },
+        {
+          "title": "Optimize resume keywords using AI suggestions",
+          "impact": "+15% ATS matching"
+        }
+      ],
+      "createdAt": "2026-08-06T19:13:29.595Z"
+    },
+    {
+      "id": "vuuvgdfvo6",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "currentSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "strongSkills": [
+        "React",
+        "TypeScript",
+        "Clear problem-solving approach",
+        "Strong understanding of React & TypeScript state flows"
+      ],
+      "weakSkills": [
+        "Edge case handling in async operations",
+        "Idempotency key implementation details"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Did not explicitly state big-O space complexity before implementation"
+      ],
+      "growthOpportunities": "Distributed Locking, React Microtask Order, SQL Index B-Trees",
+      "createdAt": "2026-08-08T08:39:44.085Z"
+    },
+    {
+      "id": "nl4yxjfd1p",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "currentSkills": [
+        "React",
+        "TypeScript"
+      ],
+      "strongSkills": [
+        "React",
+        "TypeScript",
+        "JavaScript",
+        "HTML5/CSS3"
+      ],
+      "weakSkills": [
+        "State Management at Scale (Redux/Zustand)",
+        "Testing (Jest, Cypress)",
+        "CI/CD Pipelines",
+        "Performance Optimization"
+      ],
+      "preferredStack": [
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "Next.js"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Product Startups",
+        "Service-Based Tech Firms",
+        "Digital Agencies"
+      ],
+      "prediction3m": {
+        "title": "Resume & Portfolio Overhaul",
+        "subtitle": "Improve ATS score above 80, build 2 production-grade TypeScript/React projects, and establish a GitHub presence."
+      },
+      "prediction6m": {
+        "title": "Junior/Mid Frontend Developer",
+        "subtitle": "Secure a frontend role focusing on React and TypeScript, mastering modern tooling and component architecture."
+      },
+      "prediction12m": {
+        "title": "Mid-Level Frontend Engineer",
+        "subtitle": "Take ownership of complex UI features, mentor newer developers, and expand knowledge into Next.js and backend integration."
+      },
+      "salaryProjection": "₹6L - ₹10L / yr",
+      "riskFactors": [
+        "Low initial ATS score (42) limiting recruiter callbacks",
+        "Lack of visible GitHub contributions or portfolio",
+        "Competition from candidates with broader full-stack exposure"
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Next.js & Server-Side Rendering",
+          "impact": "High demand in modern product startups looking for full-stack React capabilities."
+        },
+        {
+          "title": "Automated Testing Implementation",
+          "impact": "Sets profile apart from entry-level developers by emphasizing code quality and reliability."
+        }
+      ],
+      "createdAt": "2026-08-09T15:02:43.912Z"
     }
   ],
   "recommended_projects": [
@@ -6115,6 +8722,133 @@
       "businessValue": "Secures internal API structures from OWASP Top 10 exploits, preventing injection and credential breaches.",
       "estimatedCompletionTime": "28 hours",
       "createdAt": "2026-07-27T06:02:44.914Z"
+    },
+    {
+      "id": "fwyzzwgipec",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "Distributed Realtime Analytics Dashboard",
+      "difficulty": "Advanced",
+      "timeRequired": "4 weeks",
+      "technologies": [
+        "Node.js",
+        "Redis",
+        "Docker",
+        "Apache Kafka",
+        "Recharts",
+        "WebSockets"
+      ],
+      "resumeValue": 95,
+      "portfolioValue": 92,
+      "githubValue": 96,
+      "hiringImpact": 94,
+      "companiesWhereUseful": [
+        "Uber",
+        "Confluent",
+        "Netflix",
+        "Fintech companies"
+      ],
+      "skillsGained": [
+        "Realtime streams",
+        "Pub/Sub message queues",
+        "Docker orchestration",
+        "Memory caching optimization"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "How does Redis handle WebSocket connection load balancing?",
+          "answerKey": "Using Redis Pub/Sub backplane to broadcast messages across isolated WebSocket instances."
+        },
+        {
+          "question": "What is backpressure and how do you handle it in event streaming?",
+          "answerKey": "Backpressure occurs when consumer speeds fall below producer feeds. Handled via queue buffers and throttle limits."
+        }
+      ],
+      "learningOutcome": "Build a realtime dashboard consuming and containerizing large streaming logs.",
+      "businessValue": "Empowers companies to analyze clickstream actions and database updates instantly under 50ms latency.",
+      "estimatedCompletionTime": "35 hours",
+      "createdAt": "2026-08-06T19:13:30.313Z"
+    },
+    {
+      "id": "p75wfpvz79",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "Gemini AI-Powered RAG Knowledge Base",
+      "difficulty": "Intermediate",
+      "timeRequired": "3 weeks",
+      "technologies": [
+        "Next.js",
+        "TypeScript",
+        "Python",
+        "Vector Databases",
+        "Gemini API",
+        "LangChain"
+      ],
+      "resumeValue": 92,
+      "portfolioValue": 90,
+      "githubValue": 94,
+      "hiringImpact": 91,
+      "companiesWhereUseful": [
+        "OpenAI",
+        "Cohere",
+        "SaaS platforms",
+        "Enterprise software firms"
+      ],
+      "skillsGained": [
+        "Vector embeddings",
+        "Semantic Search",
+        "LLM Prompt engineering",
+        "RAG architectures"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "What is the difference between keyword searches and semantic vector searches?",
+          "answerKey": "Semantic search uses high-dimensional embeddings to capture conceptual intent, whereas keyword matching relies on text spelling."
+        }
+      ],
+      "learningOutcome": "Deliver an AI chatbot query tool that scans context from private PDF uploads.",
+      "businessValue": "Reduces customer success overhead by answering questions from corporate documents with 90% accuracy.",
+      "estimatedCompletionTime": "24 hours",
+      "createdAt": "2026-08-06T19:13:30.313Z"
+    },
+    {
+      "id": "uxyuqq5ab1",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "Secure Microservice Gateway & Auth Server",
+      "difficulty": "Advanced",
+      "timeRequired": "3 weeks",
+      "technologies": [
+        "Go",
+        "Docker",
+        "JWT",
+        "OAuth 2.0",
+        "Jest",
+        "CI/CD (GitHub Actions)"
+      ],
+      "resumeValue": 93,
+      "portfolioValue": 88,
+      "githubValue": 95,
+      "hiringImpact": 92,
+      "companiesWhereUseful": [
+        "Stripe",
+        "Auth0",
+        "Paypal",
+        "Enterprise Cloud providers"
+      ],
+      "skillsGained": [
+        "Reverse proxies",
+        "OAuth flows",
+        "AES-256 token encryption",
+        "GitHub actions CI/CD"
+      ],
+      "expectedInterviewQuestions": [
+        {
+          "question": "Explain the difference between OAuth authorization code flow and client credentials flow.",
+          "answerKey": "Authorization code flow involves user interaction to log in, whereas client credentials flow is for machine-to-machine sync."
+        }
+      ],
+      "learningOutcome": "Architect a secure proxy routing client calls to back-end endpoints with JWT controls.",
+      "businessValue": "Secures internal API structures from OWASP Top 10 exploits, preventing injection and credential breaches.",
+      "estimatedCompletionTime": "28 hours",
+      "createdAt": "2026-08-06T19:13:30.313Z"
     }
   ],
   "roadmaps": [
@@ -7392,6 +10126,324 @@
         ]
       },
       "createdAt": "2026-07-11T19:06:27.811Z"
+    },
+    {
+      "id": "d83xtgzw08d",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "Frontend Developer",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Solve 2 LeetCode problems (Array / String) in Python/JS",
+          "completed": false
+        },
+        {
+          "text": "Review 1 System Design concept (Caching, Load Balancers)",
+          "completed": false
+        },
+        {
+          "text": "Commit at least once to GitHub project repositories",
+          "completed": false
+        },
+        {
+          "text": "Read 1 technical blog post or framework documentation page",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Complete a full portfolio project with complete unit tests",
+          "completed": false
+        },
+        {
+          "text": "Write and publish a detailed blog post on a coding pattern",
+          "completed": false
+        },
+        {
+          "text": "Get resume ATS score above 85/100 using AI suggestions",
+          "completed": false
+        },
+        {
+          "text": "Contribute 1 PR to an open source library or public repository",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-08T08:47:04.253Z"
+    },
+    {
+      "id": "9abdx4m5o45",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "Frontend Developer",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Solve 2 LeetCode problems (Array / String) in Python/JS",
+          "completed": false
+        },
+        {
+          "text": "Review 1 System Design concept (Caching, Load Balancers)",
+          "completed": false
+        },
+        {
+          "text": "Commit at least once to GitHub project repositories",
+          "completed": false
+        },
+        {
+          "text": "Read 1 technical blog post or framework documentation page",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Complete a full portfolio project with complete unit tests",
+          "completed": false
+        },
+        {
+          "text": "Write and publish a detailed blog post on a coding pattern",
+          "completed": false
+        },
+        {
+          "text": "Get resume ATS score above 85/100 using AI suggestions",
+          "completed": false
+        },
+        {
+          "text": "Contribute 1 PR to an open source library or public repository",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-08T08:47:05.279Z"
+    },
+    {
+      "id": "2bsreobh37r",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "Frontend Developer",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Solve 2 DSA problems on LeetCode focusing on arrays, strings, and graph algorithms",
+          "completed": false
+        },
+        {
+          "text": "Study 1 web security concept (e.g., OWASP Top 10, CSP, CORS, XSS prevention)",
+          "completed": false
+        },
+        {
+          "text": "Push at least 1 quality commit to a secure React/TypeScript project on GitHub",
+          "completed": false
+        },
+        {
+          "text": "Perform a micro-code review focusing on React security patterns and type safety",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Month 1 Milestone: Master Frontend Web Security (OWASP Top 10, Auth/Authz, and Secure React Architecture)",
+          "completed": false
+        },
+        {
+          "text": "Month 2 Milestone: Build and deploy an enterprise-grade Cybersecurity Threat Intelligence Dashboard",
+          "completed": false
+        },
+        {
+          "text": "Month 3 Milestone: Write end-to-end tests (Cypress), automate CI/CD with security scanning, and publish portfolio",
+          "completed": false
+        },
+        {
+          "text": "Final Checkpoint: Optimize cybersecurity-focused resume, complete 5 mock technical interviews, and apply to 50+ roles",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-08T09:31:45.186Z"
+    },
+    {
+      "id": "a45vrx6niuf",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "Frontend Developer",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Solve 2 LeetCode/DSA problems in TypeScript focusing on graphs, trees, and array manipulation.",
+          "completed": false
+        },
+        {
+          "text": "Read 1 article or standard on Web Security (e.g., OWASP Top 10, Content Security Policy, XSS/CSRF prevention).",
+          "completed": false
+        },
+        {
+          "text": "Make at least 1 meaningful Git commit to a cybersecurity-focused frontend project.",
+          "completed": false
+        },
+        {
+          "text": "Practice implementing or documenting 1 advanced TypeScript pattern or Web Crypto API method.",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Month 1 Milestone: Master Web Security Fundamentals and publish a production-ready, highly secure React/TS Auth & Role-Based Access Control (RBAC) component library.",
+          "completed": false
+        },
+        {
+          "text": "Month 2 Milestone: Build and deploy a full-scale Security Operations Center (SOC) Dashboard application featuring real-time telemetry visualizations.",
+          "completed": false
+        },
+        {
+          "text": "Month 3 Milestone: Complete E2E testing, accessibility checks, and performance optimization for all cybersecurity portfolio projects.",
+          "completed": false
+        },
+        {
+          "text": "Final Milestone: Polish portfolio website, prepare for Frontend Security System Design interviews, and apply to 20+ cybersecurity companies.",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-08T09:31:52.896Z"
+    },
+    {
+      "id": "k42xgvs3xj7",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "cybersecurity",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Complete 1-2 interactive hands-on labs on PortSwigger Web Security Academy focusing on web vulnerabilities.",
+          "completed": false
+        },
+        {
+          "text": "Spend 30 minutes practicing manual request interception and parameter manipulation using Burp Suite.",
+          "completed": false
+        },
+        {
+          "text": "Review one security writeup or CVE analysis related to JavaScript/Node.js ecosystems.",
+          "completed": false
+        },
+        {
+          "text": "Document daily security learnings, vulnerability mechanics, and mitigation code snippets in a public GitHub repository.",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Master core Application Security testing methodology using Burp Suite, OWASP ZAP, and browser developer tools.",
+          "completed": false
+        },
+        {
+          "text": "Publish a public GitHub portfolio showcasing secure code audits, automated DevSecOps pipelines, and threat modeling documentation.",
+          "completed": false
+        },
+        {
+          "text": "Configure and secure a cloud-hosted web application stack following least-privilege IAM and container security best practices.",
+          "completed": false
+        },
+        {
+          "text": "Align resume and LinkedIn profile to highlight AppSec, secure code review, and DevSecOps capabilities tailored for Seed/Series A startups.",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-08T09:37:18.097Z"
+    },
+    {
+      "id": "rskunjvby2o",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "projectName": "cybersecurity",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Solve 1-2 PortSwigger Web Security Academy labs focusing on XSS, CSRF, or Authentication vulnerabilities.",
+          "completed": false
+        },
+        {
+          "text": "Read daily security advisories and CVE reports on popular npm/Node.js packages.",
+          "completed": false
+        },
+        {
+          "text": "Spend 30 minutes conducting manual secure code reviews on open-source TypeScript repositories.",
+          "completed": false
+        },
+        {
+          "text": "Practice explaining one cybersecurity concept or threat scenario aloud using the STAR method.",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Publish a comprehensive Application Security Audit Report for a sample startup React/TypeScript codebase on GitHub.",
+          "completed": false
+        },
+        {
+          "text": "Deploy a fully automated DevSecOps pipeline project showcasing automated vulnerability detection and remediation.",
+          "completed": false
+        },
+        {
+          "text": "Write a technical blog post detailing a deep-dive analysis of a recent web vulnerability or React-specific security risk.",
+          "completed": false
+        },
+        {
+          "text": "Complete 3 mock technical interviews focused on startup AppSec scenarios, threat modeling, and incident response.",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-08T09:37:26.503Z"
     }
   ],
   "learning_progress": [
@@ -7436,6 +10488,48 @@
       "roadmapId": "ye9ien6jl0s",
       "completedTasks": [],
       "updatedAt": "2026-07-11T19:06:27.813Z"
+    },
+    {
+      "id": "6qwgkl46u2r",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "roadmapId": "d83xtgzw08d",
+      "completedTasks": [],
+      "updatedAt": "2026-08-08T08:47:04.253Z"
+    },
+    {
+      "id": "eerfp513qqc",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "roadmapId": "9abdx4m5o45",
+      "completedTasks": [],
+      "updatedAt": "2026-08-08T08:47:05.279Z"
+    },
+    {
+      "id": "09ngode1gohf",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "roadmapId": "2bsreobh37r",
+      "completedTasks": [],
+      "updatedAt": "2026-08-08T09:31:45.186Z"
+    },
+    {
+      "id": "q3gffgvusj",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "roadmapId": "a45vrx6niuf",
+      "completedTasks": [],
+      "updatedAt": "2026-08-08T09:31:52.896Z"
+    },
+    {
+      "id": "6qx4nmse2tl",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "roadmapId": "k42xgvs3xj7",
+      "completedTasks": [],
+      "updatedAt": "2026-08-08T09:37:18.097Z"
+    },
+    {
+      "id": "g567foa2hu7",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "roadmapId": "rskunjvby2o",
+      "completedTasks": [],
+      "updatedAt": "2026-08-08T09:37:26.503Z"
     }
   ],
   "activity_logs": [
@@ -7478,9 +10572,69 @@
         "cgpa": 8
       },
       "timestamp": "2026-06-26T19:26:21.105Z"
+    },
+    {
+      "id": "gb4lwkyseee",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "action": "PROFILE_UPDATED",
+      "details": {
+        "targetRole": "Frontend Developer",
+        "cgpa": 7.24
+      },
+      "timestamp": "2026-08-06T17:38:26.462Z"
     }
   ],
-  "mentor_sessions": [],
+  "mentor_sessions": [
+    {
+      "id": "vqgb2vjv9s",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "sessionType": "Mock Interview",
+      "transcripts": [
+        {
+          "question": "Given your experience building applications with React, how do you handle state re-renders and memory optimization when scaling frontend dashboards?",
+          "answer": "I want to skip the interview. ",
+          "score": 85,
+          "feedback": "Solid technical explanation covering core concepts. To make it principal-level, mention trade-offs explicitly."
+        },
+        {
+          "question": "Write an optimized function to debounce high-frequency search requests with immediate trailing execution.",
+          "answer": "I want to skip the interview. ",
+          "score": 85,
+          "feedback": "Solid technical explanation covering core concepts. To make it principal-level, mention trade-offs explicitly."
+        },
+        {
+          "question": "How would you architect a fault-tolerant payment gateway integration handling instant Webhooks for Google?",
+          "answer": "I don't know. ",
+          "score": 85,
+          "feedback": "Solid technical explanation covering core concepts. To make it principal-level, mention trade-offs explicitly."
+        },
+        {
+          "question": "In Node.js event loop architecture, during which phase are process.nextTick callbacks executed?",
+          "answer": "",
+          "score": 85,
+          "feedback": "Solid technical explanation covering core concepts. To make it principal-level, mention trade-offs explicitly."
+        },
+        {
+          "question": "Describe a scenario where production service latency spiked after a deployment. How did you diagnose and mitigate the incident under high pressure?",
+          "answer": "First of all, we prepared the incident report and then we did the internal mitigation. And after that fixing all this stuff we push the code to production.",
+          "score": 85,
+          "feedback": "Solid technical explanation covering core concepts. To make it principal-level, mention trade-offs explicitly."
+        }
+      ],
+      "feedback": {
+        "communicationScore": 80,
+        "confidenceScore": 82,
+        "technicalScore": 85,
+        "leadershipScore": 80,
+        "overallScore": 83,
+        "suggestions": [
+          "Edge case handling in async operations",
+          "Idempotency key implementation details"
+        ]
+      },
+      "createdAt": "2026-08-08T08:39:44.024Z"
+    }
+  ],
   "notifications": [
     {
       "id": "0wm5rh9zyc6q",
@@ -8089,6 +11243,78 @@
       "message": "Your SDE Career Twin has been spawned successfully. Career Score: 46/100.",
       "read": false,
       "createdAt": "2026-07-27T06:02:44.931Z"
+    },
+    {
+      "id": "xdonk38s69n",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Resume Analyzed",
+      "message": "ATS 49 → 54. Screening estimate: 48%.",
+      "read": false,
+      "createdAt": "2026-08-06T17:53:44.593Z"
+    },
+    {
+      "id": "1f6oalp061b",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Resume Analyzed",
+      "message": "ATS 38 → 43. Screening estimate: 33%.",
+      "read": false,
+      "createdAt": "2026-08-06T17:53:51.793Z"
+    },
+    {
+      "id": "jkuodphyi1j",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Resume Analyzed",
+      "message": "ATS 19 → 19. Screening estimate: 14%.",
+      "read": false,
+      "createdAt": "2026-08-06T17:54:34.022Z"
+    },
+    {
+      "id": "4oeon0hfzl",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 33/100.",
+      "read": false,
+      "createdAt": "2026-08-06T18:17:12.178Z"
+    },
+    {
+      "id": "5wnf9lc0sgb",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Resume Analyzed",
+      "message": "ATS 19 → 19. Screening estimate: 14%.",
+      "read": false,
+      "createdAt": "2026-08-06T18:23:20.181Z"
+    },
+    {
+      "id": "4rnda3clug",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Resume Analyzed",
+      "message": "ATS 58 → 58. Screening estimate: 50%.",
+      "read": false,
+      "createdAt": "2026-08-06T18:24:14.730Z"
+    },
+    {
+      "id": "a7wf2k7lyp6",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 41/100.",
+      "read": false,
+      "createdAt": "2026-08-06T19:13:30.355Z"
+    },
+    {
+      "id": "n964j60o4rk",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Resume Analyzed",
+      "message": "ATS 20 → 24. Screening estimate: 15%.",
+      "read": false,
+      "createdAt": "2026-08-08T09:26:51.629Z"
+    },
+    {
+      "id": "g6o3fnz2qgw",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "title": "Resume Analyzed",
+      "message": "ATS 24 → 42. Screening estimate: 78%.",
+      "read": false,
+      "createdAt": "2026-08-08T09:27:45.084Z"
     }
   ],
   "sync_history": [
@@ -9099,6 +12325,717 @@
         "overallScore": 46
       },
       "createdAt": "2026-07-27T06:02:44.918Z"
+    },
+    {
+      "id": "ljh9jk9yyaa",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "kartikeyan_Lead_genration_Resume.pdf",
+        "before": 49,
+        "after": 54
+      },
+      "createdAt": "2026-08-06T17:53:44.578Z"
+    },
+    {
+      "id": "gle4319ck7d",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "kartikeyan_Lead_genration_Resume.pdf",
+        "before": 38,
+        "after": 43
+      },
+      "createdAt": "2026-08-06T17:53:51.778Z"
+    },
+    {
+      "id": "lwqqyep1z3",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__ (1).pdf",
+        "before": 19,
+        "after": 19
+      },
+      "createdAt": "2026-08-06T17:54:34.004Z"
+    },
+    {
+      "id": "hatjgwwf2l",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 33
+      },
+      "createdAt": "2026-08-06T18:17:12.158Z"
+    },
+    {
+      "id": "0jizl18w4e6k",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__.pdf",
+        "before": 19,
+        "after": 19
+      },
+      "createdAt": "2026-08-06T18:23:20.166Z"
+    },
+    {
+      "id": "qh3d0uadx2",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "Kartikeyan_Dubey_Resume___Red_Teaming__.pdf",
+        "before": 58,
+        "after": 58
+      },
+      "createdAt": "2026-08-06T18:24:14.716Z"
+    },
+    {
+      "id": "2tg1kylz7cg",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 41
+      },
+      "createdAt": "2026-08-06T19:13:30.332Z"
+    },
+    {
+      "id": "izl38202eu",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "Kartikeyan_Cybersecurity_Resume.pdf",
+        "before": 20,
+        "after": 24
+      },
+      "createdAt": "2026-08-08T09:26:51.610Z"
+    },
+    {
+      "id": "p46i2bm7km",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "fileName": "Kartikeyan_Cybersecurity_Resume.pdf",
+        "before": 24,
+        "after": 42
+      },
+      "createdAt": "2026-08-08T09:27:45.056Z"
+    }
+  ],
+  "quiz_sessions": [
+    {
+      "id": "vf8h80shi1n",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "resumeId": "jsjk9vbn5z",
+      "title": "cybersecurity — MEDIUM Assessment",
+      "jobRole": "cybersecurity",
+      "difficulty": "MEDIUM",
+      "quizType": "MIXED",
+      "questionCount": 5,
+      "estimatedTime": "10 minutes",
+      "status": "EVALUATED",
+      "startedAt": null,
+      "submittedAt": "2026-08-08T08:30:00.223Z",
+      "durationSec": 49,
+      "score": 80,
+      "correctCount": 4,
+      "totalCount": 5,
+      "generatedPayload": "[{\"id\":1,\"question\":\"Where do you see yourself in 5 years?\",\"type\":\"mcq\",\"skill\":\"Career Planning\",\"difficulty\":\"MEDIUM\",\"options\":[\"In a different industry\",\"Growing into a leadership role in this domain\",\"Doing the exact same job\",\"Starting my own company\"],\"correctAnswer\":\"Growing into a leadership role in this domain\",\"explanation\":\"This shows ambition aligned with the company's growth path.\"},{\"id\":2,\"question\":\"What is the primary purpose of a firewall?\",\"type\":\"mcq\",\"skill\":\"Network Security\",\"difficulty\":\"MEDIUM\",\"options\":[\"To encrypt data in transit\",\"To filter network traffic based on rules\",\"To detect malware on endpoints\",\"To manage user passwords\"],\"correctAnswer\":\"To filter network traffic based on rules\",\"explanation\":\"Firewalls monitor and filter incoming and outgoing network traffic based on established security policies.\"},{\"id\":3,\"question\":\"Why should we hire you?\",\"type\":\"mcq\",\"skill\":\"Communication\",\"difficulty\":\"MEDIUM\",\"options\":[\"I need a job\",\"I am the best candidate\",\"My skills and passion align with this role's needs\",\"I will work for less pay\"],\"correctAnswer\":\"My skills and passion align with this role's needs\",\"explanation\":\"A compelling answer links your unique strengths to the role's requirements.\"},{\"id\":4,\"question\":\"Which of the following is a symmetric encryption algorithm?\",\"type\":\"mcq\",\"skill\":\"Cryptography\",\"difficulty\":\"MEDIUM\",\"options\":[\"RSA\",\"AES\",\"ECC\",\"Diffie-Hellman\"],\"correctAnswer\":\"AES\",\"explanation\":\"AES is a widely used symmetric key cryptographic algorithm, whereas RSA, ECC, and Diffie-Hellman are asymmetric algorithms.\"},{\"id\":5,\"question\":\"Which attack vector involves tricking a user into executing unwanted actions on a trusted site?\",\"type\":\"mcq\",\"skill\":\"Web Security\",\"difficulty\":\"MEDIUM\",\"options\":[\"SQL Injection\",\"Cross-Site Scripting (XSS)\",\"Cross-Site Request Forgery (CSRF)\",\"Man-in-the-Middle (MitM)\"],\"correctAnswer\":\"Cross-Site Request Forgery (CSRF)\",\"explanation\":\"CSRF forces an end user to execute unwanted actions on a web application in which they are currently authenticated.\"}]",
+      "source": "gemini",
+      "createdAt": "2026-08-08T08:29:00.504Z",
+      "updatedAt": "2026-08-08T08:30:02.568Z",
+      "deletedAt": null,
+      "questions": [
+        {
+          "id": 1,
+          "sessionId": "vf8h80shi1n",
+          "position": 1,
+          "externalId": 1,
+          "question": "Where do you see yourself in 5 years?",
+          "type": "mcq",
+          "skill": "Career Planning",
+          "difficulty": "MEDIUM",
+          "options": "[\"In a different industry\",\"Growing into a leadership role in this domain\",\"Doing the exact same job\",\"Starting my own company\"]",
+          "correctAnswer": "Growing into a leadership role in this domain",
+          "explanation": "This shows ambition aligned with the company's growth path.",
+          "createdAt": "2026-08-08T08:29:00.504Z",
+          "answers": [
+            {
+              "selectedAnswer": "Growing into a leadership role in this domain",
+              "isCorrect": true
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sessionId": "vf8h80shi1n",
+          "position": 2,
+          "externalId": 2,
+          "question": "What is the primary purpose of a firewall?",
+          "type": "mcq",
+          "skill": "Network Security",
+          "difficulty": "MEDIUM",
+          "options": "[\"To encrypt data in transit\",\"To filter network traffic based on rules\",\"To detect malware on endpoints\",\"To manage user passwords\"]",
+          "correctAnswer": "To filter network traffic based on rules",
+          "explanation": "Firewalls monitor and filter incoming and outgoing network traffic based on established security policies.",
+          "createdAt": "2026-08-08T08:29:00.504Z",
+          "answers": [
+            {
+              "selectedAnswer": "To filter network traffic based on rules",
+              "isCorrect": true
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sessionId": "vf8h80shi1n",
+          "position": 3,
+          "externalId": 3,
+          "question": "Why should we hire you?",
+          "type": "mcq",
+          "skill": "Communication",
+          "difficulty": "MEDIUM",
+          "options": "[\"I need a job\",\"I am the best candidate\",\"My skills and passion align with this role's needs\",\"I will work for less pay\"]",
+          "correctAnswer": "My skills and passion align with this role's needs",
+          "explanation": "A compelling answer links your unique strengths to the role's requirements.",
+          "createdAt": "2026-08-08T08:29:00.504Z",
+          "answers": [
+            {
+              "selectedAnswer": "My skills and passion align with this role's needs",
+              "isCorrect": true
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sessionId": "vf8h80shi1n",
+          "position": 4,
+          "externalId": 4,
+          "question": "Which of the following is a symmetric encryption algorithm?",
+          "type": "mcq",
+          "skill": "Cryptography",
+          "difficulty": "MEDIUM",
+          "options": "[\"RSA\",\"AES\",\"ECC\",\"Diffie-Hellman\"]",
+          "correctAnswer": "AES",
+          "explanation": "AES is a widely used symmetric key cryptographic algorithm, whereas RSA, ECC, and Diffie-Hellman are asymmetric algorithms.",
+          "createdAt": "2026-08-08T08:29:00.504Z",
+          "answers": [
+            {
+              "selectedAnswer": "Diffie-Hellman",
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sessionId": "vf8h80shi1n",
+          "position": 5,
+          "externalId": 5,
+          "question": "Which attack vector involves tricking a user into executing unwanted actions on a trusted site?",
+          "type": "mcq",
+          "skill": "Web Security",
+          "difficulty": "MEDIUM",
+          "options": "[\"SQL Injection\",\"Cross-Site Scripting (XSS)\",\"Cross-Site Request Forgery (CSRF)\",\"Man-in-the-Middle (MitM)\"]",
+          "correctAnswer": "Cross-Site Request Forgery (CSRF)",
+          "explanation": "CSRF forces an end user to execute unwanted actions on a web application in which they are currently authenticated.",
+          "createdAt": "2026-08-08T08:29:00.504Z",
+          "answers": [
+            {
+              "selectedAnswer": "Cross-Site Request Forgery (CSRF)",
+              "isCorrect": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "6cv2eu1kmw",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "resumeId": null,
+      "title": "cybersecurity — MEDIUM Assessment",
+      "jobRole": "cybersecurity",
+      "difficulty": "MEDIUM",
+      "quizType": "MIXED",
+      "questionCount": 10,
+      "estimatedTime": "20 minutes",
+      "status": "EVALUATED",
+      "startedAt": null,
+      "submittedAt": "2026-08-08T08:49:34.606Z",
+      "durationSec": 10,
+      "score": 0,
+      "correctCount": 0,
+      "totalCount": 10,
+      "generatedPayload": "[{\"id\":1,\"question\":\"Why should we hire you?\",\"type\":\"mcq\",\"skill\":\"Communication\",\"difficulty\":\"MEDIUM\",\"options\":[\"I need a job\",\"I am the best candidate\",\"My skills and passion align with this role's needs\",\"I will work for less pay\"],\"correctAnswer\":\"My skills and passion align with this role's needs\",\"explanation\":\"A compelling answer links your unique strengths to the role's requirements.\"},{\"id\":2,\"question\":\"Describe a project where you led a team.\",\"type\":\"mcq\",\"skill\":\"Leadership\",\"difficulty\":\"MEDIUM\",\"options\":[\"A collaborative effort you guided\",\"An individual assignment\",\"A homework exercise\",\"A social media post\"],\"correctAnswer\":\"A collaborative effort you guided\",\"explanation\":\"Leadership experience demonstrates initiative, planning, and people skills.\"},{\"id\":3,\"question\":\"Which of the following is a symmetric encryption algorithm?\",\"type\":\"mcq\",\"skill\":\"Cryptography\",\"difficulty\":\"MEDIUM\",\"options\":[\"RSA\",\"AES\",\"ECC\",\"Diffie-Hellman\"],\"correctAnswer\":\"AES\",\"explanation\":\"AES is a widely used symmetric key cryptographic algorithm, whereas RSA, ECC, and Diffie-Hellman are asymmetric algorithms.\"},{\"id\":4,\"question\":\"What does the CIA triad stand for in security?\",\"type\":\"mcq\",\"skill\":\"Security Fundamentals\",\"difficulty\":\"MEDIUM\",\"options\":[\"Central Intelligence Agency\",\"Confidentiality, Integrity, Availability\",\"Control, Identity, Authorization\",\"Cryptography, Inspection, Auditing\"],\"correctAnswer\":\"Confidentiality, Integrity, Availability\",\"explanation\":\"The CIA triad represents the three core principles of information security: Confidentiality, Integrity, and Availability.\"},{\"id\":5,\"question\":\"Tell me about a time you handled a conflict in a team.\",\"type\":\"mcq\",\"skill\":\"Soft Skills\",\"difficulty\":\"MEDIUM\",\"options\":[\"I avoided it\",\"I listened to all sides and mediated a resolution\",\"I escalated to management immediately\",\"I ignored the other person\"],\"correctAnswer\":\"I listened to all sides and mediated a resolution\",\"explanation\":\"Conflict resolution demonstrates emotional intelligence and collaboration.\"},{\"id\":6,\"question\":\"What is the primary purpose of a firewall?\",\"type\":\"mcq\",\"skill\":\"Network Security\",\"difficulty\":\"MEDIUM\",\"options\":[\"To encrypt data in transit\",\"To filter network traffic based on rules\",\"To detect malware on endpoints\",\"To manage user passwords\"],\"correctAnswer\":\"To filter network traffic based on rules\",\"explanation\":\"Firewalls monitor and filter incoming and outgoing network traffic based on established security policies.\"},{\"id\":7,\"question\":\"Where do you see yourself in 5 years?\",\"type\":\"mcq\",\"skill\":\"Career Planning\",\"difficulty\":\"MEDIUM\",\"options\":[\"In a different industry\",\"Growing into a leadership role in this domain\",\"Doing the exact same job\",\"Starting my own company\"],\"correctAnswer\":\"Growing into a leadership role in this domain\",\"explanation\":\"This shows ambition aligned with the company's growth path.\"},{\"id\":8,\"question\":\"Which of the following protocols is considered insecure for remote management?\",\"type\":\"mcq\",\"skill\":\"Secure Protocols\",\"difficulty\":\"MEDIUM\",\"options\":[\"SSH\",\"Telnet\",\"HTTPS\",\"SFTP\"],\"correctAnswer\":\"Telnet\",\"explanation\":\"Telnet transmits data, including passwords, in plaintext, making it insecure. SSH should be used instead.\"},{\"id\":9,\"question\":\"What is your biggest weakness?\",\"type\":\"mcq\",\"skill\":\"Self Awareness\",\"difficulty\":\"MEDIUM\",\"options\":[\"I have none\",\"A genuine weakness you are actively improving\",\"I work too hard\",\"Other people's code\"],\"correctAnswer\":\"A genuine weakness you are actively improving\",\"explanation\":\"Self-awareness and growth mindset are valued over cliché answers.\"},{\"id\":10,\"question\":\"Which attack vector involves tricking a user into executing unwanted actions on a trusted site?\",\"type\":\"mcq\",\"skill\":\"Web Security\",\"difficulty\":\"MEDIUM\",\"options\":[\"SQL Injection\",\"Cross-Site Scripting (XSS)\",\"Cross-Site Request Forgery (CSRF)\",\"Man-in-the-Middle (MitM)\"],\"correctAnswer\":\"Cross-Site Request Forgery (CSRF)\",\"explanation\":\"CSRF forces an end user to execute unwanted actions on a web application in which they are currently authenticated.\"}]",
+      "source": "gemini",
+      "createdAt": "2026-08-08T08:49:21.056Z",
+      "updatedAt": "2026-08-08T08:49:36.221Z",
+      "deletedAt": null,
+      "questions": [
+        {
+          "id": 1,
+          "sessionId": "6cv2eu1kmw",
+          "position": 1,
+          "externalId": 1,
+          "question": "Why should we hire you?",
+          "type": "mcq",
+          "skill": "Communication",
+          "difficulty": "MEDIUM",
+          "options": "[\"I need a job\",\"I am the best candidate\",\"My skills and passion align with this role's needs\",\"I will work for less pay\"]",
+          "correctAnswer": "My skills and passion align with this role's needs",
+          "explanation": "A compelling answer links your unique strengths to the role's requirements.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "sessionId": "6cv2eu1kmw",
+          "position": 2,
+          "externalId": 2,
+          "question": "Describe a project where you led a team.",
+          "type": "mcq",
+          "skill": "Leadership",
+          "difficulty": "MEDIUM",
+          "options": "[\"A collaborative effort you guided\",\"An individual assignment\",\"A homework exercise\",\"A social media post\"]",
+          "correctAnswer": "A collaborative effort you guided",
+          "explanation": "Leadership experience demonstrates initiative, planning, and people skills.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "sessionId": "6cv2eu1kmw",
+          "position": 3,
+          "externalId": 3,
+          "question": "Which of the following is a symmetric encryption algorithm?",
+          "type": "mcq",
+          "skill": "Cryptography",
+          "difficulty": "MEDIUM",
+          "options": "[\"RSA\",\"AES\",\"ECC\",\"Diffie-Hellman\"]",
+          "correctAnswer": "AES",
+          "explanation": "AES is a widely used symmetric key cryptographic algorithm, whereas RSA, ECC, and Diffie-Hellman are asymmetric algorithms.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "sessionId": "6cv2eu1kmw",
+          "position": 4,
+          "externalId": 4,
+          "question": "What does the CIA triad stand for in security?",
+          "type": "mcq",
+          "skill": "Security Fundamentals",
+          "difficulty": "MEDIUM",
+          "options": "[\"Central Intelligence Agency\",\"Confidentiality, Integrity, Availability\",\"Control, Identity, Authorization\",\"Cryptography, Inspection, Auditing\"]",
+          "correctAnswer": "Confidentiality, Integrity, Availability",
+          "explanation": "The CIA triad represents the three core principles of information security: Confidentiality, Integrity, and Availability.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "sessionId": "6cv2eu1kmw",
+          "position": 5,
+          "externalId": 5,
+          "question": "Tell me about a time you handled a conflict in a team.",
+          "type": "mcq",
+          "skill": "Soft Skills",
+          "difficulty": "MEDIUM",
+          "options": "[\"I avoided it\",\"I listened to all sides and mediated a resolution\",\"I escalated to management immediately\",\"I ignored the other person\"]",
+          "correctAnswer": "I listened to all sides and mediated a resolution",
+          "explanation": "Conflict resolution demonstrates emotional intelligence and collaboration.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "sessionId": "6cv2eu1kmw",
+          "position": 6,
+          "externalId": 6,
+          "question": "What is the primary purpose of a firewall?",
+          "type": "mcq",
+          "skill": "Network Security",
+          "difficulty": "MEDIUM",
+          "options": "[\"To encrypt data in transit\",\"To filter network traffic based on rules\",\"To detect malware on endpoints\",\"To manage user passwords\"]",
+          "correctAnswer": "To filter network traffic based on rules",
+          "explanation": "Firewalls monitor and filter incoming and outgoing network traffic based on established security policies.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "sessionId": "6cv2eu1kmw",
+          "position": 7,
+          "externalId": 7,
+          "question": "Where do you see yourself in 5 years?",
+          "type": "mcq",
+          "skill": "Career Planning",
+          "difficulty": "MEDIUM",
+          "options": "[\"In a different industry\",\"Growing into a leadership role in this domain\",\"Doing the exact same job\",\"Starting my own company\"]",
+          "correctAnswer": "Growing into a leadership role in this domain",
+          "explanation": "This shows ambition aligned with the company's growth path.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "sessionId": "6cv2eu1kmw",
+          "position": 8,
+          "externalId": 8,
+          "question": "Which of the following protocols is considered insecure for remote management?",
+          "type": "mcq",
+          "skill": "Secure Protocols",
+          "difficulty": "MEDIUM",
+          "options": "[\"SSH\",\"Telnet\",\"HTTPS\",\"SFTP\"]",
+          "correctAnswer": "Telnet",
+          "explanation": "Telnet transmits data, including passwords, in plaintext, making it insecure. SSH should be used instead.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "sessionId": "6cv2eu1kmw",
+          "position": 9,
+          "externalId": 9,
+          "question": "What is your biggest weakness?",
+          "type": "mcq",
+          "skill": "Self Awareness",
+          "difficulty": "MEDIUM",
+          "options": "[\"I have none\",\"A genuine weakness you are actively improving\",\"I work too hard\",\"Other people's code\"]",
+          "correctAnswer": "A genuine weakness you are actively improving",
+          "explanation": "Self-awareness and growth mindset are valued over cliché answers.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "sessionId": "6cv2eu1kmw",
+          "position": 10,
+          "externalId": 10,
+          "question": "Which attack vector involves tricking a user into executing unwanted actions on a trusted site?",
+          "type": "mcq",
+          "skill": "Web Security",
+          "difficulty": "MEDIUM",
+          "options": "[\"SQL Injection\",\"Cross-Site Scripting (XSS)\",\"Cross-Site Request Forgery (CSRF)\",\"Man-in-the-Middle (MitM)\"]",
+          "correctAnswer": "Cross-Site Request Forgery (CSRF)",
+          "explanation": "CSRF forces an end user to execute unwanted actions on a web application in which they are currently authenticated.",
+          "createdAt": "2026-08-08T08:49:21.056Z",
+          "answers": [
+            {
+              "selectedAnswer": null,
+              "isCorrect": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "quiz_questions": [
+    {
+      "id": 1,
+      "sessionId": "vf8h80shi1n",
+      "position": 1,
+      "externalId": 1,
+      "question": "Where do you see yourself in 5 years?",
+      "type": "mcq",
+      "skill": "Career Planning",
+      "difficulty": "MEDIUM",
+      "options": "[\"In a different industry\",\"Growing into a leadership role in this domain\",\"Doing the exact same job\",\"Starting my own company\"]",
+      "correctAnswer": "Growing into a leadership role in this domain",
+      "explanation": "This shows ambition aligned with the company's growth path.",
+      "createdAt": "2026-08-08T08:29:00.504Z"
+    },
+    {
+      "id": 2,
+      "sessionId": "vf8h80shi1n",
+      "position": 2,
+      "externalId": 2,
+      "question": "What is the primary purpose of a firewall?",
+      "type": "mcq",
+      "skill": "Network Security",
+      "difficulty": "MEDIUM",
+      "options": "[\"To encrypt data in transit\",\"To filter network traffic based on rules\",\"To detect malware on endpoints\",\"To manage user passwords\"]",
+      "correctAnswer": "To filter network traffic based on rules",
+      "explanation": "Firewalls monitor and filter incoming and outgoing network traffic based on established security policies.",
+      "createdAt": "2026-08-08T08:29:00.504Z"
+    },
+    {
+      "id": 3,
+      "sessionId": "vf8h80shi1n",
+      "position": 3,
+      "externalId": 3,
+      "question": "Why should we hire you?",
+      "type": "mcq",
+      "skill": "Communication",
+      "difficulty": "MEDIUM",
+      "options": "[\"I need a job\",\"I am the best candidate\",\"My skills and passion align with this role's needs\",\"I will work for less pay\"]",
+      "correctAnswer": "My skills and passion align with this role's needs",
+      "explanation": "A compelling answer links your unique strengths to the role's requirements.",
+      "createdAt": "2026-08-08T08:29:00.504Z"
+    },
+    {
+      "id": 4,
+      "sessionId": "vf8h80shi1n",
+      "position": 4,
+      "externalId": 4,
+      "question": "Which of the following is a symmetric encryption algorithm?",
+      "type": "mcq",
+      "skill": "Cryptography",
+      "difficulty": "MEDIUM",
+      "options": "[\"RSA\",\"AES\",\"ECC\",\"Diffie-Hellman\"]",
+      "correctAnswer": "AES",
+      "explanation": "AES is a widely used symmetric key cryptographic algorithm, whereas RSA, ECC, and Diffie-Hellman are asymmetric algorithms.",
+      "createdAt": "2026-08-08T08:29:00.504Z"
+    },
+    {
+      "id": 5,
+      "sessionId": "vf8h80shi1n",
+      "position": 5,
+      "externalId": 5,
+      "question": "Which attack vector involves tricking a user into executing unwanted actions on a trusted site?",
+      "type": "mcq",
+      "skill": "Web Security",
+      "difficulty": "MEDIUM",
+      "options": "[\"SQL Injection\",\"Cross-Site Scripting (XSS)\",\"Cross-Site Request Forgery (CSRF)\",\"Man-in-the-Middle (MitM)\"]",
+      "correctAnswer": "Cross-Site Request Forgery (CSRF)",
+      "explanation": "CSRF forces an end user to execute unwanted actions on a web application in which they are currently authenticated.",
+      "createdAt": "2026-08-08T08:29:00.504Z"
+    },
+    {
+      "id": 1,
+      "sessionId": "6cv2eu1kmw",
+      "position": 1,
+      "externalId": 1,
+      "question": "Why should we hire you?",
+      "type": "mcq",
+      "skill": "Communication",
+      "difficulty": "MEDIUM",
+      "options": "[\"I need a job\",\"I am the best candidate\",\"My skills and passion align with this role's needs\",\"I will work for less pay\"]",
+      "correctAnswer": "My skills and passion align with this role's needs",
+      "explanation": "A compelling answer links your unique strengths to the role's requirements.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 2,
+      "sessionId": "6cv2eu1kmw",
+      "position": 2,
+      "externalId": 2,
+      "question": "Describe a project where you led a team.",
+      "type": "mcq",
+      "skill": "Leadership",
+      "difficulty": "MEDIUM",
+      "options": "[\"A collaborative effort you guided\",\"An individual assignment\",\"A homework exercise\",\"A social media post\"]",
+      "correctAnswer": "A collaborative effort you guided",
+      "explanation": "Leadership experience demonstrates initiative, planning, and people skills.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 3,
+      "sessionId": "6cv2eu1kmw",
+      "position": 3,
+      "externalId": 3,
+      "question": "Which of the following is a symmetric encryption algorithm?",
+      "type": "mcq",
+      "skill": "Cryptography",
+      "difficulty": "MEDIUM",
+      "options": "[\"RSA\",\"AES\",\"ECC\",\"Diffie-Hellman\"]",
+      "correctAnswer": "AES",
+      "explanation": "AES is a widely used symmetric key cryptographic algorithm, whereas RSA, ECC, and Diffie-Hellman are asymmetric algorithms.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 4,
+      "sessionId": "6cv2eu1kmw",
+      "position": 4,
+      "externalId": 4,
+      "question": "What does the CIA triad stand for in security?",
+      "type": "mcq",
+      "skill": "Security Fundamentals",
+      "difficulty": "MEDIUM",
+      "options": "[\"Central Intelligence Agency\",\"Confidentiality, Integrity, Availability\",\"Control, Identity, Authorization\",\"Cryptography, Inspection, Auditing\"]",
+      "correctAnswer": "Confidentiality, Integrity, Availability",
+      "explanation": "The CIA triad represents the three core principles of information security: Confidentiality, Integrity, and Availability.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 5,
+      "sessionId": "6cv2eu1kmw",
+      "position": 5,
+      "externalId": 5,
+      "question": "Tell me about a time you handled a conflict in a team.",
+      "type": "mcq",
+      "skill": "Soft Skills",
+      "difficulty": "MEDIUM",
+      "options": "[\"I avoided it\",\"I listened to all sides and mediated a resolution\",\"I escalated to management immediately\",\"I ignored the other person\"]",
+      "correctAnswer": "I listened to all sides and mediated a resolution",
+      "explanation": "Conflict resolution demonstrates emotional intelligence and collaboration.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 6,
+      "sessionId": "6cv2eu1kmw",
+      "position": 6,
+      "externalId": 6,
+      "question": "What is the primary purpose of a firewall?",
+      "type": "mcq",
+      "skill": "Network Security",
+      "difficulty": "MEDIUM",
+      "options": "[\"To encrypt data in transit\",\"To filter network traffic based on rules\",\"To detect malware on endpoints\",\"To manage user passwords\"]",
+      "correctAnswer": "To filter network traffic based on rules",
+      "explanation": "Firewalls monitor and filter incoming and outgoing network traffic based on established security policies.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 7,
+      "sessionId": "6cv2eu1kmw",
+      "position": 7,
+      "externalId": 7,
+      "question": "Where do you see yourself in 5 years?",
+      "type": "mcq",
+      "skill": "Career Planning",
+      "difficulty": "MEDIUM",
+      "options": "[\"In a different industry\",\"Growing into a leadership role in this domain\",\"Doing the exact same job\",\"Starting my own company\"]",
+      "correctAnswer": "Growing into a leadership role in this domain",
+      "explanation": "This shows ambition aligned with the company's growth path.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 8,
+      "sessionId": "6cv2eu1kmw",
+      "position": 8,
+      "externalId": 8,
+      "question": "Which of the following protocols is considered insecure for remote management?",
+      "type": "mcq",
+      "skill": "Secure Protocols",
+      "difficulty": "MEDIUM",
+      "options": "[\"SSH\",\"Telnet\",\"HTTPS\",\"SFTP\"]",
+      "correctAnswer": "Telnet",
+      "explanation": "Telnet transmits data, including passwords, in plaintext, making it insecure. SSH should be used instead.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 9,
+      "sessionId": "6cv2eu1kmw",
+      "position": 9,
+      "externalId": 9,
+      "question": "What is your biggest weakness?",
+      "type": "mcq",
+      "skill": "Self Awareness",
+      "difficulty": "MEDIUM",
+      "options": "[\"I have none\",\"A genuine weakness you are actively improving\",\"I work too hard\",\"Other people's code\"]",
+      "correctAnswer": "A genuine weakness you are actively improving",
+      "explanation": "Self-awareness and growth mindset are valued over cliché answers.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    },
+    {
+      "id": 10,
+      "sessionId": "6cv2eu1kmw",
+      "position": 10,
+      "externalId": 10,
+      "question": "Which attack vector involves tricking a user into executing unwanted actions on a trusted site?",
+      "type": "mcq",
+      "skill": "Web Security",
+      "difficulty": "MEDIUM",
+      "options": "[\"SQL Injection\",\"Cross-Site Scripting (XSS)\",\"Cross-Site Request Forgery (CSRF)\",\"Man-in-the-Middle (MitM)\"]",
+      "correctAnswer": "Cross-Site Request Forgery (CSRF)",
+      "explanation": "CSRF forces an end user to execute unwanted actions on a web application in which they are currently authenticated.",
+      "createdAt": "2026-08-08T08:49:21.056Z"
+    }
+  ],
+  "quiz_answers": [],
+  "quiz_reports": [
+    {
+      "id": "vf8h80shi1n",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "sessionId": "vf8h80shi1n",
+      "score": 80,
+      "readiness": 86,
+      "strengths": "[\"Career Planning\",\"Network Security\",\"Communication\",\"Web Security\"]",
+      "weaknesses": "[\"Cryptography\"]",
+      "skillGaps": "[\"Improve foundational understanding of Cryptography\"]",
+      "improvements": "[\"Aim to improve your Cryptography knowledge\",\"Practice with timed assessments to build speed\",\"Review explanations for every wrong answer\"]",
+      "roadmap": "[{\"phase\":\"Week 1-2\",\"goal\":\"Strengthen core concepts\",\"duration\":\"2 weeks\",\"topics\":[\"Cryptography\"]},{\"phase\":\"Week 3-4\",\"goal\":\"Apply knowledge in projects\",\"duration\":\"2 weeks\",\"topics\":[\"Build a personal project\",\"Contribute to open source\"]},{\"phase\":\"Week 5-6\",\"goal\":\"Mock interviews & refinement\",\"duration\":\"2 weeks\",\"topics\":[\"Practice behavioral questions\",\"System design basics\"]}]",
+      "recommendedProjects": "[\"Build a full-stack CRUD app with auth\",\"Create a real-time chat application\",\"Develop a REST API with comprehensive tests\"]",
+      "recommendedCertifications": "[\"AWS Certified Cloud Practitioner\",\"Meta Frontend Developer Certificate\",\"Google Data Analytics Certificate\"]",
+      "recommendedCourses": "[\"System Design for Beginners (freeCodeCamp)\",\"JavaScript: The Hard Parts (Frontend Masters)\",\"Database Design and Management (Coursera)\"]",
+      "careerAdvice": "[\"Tailor your resume to highlight measurable achievements\",\"Practice explaining complex concepts simply\",\"Network actively on LinkedIn and GitHub\"]",
+      "fullPayload": "{\"score\":80,\"readiness\":86,\"strengths\":[\"Career Planning\",\"Network Security\",\"Communication\",\"Web Security\"],\"weaknesses\":[\"Cryptography\"],\"skillGaps\":[\"Improve foundational understanding of Cryptography\"],\"improvements\":[\"Aim to improve your Cryptography knowledge\",\"Practice with timed assessments to build speed\",\"Review explanations for every wrong answer\"],\"roadmap\":[{\"phase\":\"Week 1-2\",\"goal\":\"Strengthen core concepts\",\"duration\":\"2 weeks\",\"topics\":[\"Cryptography\"]},{\"phase\":\"Week 3-4\",\"goal\":\"Apply knowledge in projects\",\"duration\":\"2 weeks\",\"topics\":[\"Build a personal project\",\"Contribute to open source\"]},{\"phase\":\"Week 5-6\",\"goal\":\"Mock interviews & refinement\",\"duration\":\"2 weeks\",\"topics\":[\"Practice behavioral questions\",\"System design basics\"]}],\"recommendedProjects\":[\"Build a full-stack CRUD app with auth\",\"Create a real-time chat application\",\"Develop a REST API with comprehensive tests\"],\"recommendedCertifications\":[\"AWS Certified Cloud Practitioner\",\"Meta Frontend Developer Certificate\",\"Google Data Analytics Certificate\"],\"recommendedCourses\":[\"System Design for Beginners (freeCodeCamp)\",\"JavaScript: The Hard Parts (Frontend Masters)\",\"Database Design and Management (Coursera)\"],\"careerAdvice\":[\"Tailor your resume to highlight measurable achievements\",\"Practice explaining complex concepts simply\",\"Network actively on LinkedIn and GitHub\"]}",
+      "createdAt": "2026-08-08T08:30:01.396Z",
+      "updatedAt": "2026-08-08T08:30:01.396Z",
+      "deletedAt": null
+    },
+    {
+      "id": "6cv2eu1kmw",
+      "userId": "SVaNXElKZFQmz8MX9gpg9kql1I03",
+      "sessionId": "6cv2eu1kmw",
+      "score": 0,
+      "readiness": 30,
+      "strengths": "[\"Good effort, keep practicing\"]",
+      "weaknesses": "[\"Communication\",\"Leadership\",\"Cryptography\",\"Security Fundamentals\",\"Soft Skills\",\"Network Security\",\"Career Planning\",\"Secure Protocols\",\"Self Awareness\",\"Web Security\"]",
+      "skillGaps": "[\"Improve foundational understanding of Communication\",\"Improve foundational understanding of Leadership\",\"Improve foundational understanding of Cryptography\",\"Improve foundational understanding of Security Fundamentals\",\"Improve foundational understanding of Soft Skills\",\"Improve foundational understanding of Network Security\",\"Improve foundational understanding of Career Planning\",\"Improve foundational understanding of Secure Protocols\",\"Improve foundational understanding of Self Awareness\",\"Improve foundational understanding of Web Security\"]",
+      "improvements": "[\"Aim to improve your Communication knowledge\",\"Practice with timed assessments to build speed\",\"Review explanations for every wrong answer\"]",
+      "roadmap": "[{\"phase\":\"Week 1-2\",\"goal\":\"Strengthen core concepts\",\"duration\":\"2 weeks\",\"topics\":[\"Communication\",\"Leadership\",\"Cryptography\"]},{\"phase\":\"Week 3-4\",\"goal\":\"Apply knowledge in projects\",\"duration\":\"2 weeks\",\"topics\":[\"Build a personal project\",\"Contribute to open source\"]},{\"phase\":\"Week 5-6\",\"goal\":\"Mock interviews & refinement\",\"duration\":\"2 weeks\",\"topics\":[\"Practice behavioral questions\",\"System design basics\"]}]",
+      "recommendedProjects": "[\"Build a full-stack CRUD app with auth\",\"Create a real-time chat application\",\"Develop a REST API with comprehensive tests\"]",
+      "recommendedCertifications": "[\"AWS Certified Cloud Practitioner\",\"Meta Frontend Developer Certificate\",\"Google Data Analytics Certificate\"]",
+      "recommendedCourses": "[\"System Design for Beginners (freeCodeCamp)\",\"JavaScript: The Hard Parts (Frontend Masters)\",\"Database Design and Management (Coursera)\"]",
+      "careerAdvice": "[\"Tailor your resume to highlight measurable achievements\",\"Practice explaining complex concepts simply\",\"Network actively on LinkedIn and GitHub\"]",
+      "fullPayload": "{\"score\":0,\"readiness\":30,\"strengths\":[\"Good effort, keep practicing\"],\"weaknesses\":[\"Communication\",\"Leadership\",\"Cryptography\",\"Security Fundamentals\",\"Soft Skills\",\"Network Security\",\"Career Planning\",\"Secure Protocols\",\"Self Awareness\",\"Web Security\"],\"skillGaps\":[\"Improve foundational understanding of Communication\",\"Improve foundational understanding of Leadership\",\"Improve foundational understanding of Cryptography\",\"Improve foundational understanding of Security Fundamentals\",\"Improve foundational understanding of Soft Skills\",\"Improve foundational understanding of Network Security\",\"Improve foundational understanding of Career Planning\",\"Improve foundational understanding of Secure Protocols\",\"Improve foundational understanding of Self Awareness\",\"Improve foundational understanding of Web Security\"],\"improvements\":[\"Aim to improve your Communication knowledge\",\"Practice with timed assessments to build speed\",\"Review explanations for every wrong answer\"],\"roadmap\":[{\"phase\":\"Week 1-2\",\"goal\":\"Strengthen core concepts\",\"duration\":\"2 weeks\",\"topics\":[\"Communication\",\"Leadership\",\"Cryptography\"]},{\"phase\":\"Week 3-4\",\"goal\":\"Apply knowledge in projects\",\"duration\":\"2 weeks\",\"topics\":[\"Build a personal project\",\"Contribute to open source\"]},{\"phase\":\"Week 5-6\",\"goal\":\"Mock interviews & refinement\",\"duration\":\"2 weeks\",\"topics\":[\"Practice behavioral questions\",\"System design basics\"]}],\"recommendedProjects\":[\"Build a full-stack CRUD app with auth\",\"Create a real-time chat application\",\"Develop a REST API with comprehensive tests\"],\"recommendedCertifications\":[\"AWS Certified Cloud Practitioner\",\"Meta Frontend Developer Certificate\",\"Google Data Analytics Certificate\"],\"recommendedCourses\":[\"System Design for Beginners (freeCodeCamp)\",\"JavaScript: The Hard Parts (Frontend Masters)\",\"Database Design and Management (Coursera)\"],\"careerAdvice\":[\"Tailor your resume to highlight measurable achievements\",\"Practice explaining complex concepts simply\",\"Network actively on LinkedIn and GitHub\"]}",
+      "createdAt": "2026-08-08T08:49:35.700Z",
+      "updatedAt": "2026-08-08T08:49:35.700Z",
+      "deletedAt": null
     }
   ]
 }

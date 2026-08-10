@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/actions/auth";
 import { analyzeResume } from "@/actions/resume";
+import { requirePayment } from "@/lib/x402";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
+    const paymentError = await requirePayment(request as any, { endpoint: "resumeAnalysis" });
+    if (paymentError) return paymentError;
     const user = await getSessionUser();
     if (!user) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });

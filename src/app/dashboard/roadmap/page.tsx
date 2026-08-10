@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Map, Target, RefreshCw, Briefcase, MapPin, Code, Bell, ChevronDown, MoreVertical, Calendar, Clock, Plus, Trash2, User, ChevronRight, CheckSquare, Layers } from "lucide-react";
+import { Map, Target, RefreshCw, Briefcase, MapPin, Code, Bell, ChevronDown, MoreVertical, Calendar, Clock, Plus, Trash2, User, ChevronRight, CheckSquare, Layers, Sparkles } from "lucide-react";
 import { getRoadmap, generateRoadmap, toggleTask, addRoadmapTask, deleteRoadmapTask, type RoadmapResult } from "@/actions/roadmap";
+import { x402Fetch } from "@/lib/x402/client";
 
 // Interactive Flowchart Task Component
 function FlowTask({ 
@@ -112,8 +113,11 @@ function TaskGroupFlow({
 
 export default function RoadmapPage() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [targetCompany, setTargetCompany] = useState("");
+  const [targetRole, setTargetRole] = useState("Full Stack Engineer");
+  const [targetCompany, setTargetCompany] = useState("Google / FAANG");
+  const [experienceLevel, setExperienceLevel] = useState("Intermediate");
   const [duration, setDuration] = useState("90");
+  const [weeklyCommitment, setWeeklyCommitment] = useState("15 hrs/week");
   const [roadmap, setRoadmap] = useState<RoadmapResult | null>(null);
   const [loadingInitial, setLoadingInitial] = useState(true);
 
@@ -147,8 +151,23 @@ export default function RoadmapPage() {
     setIsGenerating(true);
     try {
       const formData = new FormData();
-      if (targetCompany) formData.append("targetCompany", targetCompany);
+      formData.append("targetRole", targetRole);
+      formData.append("targetCompany", targetCompany);
+      formData.append("experienceLevel", experienceLevel);
       formData.append("duration", duration);
+      formData.append("weeklyCommitment", weeklyCommitment);
+
+      // Trigger x402 Micropayment flow via API route ($0.02 USDC)
+      const x402Res = await x402Fetch("/api/roadmap-generation", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!x402Res.ok) {
+        const errJson = await x402Res.json().catch(() => ({}));
+        throw new Error(errJson.message || errJson.error || `HTTP ${x402Res.status}`);
+      }
+
       const data = await generateRoadmap(formData);
       setRoadmap(data);
     } catch (error) {
@@ -243,52 +262,167 @@ export default function RoadmapPage() {
               Career GPS Roadmap
             </h1>
             <p className="text-slate-300 mt-1.5 text-[14.5px] font-medium">
-              Your structured milestone syllabus calculated by SkillSprint AI.
+              Structured milestone syllabus calculated by Google Gemini AI.
             </p>
           </div>
         </div>
 
-        {roadmap ? (
+        {roadmap && (
           <button 
             onClick={() => setRoadmap(null)}
             className="relative z-10 flex items-center justify-center gap-2 px-4 py-2 border border-white/10 bg-white/10 hover:bg-white/20 text-xs font-semibold text-white rounded-xl transition-all w-full md:w-auto shadow-sm"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            Reset Destination
+            Configure New Roadmap
           </button>
-        ) : (
-          <form onSubmit={handleGenerate} className="relative z-10 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <input 
-              type="text" 
-              value={targetCompany}
-              onChange={(e) => setTargetCompany(e.target.value)}
-              placeholder="Target Company (e.g. Stripe, Google)"
-              className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-400 outline-none focus:ring-2 focus:ring-indigo-500/50"
-              required
-            />
-            <select
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 text-xs cursor-pointer text-white focus:ring-2 focus:ring-indigo-500/50 outline-none"
-            >
-              <option value="30" className="text-gray-900">30 Days</option>
-              <option value="60" className="text-gray-900">60 Days</option>
-              <option value="90" className="text-gray-900">90 Days</option>
-            </select>
-            <button 
-              type="submit" 
-              disabled={isGenerating}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl px-5 py-2.5 transition-all shadow-sm flex items-center justify-center gap-1.5 border border-white/10"
-            >
-              {isGenerating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Layers className="w-3.5 h-3.5" />}
-              Generate Path
-            </button>
-          </form>
         )}
       </div>
 
-      {roadmap && (
+      {!roadmap ? (
+        <div className="liquid-glass rounded-3xl p-6 sm:p-10 max-w-3xl mx-auto border border-white/50 shadow-sm space-y-8 animate-in fade-in zoom-in-95 duration-300">
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center gap-2 bg-[#4f46e5]/10 border border-[#4f46e5]/20 px-3.5 py-1.5 rounded-full text-[#4f46e5] text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>✨ Powered by Google Gemini AI</span>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900">Configure Your Career Roadmap</h3>
+            <p className="text-gray-500 text-sm max-w-md mx-auto">
+              Answer 4 brief questions so Gemini AI can calculate your daily habits, weekly milestones, and missing skills.
+            </p>
+          </div>
+
+          <form onSubmit={handleGenerate} className="space-y-6">
+            {/* Q1: Target Role */}
+            <div className="space-y-2.5">
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">1. What is your Target Role?</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {["Full Stack Engineer", "DevOps Engineer", "AI/ML Engineer", "Frontend Developer", "Backend Developer"].map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setTargetRole(role)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                      targetRole === role 
+                        ? "bg-[#4f46e5] text-white border-[#4f46e5] shadow-xs" 
+                        : "bg-white text-gray-700 border-gray-200 hover:border-indigo-300"
+                    }`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                required
+                value={targetRole}
+                onChange={(e) => setTargetRole(e.target.value)}
+                placeholder="Or type custom role..."
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-[#4f46e5]/20"
+              />
+            </div>
+
+            {/* Q2: Target Company / Tier */}
+            <div className="space-y-2.5">
+              <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">2. Target Company or Tier?</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {["Google / FAANG", "Tech Startup (Seed/Series A)", "Fintech / Crypto", "Enterprise Tech"].map((co) => (
+                  <button
+                    key={co}
+                    type="button"
+                    onClick={() => setTargetCompany(co)}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                      targetCompany === co 
+                        ? "bg-[#4f46e5] text-white border-[#4f46e5] shadow-xs" 
+                        : "bg-white text-gray-700 border-gray-200 hover:border-indigo-300"
+                    }`}
+                  >
+                    {co}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                required
+                value={targetCompany}
+                onChange={(e) => setTargetCompany(e.target.value)}
+                placeholder="Or type specific company (e.g. Stripe, OpenAI)..."
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-[#4f46e5]/20"
+              />
+            </div>
+
+            {/* Q3 & Q4: Level & Duration Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* Q3: Skill Level */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">3. Current Level</label>
+                <select
+                  value={experienceLevel}
+                  onChange={(e) => setExperienceLevel(e.target.value)}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-[#4f46e5]/20"
+                >
+                  <option value="Beginner (CS Student / Basics)">Beginner (CS Student / Basics)</option>
+                  <option value="Intermediate (Has built projects)">Intermediate (Has built projects)</option>
+                  <option value="Advanced (Interview Prepping)">Advanced (Interview Prepping)</option>
+                </select>
+              </div>
+
+              {/* Q4: Duration & Commitment */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">4. Roadmap Duration</label>
+                <select
+                  value={duration}
+                  onChange={(e) => {
+                    setDuration(e.target.value);
+                    if (e.target.value === "30") setWeeklyCommitment("20 hrs/week");
+                    else if (e.target.value === "60") setWeeklyCommitment("15 hrs/week");
+                    else setWeeklyCommitment("10 hrs/week");
+                  }}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs text-gray-900 outline-none focus:ring-2 focus:ring-[#4f46e5]/20"
+                >
+                  <option value="30">30 Days Express (20 hrs/wk)</option>
+                  <option value="60">60 Days Accelerated (15 hrs/wk)</option>
+                  <option value="90">90 Days Mastery (10 hrs/wk)</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isGenerating}
+              className="w-full flex items-center justify-center gap-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm font-semibold rounded-full py-3.5 transition-colors shadow-sm disabled:opacity-75"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Generating Roadmap with Gemini AI...
+                </>
+              ) : (
+                <>
+                  <Layers className="w-4 h-4" />
+                  Generate Roadmap with Gemini AI
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      ) : (
         <div className="space-y-6">
+          {/* Executive Overview Banner */}
+          {roadmap.overview && (
+            <div className="bg-gradient-to-r from-indigo-900/90 via-slate-900 to-purple-950/90 text-white rounded-3xl p-6 border border-indigo-500/20 shadow-lg relative overflow-hidden">
+              <div className="flex items-start gap-4">
+                <div className="p-2.5 bg-indigo-500/20 rounded-2xl border border-indigo-400/30 text-indigo-300 flex-shrink-0 mt-0.5">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Gemini AI Learning Strategy</h4>
+                  <p className="text-[14.5px] leading-relaxed text-slate-200 font-medium">
+                    {roadmap.overview}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* 1. Global Overview Grid (Takes full width, fully responsive 1x4 or 2x2 layout) */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Settings, Play, ArrowRight, RefreshCw, Loader2, Award, CheckCircle2, MessageSquare, ShieldAlert, Volume2, VolumeX } from "lucide-react";
 import { getConversationTurn, evaluateConversation, type InterviewQuestion, type InterviewEvaluation } from "@/actions/interview";
+import { x402Fetch } from "@/lib/x402/client";
 
 type InterviewState = "settings" | "loading_questions" | "questioning" | "submitting" | "results";
 
@@ -229,9 +230,23 @@ export default function MockInterviewPage() {
   }, [state]);
 
   const handleStartInterview = async () => {
-    setState("loading_questions");
-    isTransitioningRef.current = true;
+    setSpeechError(null);
     try {
+      // Enforce x402 Micropayment ($0.03 USDC on Algorand) strictly on "Start Interview" click
+      const x402Res = await x402Fetch("/api/mock-interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: interviewType, company: targetCompany, difficulty })
+      });
+
+      if (!x402Res.ok) {
+        const errJson = await x402Res.json().catch(() => ({}));
+        throw new Error(errJson.message || errJson.error || `HTTP ${x402Res.status}`);
+      }
+
+      setState("loading_questions");
+      isTransitioningRef.current = true;
+
       const startTurn = await getConversationTurn([], { type: interviewType, company: targetCompany, difficulty });
       setHistory([{ role: "interviewer", content: startTurn.interviewerResponse }]);
       setAnswers([]);
@@ -254,8 +269,11 @@ export default function MockInterviewPage() {
           }
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn(err);
+      if (err.message && !err.message.includes("cancelled")) {
+        setSpeechError(err.message || "Payment or initialization failed.");
+      }
       setState("settings");
     }
   };
@@ -368,7 +386,11 @@ export default function MockInterviewPage() {
                 <Mic className="h-10 w-10 text-[#4f46e5]" />
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Ready for your interview?</h3>
-              <p className="text-gray-500 mt-2 mb-6 sm:mb-8 text-sm max-w-sm">Ensure your microphone is connected. The interviewer will start speaking first.</p>
+              <p className="text-gray-500 mt-2 mb-4 text-sm max-w-sm">Ensure your microphone is connected. The interviewer will start speaking first.</p>
+              
+              <div className="text-xs font-semibold text-[#4f46e5] bg-indigo-50 border border-indigo-100 rounded-xl px-3.5 py-1.5 mb-6">
+                ⚡ Triggers x402 Micropayment ($0.03 USDC on Algorand)
+              </div>
               
               <button 
                 onClick={handleStartInterview}
