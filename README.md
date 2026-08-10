@@ -177,3 +177,5 @@ Open [http://localhost:3000](http://localhost:3000) to view the running app.
 A common pitfall with App Router and client-side modules (like Firebase/Supabase) is compilation failing due to missing environment variables during **static pre-rendering**:
 *   **The Issue:** Next.js compiles routes (e.g., Auth APIs) during the build. If Firebase reads blank strings, it immediately throws `auth/invalid-api-key`, which halts compiling.
 *   **The Solution:** In `src/lib/firebase.ts`, we implement fallback dummy strings specifically for compilation. During actual browser execution, the true runtime keys configured in the Vercel settings panel override these fallbacks, allowing the build to complete seamlessly without sacrificing runtime security.
+#   s k i l l s p r i n t A i  
+ 
