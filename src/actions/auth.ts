@@ -6,6 +6,7 @@ import nodemailer from "nodemailer";
 import { encrypt } from "@/lib/encryption";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db as firestoreDb } from "@/lib/firebase";
+import { track } from "@/lib/track";
 
 async function isSecureOrigin(): Promise<boolean> {
   const headersList = await headers();
@@ -102,6 +103,21 @@ export async function syncOAuthUser(supabaseUserId: string, email: string, role:
     });
 
     console.log(`[syncOAuthUser] Set session_user_id cookie (encoded)`);
+
+    // ── Analytics instrumentation: session_start (once per hour) ────────────
+    const ssFired = cookieStore.get("ss_fired")?.value;
+    if (!ssFired) {
+      await track(user.id, "session_start");
+      cookieStore.set("ss_fired", "1", {
+        httpOnly: true,
+        secure,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 3600, // 1 hour — prevents duplicate fires on every page nav
+      });
+    }
+    // ──────────────────────────────────────────────────────────────────────
+
     console.log(`[syncOAuthUser] --- END AUTH SYNC ---`);
 
     return { 

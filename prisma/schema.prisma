@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -35,6 +36,12 @@ model User {
   mentorSessions   MentorSession[]
   notifications    Notification[]
   syncHistories    SyncHistory[]
+  events           Event[]
+  resumeUploaded   Boolean  @default(false)
+  githubIngested   Boolean  @default(false)
+  proTier          Boolean  @default(false)
+  unlockedFeatures String[]
+  agentActions     AgentAction[]
 
   @@map("users")
 }
@@ -367,3 +374,39 @@ model SyncHistory {
   @@map("sync_history")
 }
 
+model Event {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, eventType])
+  @@index([eventType, createdAt])
+  @@map("events")
+}
+
+enum AgentActionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model AgentAction {
+  id               String            @id @default(cuid())
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actionKey        String            // e.g. "unlock_mock_interview", "resume_deep_scan"
+  reasoning        String            // LLM-provided rationale shown to user
+  amountPaise      Int               // Amount in paise (e.g. 19900 = ₹199)
+  status           AgentActionStatus @default(PENDING)
+  razorpayOrderId  String?           // Set after create-order
+  razorpayPaymentId String?          // Set after successful verify
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([userId, status])
+  @@index([razorpayOrderId])
+  @@map("agent_actions")
+}

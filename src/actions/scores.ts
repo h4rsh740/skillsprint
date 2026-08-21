@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
+import { track } from "@/lib/track";
 
 export type ScoreExplanation = {
   current: number;
@@ -114,6 +115,10 @@ export async function getSkillSprintScores(): Promise<CareerScoresResult> {
     skillsprintScore,
     history
   });
+
+  // ── Analytics instrumentation ────────────────────────────────────────────
+  await track(user.id, "gap_analysis_completed", { skillsprintScore });
+  // ───────────────────────────────────────────────────────────────────────
 
   const growthPercentage = Math.round(((skillsprintScore - 58) / 58) * 100);
 

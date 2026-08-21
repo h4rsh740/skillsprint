@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Settings, Play, ArrowRight, RefreshCw, Loader2, Award, CheckCircle2, MessageSquare, ShieldAlert, Volume2, VolumeX } from "lucide-react";
-import { getConversationTurn, evaluateConversation, type InterviewQuestion, type InterviewEvaluation } from "@/actions/interview";
+import { Mic, Settings, Play, ArrowRight, RefreshCw, Loader2, Award, CheckCircle2, MessageSquare, ShieldAlert, Volume2, VolumeX, Lock } from "lucide-react";
+import { getConversationTurn, evaluateConversation, getInterviewUsage, type InterviewUsage } from "@/actions/interview";
+import { ProUpgradeModal } from "@/components/dashboard/pro-upgrade-modal";
 
 type InterviewState = "settings" | "loading_questions" | "questioning" | "submitting" | "results";
 
@@ -21,7 +22,11 @@ export default function MockInterviewPage() {
   const [answers, setAnswers] = useState<{ question: string; answer: string }[]>([]);
   const [currentAnswer, setCurrentAnswer] = useState("");
   const [isLoadingTurn, setIsLoadingTurn] = useState(false);
-  const [evaluation, setEvaluation] = useState<InterviewEvaluation | null>(null);
+  const [evaluation, setEvaluation] = useState<any | null>(null);
+
+  // Usage cap + upgrade modal
+  const [usage, setUsage] = useState<InterviewUsage>({ count: 0, limit: 3, hasReachedLimit: false });
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Voice/Text Toggle & Synthesis States
   const [isVoiceInputActive, setIsVoiceInputActive] = useState(true);
@@ -53,6 +58,11 @@ export default function MockInterviewPage() {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [history, isLoadingTurn]);
+
+  // Load interview usage count on mount
+  useEffect(() => {
+    getInterviewUsage().then(setUsage).catch(() => {});
+  }, []);
 
   // Initialize SpeechRecognition on mount
   useEffect(() => {
@@ -229,6 +239,14 @@ export default function MockInterviewPage() {
   }, [state]);
 
   const handleStartInterview = async () => {
+    // Check cap before starting
+    const currentUsage = await getInterviewUsage().catch(() => usage);
+    setUsage(currentUsage);
+    if (currentUsage.hasReachedLimit) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     setState("loading_questions");
     isTransitioningRef.current = true;
     try {
@@ -390,6 +408,9 @@ export default function MockInterviewPage() {
               <div className="flex items-center gap-2 pb-4 border-b border-gray-200">
                 <Settings className="w-5 h-5 text-gray-900" />
                 <h3 className="font-semibold text-gray-900">Interview Settings</h3>
+                <span className="ml-auto text-xs font-bold px-2.5 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700">
+                  {usage.count}/{usage.limit} used
+                </span>
               </div>
               <div className="space-y-4">
                 <div>
@@ -762,7 +783,7 @@ export default function MockInterviewPage() {
                 </div>
                 
                 <div className="space-y-4">
-                  {evaluation.suggestions.map((suggestion, idx) => (
+                  {evaluation.suggestions.map((suggestion: string, idx: number) => (
                     <div key={idx} className="flex gap-4 p-4 rounded-xl bg-white/40 border border-gray-200 shadow-sm">
                       <div className="w-7 h-7 shrink-0 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 font-bold text-xs">
                         ✓
@@ -807,6 +828,13 @@ export default function MockInterviewPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Pro upgrade modal — shown when free cap is reached */}
+      <ProUpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="mock_interviews"
+      />
     </div>
   );
 }

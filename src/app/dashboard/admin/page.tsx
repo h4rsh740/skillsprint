@@ -208,17 +208,19 @@ export default function AdminPage() {
 
           <div className="space-y-3">
             {stats?.recentJobs?.map((job) => (
-              <div key={job.id} className="flex items-center justify-between p-3.5 bg-white/60 rounded-2xl border border-gray-150 text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-[10px]">
-                    {job.id}
+              <div key={job.id} className="flex items-center justify-between p-3.5 bg-white/60 rounded-2xl border border-gray-150 text-xs min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-[10px]">
+                    {job.name?.includes("GITHUB") ? "GH" : job.name?.includes("RESUME") ? "RE" : "JB"}
                   </div>
-                  <div>
-                    <span className="font-bold text-gray-900 block">{job.name}</span>
-                    <span className="text-[10px] text-gray-400 font-bold block mt-0.5">{job.timestamp} • Duration: {job.duration}</span>
+                  <div className="min-w-0">
+                    <span className="font-bold text-gray-900 block truncate">{job.name}</span>
+                    <span className="text-[10px] text-gray-400 font-mono block mt-0.5 truncate">
+                      {typeof job.id === "string" ? job.id.slice(0, 8) + "…" : job.id} · {job.timestamp} · {job.duration}
+                    </span>
                   </div>
                 </div>
-                <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                <span className={`ml-3 flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                   job.status === "success" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" :
                   "bg-rose-50 text-rose-600 border border-rose-100"
                 }`}>

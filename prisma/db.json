@@ -66,7 +66,7 @@
         "CSS"
       ],
       "studyHoursPerWeek": 10,
-      "updatedAt": "2026-07-27T06:03:45.278Z",
+      "updatedAt": "2026-08-14T19:34:30.027Z",
       "onboardingCompleted": true
     },
     {
@@ -3404,12 +3404,12 @@
   "career_scores": [
     {
       "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
-      "overallScore": 64,
-      "resumeScore": 60,
+      "overallScore": 52,
+      "resumeScore": 11,
       "githubScore": 75,
       "portfolioScore": 75,
       "interviewReadiness": 60,
-      "hiringScore": 49,
+      "hiringScore": 37,
       "details": {
         "history": [
           {
@@ -3422,11 +3422,11 @@
           },
           {
             "month": "June",
-            "score": 64
+            "score": 52
           }
         ]
       },
-      "updatedAt": "2026-07-27T06:48:41.317Z"
+      "updatedAt": "2026-08-21T07:51:31.080Z"
     },
     {
       "userId": "cmZy1e7rHiQP1s8N8qK1Hc3sCPg2",
@@ -5733,6 +5733,242 @@
         }
       ],
       "createdAt": "2026-07-27T06:02:42.812Z"
+    },
+    {
+      "id": "4q8sdmfe1p9",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "currentSkills": [
+        "React",
+        "CSS"
+      ],
+      "strongSkills": [
+        "React",
+        "CSS"
+      ],
+      "weakSkills": [
+        "Docker",
+        "System Design",
+        "AWS Deployments"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Irregular commit streaking.",
+        "Lacks deployment links for projects.",
+        "Missing automated unit tests in portfolio repositories."
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Docker and microservices",
+          "impact": "+24% placement probability SDE-1"
+        },
+        {
+          "title": "Optimize resume keywords using AI suggestions",
+          "impact": "+15% ATS matching"
+        }
+      ],
+      "createdAt": "2026-08-14T19:34:26.778Z"
+    },
+    {
+      "id": "3ne03nlwsvc",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "currentSkills": [
+        "React",
+        "CSS"
+      ],
+      "strongSkills": [
+        "React",
+        "CSS"
+      ],
+      "weakSkills": [
+        "Docker",
+        "System Design",
+        "AWS Deployments"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Irregular commit streaking.",
+        "Lacks deployment links for projects.",
+        "Missing automated unit tests in portfolio repositories."
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Docker and microservices",
+          "impact": "+24% placement probability SDE-1"
+        },
+        {
+          "title": "Optimize resume keywords using AI suggestions",
+          "impact": "+15% ATS matching"
+        }
+      ],
+      "createdAt": "2026-08-14T19:34:26.886Z"
+    },
+    {
+      "id": "vb339tpixzd",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "currentSkills": [
+        "React",
+        "CSS"
+      ],
+      "strongSkills": [
+        "React",
+        "CSS"
+      ],
+      "weakSkills": [
+        "Docker",
+        "System Design",
+        "AWS Deployments"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Irregular commit streaking.",
+        "Lacks deployment links for projects.",
+        "Missing automated unit tests in portfolio repositories."
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Docker and microservices",
+          "impact": "+24% placement probability SDE-1"
+        },
+        {
+          "title": "Optimize resume keywords using AI suggestions",
+          "impact": "+15% ATS matching"
+        }
+      ],
+      "createdAt": "2026-08-14T19:34:26.999Z"
+    },
+    {
+      "id": "lmh4aze0ym",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "currentSkills": [
+        "React",
+        "CSS"
+      ],
+      "strongSkills": [
+        "React",
+        "CSS"
+      ],
+      "weakSkills": [
+        "Docker",
+        "System Design",
+        "AWS Deployments"
+      ],
+      "preferredStack": [
+        "Next.js",
+        "TypeScript",
+        "Node.js",
+        "PostgreSQL"
+      ],
+      "careerGoal": "Frontend Developer",
+      "dreamCompanies": [
+        "Google",
+        "Stripe",
+        "Razorpay",
+        "Microsoft"
+      ],
+      "prediction3m": {
+        "title": "Open Source Contributor",
+        "subtitle": "Consistent contributions to SDE repositories"
+      },
+      "prediction6m": {
+        "title": "SDE Intern",
+        "subtitle": "Full stack engineering internship"
+      },
+      "prediction12m": {
+        "title": "Software Engineer SDE-1",
+        "subtitle": "Full-time placement package"
+      },
+      "salaryProjection": "₹12L - ₹18L / yr",
+      "riskFactors": [
+        "Irregular commit streaking.",
+        "Lacks deployment links for projects.",
+        "Missing automated unit tests in portfolio repositories."
+      ],
+      "growthOpportunities": [
+        {
+          "title": "Master Docker and microservices",
+          "impact": "+24% placement probability SDE-1"
+        },
+        {
+          "title": "Optimize resume keywords using AI suggestions",
+          "impact": "+15% ATS matching"
+        }
+      ],
+      "createdAt": "2026-08-14T19:34:27.112Z"
     }
   ],
   "recommended_projects": [
@@ -5990,7 +6226,7 @@
       "createdAt": "2026-07-11T18:39:51.631Z"
     },
     {
-      "id": "1yliio40ky4",
+      "id": "xvjqg4365an",
       "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
       "projectName": "Distributed Realtime Analytics Dashboard",
       "difficulty": "Advanced",
@@ -6032,10 +6268,10 @@
       "learningOutcome": "Build a realtime dashboard consuming and containerizing large streaming logs.",
       "businessValue": "Empowers companies to analyze clickstream actions and database updates instantly under 50ms latency.",
       "estimatedCompletionTime": "35 hours",
-      "createdAt": "2026-07-27T06:02:44.914Z"
+      "createdAt": "2026-08-14T19:34:29.348Z"
     },
     {
-      "id": "hip6xfrr6ot",
+      "id": "of4ai4vklob",
       "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
       "projectName": "Gemini AI-Powered RAG Knowledge Base",
       "difficulty": "Intermediate",
@@ -6073,10 +6309,10 @@
       "learningOutcome": "Deliver an AI chatbot query tool that scans context from private PDF uploads.",
       "businessValue": "Reduces customer success overhead by answering questions from corporate documents with 90% accuracy.",
       "estimatedCompletionTime": "24 hours",
-      "createdAt": "2026-07-27T06:02:44.914Z"
+      "createdAt": "2026-08-14T19:34:29.348Z"
     },
     {
-      "id": "wbkj61wmfus",
+      "id": "djhxbfhktop",
       "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
       "projectName": "Secure Microservice Gateway & Auth Server",
       "difficulty": "Advanced",
@@ -6114,7 +6350,7 @@
       "learningOutcome": "Architect a secure proxy routing client calls to back-end endpoints with JWT controls.",
       "businessValue": "Secures internal API structures from OWASP Top 10 exploits, preventing injection and credential breaches.",
       "estimatedCompletionTime": "28 hours",
-      "createdAt": "2026-07-27T06:02:44.914Z"
+      "createdAt": "2026-08-14T19:34:29.348Z"
     }
   ],
   "roadmaps": [
@@ -7392,6 +7628,112 @@
         ]
       },
       "createdAt": "2026-07-11T19:06:27.811Z"
+    },
+    {
+      "id": "292n3vq9jn7",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "projectName": "Frontend Developer",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Analyze web performance and rendering pipelines using Devtools Usage to deeply understand Browsers And How They Work.",
+          "completed": false
+        },
+        {
+          "text": "Write semantic, keyboard-navigable components in React, verifying Accessibility (a11y) standards and CSS compliance.",
+          "completed": false
+        },
+        {
+          "text": "Practice AI Assisted Coding using Cursor, Copilot, or Claude Code to solve algorithmic problems, comparing AI Vs Traditional Coding workflows.",
+          "completed": false
+        },
+        {
+          "text": "Configure and test network security policies, focusing on CORS, CSP (Content Security Policy), and Cache Control headers in a local server environment.",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Month 1 Checkpoint: Master browser internals, Devtools Usage, Accessibility, and network security (CORS, CSP, Cache Control) by auditing and optimizing an existing React application to achieve a perfect Lighthouse score.",
+          "completed": false
+        },
+        {
+          "text": "Month 2 Checkpoint: Transition to modern build tools and alternative frameworks by building a static-first site with Astro, utilizing Bun, Biome, and Custom Elements to establish a highly reusable Design System.",
+          "completed": false
+        },
+        {
+          "text": "Month 3 Checkpoint: Implement advanced application architecture by integrating Apollo Client, robust Auth Strategies, comprehensive Cypress testing suites, and deploying the final product to Cloudflare.",
+          "completed": false
+        },
+        {
+          "text": "Month 4 Checkpoint (Final Review): Optimize development velocity using AI Assisted Coding (Claude Code, Cursor, Copilot), conduct rigorous peer-level Code Reviews, and package your application as a high-performance Desktop App to meet Google-level engineering standards.",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-18T04:26:30.949Z"
+    },
+    {
+      "id": "zig8sqdmm9a",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "projectName": "Frontend Developer",
+      "architecture": {},
+      "folderStructure": {},
+      "databaseDesign": {},
+      "apiDesign": {},
+      "authStrategy": {},
+      "weeklyRoadmap": {},
+      "dailyTasks": [
+        {
+          "text": "Spend 30 minutes studying 'Browsers And How They Work' (rendering engines, critical rendering path) and practice profiling performance using Chrome 'Devtools Usage'.",
+          "completed": false
+        },
+        {
+          "text": "Implement one web accessibility standard daily, focusing on ARIA roles, semantic HTML, and keyboard navigation to master 'Accessibility' requirements for Google-grade applications.",
+          "completed": false
+        },
+        {
+          "text": "Integrate 'Ai Assisted Coding' tools like 'Copilot', 'Cursor', or 'Claude Code' into your daily workflow to compare 'Ai Vs Traditional Coding' efficiency and speed up boilerplate generation.",
+          "completed": false
+        },
+        {
+          "text": "Dedicate 20 minutes to configuring web security protocols, specifically resolving 'Cors' issues and defining strict 'Csp' (Content Security Policy) headers in a mock server environment.",
+          "completed": false
+        }
+      ],
+      "milestones": [
+        {
+          "text": "Month 1 Milestone: Master browser internals, advanced CSS layouts, and modern build tooling (Bun, Biome), culminating in a fully accessible, deployed Astro project on Cloudflare.",
+          "completed": false
+        },
+        {
+          "text": "Month 2 Milestone: Deep dive into frontend architecture, including custom component design systems, Apollo GraphQL integration, and secure authentication strategies.",
+          "completed": false
+        },
+        {
+          "text": "Month 3 Milestone: Implement rigorous testing with Cypress, optimize application performance using Devtools, master security protocols (CORS/CSP), and leverage AI-assisted coding agents (Claude Code, Anthropic) for rapid prototyping.",
+          "completed": false
+        },
+        {
+          "text": "Google Readiness Checkpoint: Complete a comprehensive system design review of large-scale web applications, focusing on Google-scale performance, accessibility compliance, and browser rendering optimization.",
+          "completed": false
+        }
+      ],
+      "resources": {},
+      "commonMistakes": [],
+      "expectedDeliverables": [],
+      "templates": {},
+      "interviewPrep": {},
+      "createdAt": "2026-08-18T04:32:26.780Z"
     }
   ],
   "learning_progress": [
@@ -7436,6 +7778,20 @@
       "roadmapId": "ye9ien6jl0s",
       "completedTasks": [],
       "updatedAt": "2026-07-11T19:06:27.813Z"
+    },
+    {
+      "id": "aomridt03ip",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "roadmapId": "292n3vq9jn7",
+      "completedTasks": [],
+      "updatedAt": "2026-08-18T04:26:30.949Z"
+    },
+    {
+      "id": "d6u2je4xj9k",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "roadmapId": "zig8sqdmm9a",
+      "completedTasks": [],
+      "updatedAt": "2026-08-18T04:32:26.782Z"
     }
   ],
   "activity_logs": [
@@ -8089,6 +8445,38 @@
       "message": "Your SDE Career Twin has been spawned successfully. Career Score: 46/100.",
       "read": false,
       "createdAt": "2026-07-27T06:02:44.931Z"
+    },
+    {
+      "id": "wehaaipwulq",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 46/100.",
+      "read": false,
+      "createdAt": "2026-08-14T19:34:28.977Z"
+    },
+    {
+      "id": "8e5echzlo1c",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 46/100.",
+      "read": false,
+      "createdAt": "2026-08-14T19:34:29.165Z"
+    },
+    {
+      "id": "ocsi4bvggw",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 46/100.",
+      "read": false,
+      "createdAt": "2026-08-14T19:34:29.290Z"
+    },
+    {
+      "id": "34egdusrha",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "title": "Career Twin Synchronized",
+      "message": "Your SDE Career Twin has been spawned successfully. Career Score: 46/100.",
+      "read": false,
+      "createdAt": "2026-08-14T19:34:29.385Z"
     }
   ],
   "sync_history": [
@@ -9099,6 +9487,94 @@
         "overallScore": 46
       },
       "createdAt": "2026-07-27T06:02:44.918Z"
+    },
+    {
+      "id": "0vij6jh8rlw",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 46
+      },
+      "createdAt": "2026-08-14T19:34:28.940Z"
+    },
+    {
+      "id": "kqwakml1y9",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 46
+      },
+      "createdAt": "2026-08-14T19:34:29.062Z"
+    },
+    {
+      "id": "q2v0wovmjp",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 46
+      },
+      "createdAt": "2026-08-14T19:34:29.275Z"
+    },
+    {
+      "id": "jhjeu9yjleb",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "provider": "resume",
+      "status": "success",
+      "details": {
+        "overallScore": 46
+      },
+      "createdAt": "2026-08-14T19:34:29.362Z"
+    }
+  ],
+  "outcome_logs": [],
+  "events": [
+    {
+      "id": "ev_1787029323464_zmn0az",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "eventType": "session_start",
+      "metadata": null,
+      "createdAt": "2026-08-18T05:02:03.464Z"
+    },
+    {
+      "id": "ev_1787029323470_j75ma6",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "eventType": "resume_uploaded",
+      "metadata": {
+        "fileName": "test_resume.pdf",
+        "atsScore": 72,
+        "resumeScore": 65
+      },
+      "createdAt": "2026-08-18T05:02:03.470Z"
+    },
+    {
+      "id": "ev_1787029323474_0z99ml",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "eventType": "github_ingested",
+      "metadata": {
+        "username": "h4rsh740",
+        "score": 80,
+        "repos": 12
+      },
+      "createdAt": "2026-08-18T05:02:03.474Z"
+    },
+    {
+      "id": "ev_test_gap_8days_ago",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "eventType": "gap_analysis_completed",
+      "metadata": {
+        "skillsprintScore": 71
+      },
+      "createdAt": "2026-08-10T05:02:03.476Z"
+    },
+    {
+      "id": "ev_test_return_3days_ago",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "eventType": "session_start",
+      "metadata": null,
+      "createdAt": "2026-08-15T05:02:03.476Z"
     }
   ]
 }

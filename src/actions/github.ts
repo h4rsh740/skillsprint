@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
 import { decrypt } from "@/lib/encryption";
 import { generateStructuredAIResponse, MODELS } from "@/lib/ai";
+import { track } from "@/lib/track";
+import { prisma } from "@/lib/prisma";
 
 export type GitHubAnalysisResult = {
   githubScore: number;
@@ -470,6 +472,24 @@ Return JSON of format:
     status: "success",
     details: { username: githubUsername, score: result.githubScore }
   });
+
+  // ── Analytics instrumentation ────────────────────────────────────────────
+  await track(user.id, "github_ingested", {
+    username: githubUsername,
+    score: result.githubScore,
+    repos: result.repositoriesCount,
+  });
+  if (process.env.DATABASE_URL) {
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { githubIngested: true },
+      });
+    } catch (err) {
+      console.error("[analytics] Failed to set githubIngested flag:", err);
+    }
+  }
+  // ───────────────────────────────────────────────────────────────────────
 
   await db.createNotification(user.id, {
     title: "GitHub Synchronized",

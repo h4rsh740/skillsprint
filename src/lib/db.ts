@@ -38,7 +38,8 @@ function getLocalDB() {
       notifications: [],
       sync_history: [],
       portfolios: [], // For legacy compatibility with portfolio audit actions
-      hackathons: [] // For legacy compatibility
+      hackathons: [], // For legacy compatibility
+      events: []      // Analytics event store
     };
     fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
     fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), "utf8");
@@ -54,7 +55,7 @@ function getLocalDB() {
       "resume_files", "resume_analysis", "github_analysis", "linkedin_analysis",
       "career_scores", "career_twins", "recommended_projects", "roadmaps",
       "learning_progress", "activity_logs", "mentor_sessions", "notifications",
-      "sync_history", "portfolios", "hackathons"
+      "sync_history", "portfolios", "hackathons", "events"
     ];
     let changed = false;
     keys.forEach(k => {
@@ -88,7 +89,8 @@ function getLocalDB() {
       notifications: [],
       sync_history: [],
       portfolios: [],
-      hackathons: []
+      hackathons: [],
+      events: []
     };
   }
 }

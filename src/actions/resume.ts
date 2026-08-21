@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
 import { extractResumeText } from "@/lib/resumeParser";
 import { analyzeResumeComplete } from "@/lib/resume";
+import { track } from "@/lib/track";
+import { prisma } from "@/lib/prisma";
 import path from "path";
 
 export type StructuredResume = {
@@ -173,6 +175,24 @@ export async function analyzeResume(formData: FormData): Promise<ResumeAnalysisR
     title: "Resume Analyzed",
     message: `ATS ${beforeScore.total} → ${afterScore.total}. Screening estimate: ${screening.percent}%.`,
   });
+
+  // ── Analytics instrumentation ────────────────────────────────────────────
+  await track(user.id, "resume_uploaded", {
+    fileName: file.name,
+    atsScore: afterScore.total,
+    resumeScore: beforeScore.total,
+  });
+  if (process.env.DATABASE_URL) {
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { resumeUploaded: true },
+      });
+    } catch (err) {
+      console.error("[analytics] Failed to set resumeUploaded flag:", err);
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────
 
   return {
     atsScore: beforeScore.total,

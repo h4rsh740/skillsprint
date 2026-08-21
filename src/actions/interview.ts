@@ -3,6 +3,41 @@
 import { generateStructuredAIResponse, MODELS } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
+import { prisma } from "@/lib/prisma";
+
+// ─── Free-tier cap ──────────────────────────────────────────────────────────
+const FREE_INTERVIEW_LIMIT = 3;
+
+export type InterviewUsage = {
+  count: number;
+  limit: number;
+  hasReachedLimit: boolean;
+};
+
+/**
+ * Returns how many mock interviews the current user has completed
+ * and whether they have hit the free-tier cap.
+ * Uses existing MentorSession rows — no new counter field needed.
+ */
+export async function getInterviewUsage(): Promise<InterviewUsage> {
+  const user = await getSessionUser();
+  if (!user) return { count: 0, limit: FREE_INTERVIEW_LIMIT, hasReachedLimit: false };
+
+  try {
+    let count = 0;
+    if (process.env.DATABASE_URL) {
+      count = await prisma.mentorSession.count({
+        where: { userId: user.id, sessionType: "Mock Interview" },
+      });
+    } else {
+      const sessions = await db.getInterviewsByUserId(user.id);
+      count = sessions.length;
+    }
+    return { count, limit: FREE_INTERVIEW_LIMIT, hasReachedLimit: count >= FREE_INTERVIEW_LIMIT };
+  } catch {
+    return { count: 0, limit: FREE_INTERVIEW_LIMIT, hasReachedLimit: false };
+  }
+}
 
 export type InterviewQuestion = {
   id: string;

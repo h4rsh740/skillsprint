@@ -7,7 +7,7 @@
 
 <p align="center">
   <strong>Predict. Prepare. Place.</strong><br>
-  A premium, state-of-the-art AI-powered Career Twin & Talent Intelligence Platform designed to bridge the gap between student competence and corporate placement.
+  An AI-powered Career Twin & Talent Intelligence Platform that bridges the gap between student potential and corporate placement.
 </p>
 
 <p align="center">
@@ -19,6 +19,22 @@
   <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-Database-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" /></a>
   <a href="https://firebase.google.com"><img src="https://img.shields.io/badge/Firebase-Auth%20%26%20Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" /></a>
 </p>
+
+---
+
+## 🎯 The Problem
+
+Over **60% of CS graduates** in India fail to land their first relevant engineering role — not from lack of degree, but from lack of targeted, personalized preparation. Generic job boards and YouTube courses don't tell students *what specifically they are missing* for the exact companies they want. SkillSprint AI solves this with a full-stack AI pipeline that analyzes, diagnoses, and closes those gaps in real time.
+
+## 🤖 What the AI Actually Does at Each Step
+
+| User Step | AI Pipeline |
+|---|---|
+| **Upload Resume** | Deterministic ATS parser → keyword extraction → `beforeScore` computed; Gemini enriches weak bullets and computes `afterScore` (+N pts improvement shown live) |
+| **Connect GitHub** | GitHub REST API → repo analysis → language proficiency, commit cadence, project complexity → Career Score sub-scores updated |
+| **View Skill Gaps** | Gemini synthesizes resume + GitHub signals → generates skill gap list mapped to target role (e.g. "Missing: System Design, Docker, Redis") |
+| **Generate Roadmap** | Gemini produces personalized 30/60/90-day plan with daily tasks, weekly milestones, resource links — all targeted at the exact gap |
+| **Mock Interview** | Web Speech API transcribes voice → Gemini evaluates answer quality, confidence, and technical depth → instant scorecard + feedback |
 
 ---
 
@@ -138,22 +154,21 @@ Create a `.env.local` file in the root directory and configure the variables:
 ```env
 # Firebase Client Credentials
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=skillsprint-ai-d8c4e.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=skillsprint-ai-d8c4e
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=skillsprint-ai-d8c4e.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
-# Supabase & Relational Database Connection (Prisma)
-DATABASE_URL="postgresql://postgres:[password]@db.[project-id].supabase.co:5432/postgres?schema=public"
+# Supabase (Prisma — use pooler URLs from Supabase Dashboard → Connect → ORM)
+DATABASE_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres"
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
-# Generative AI Models (API Keys)
+# Generative AI (Gemini recommended; OpenRouter fallback optional)
+GEMINI_API_KEY=your_gemini_api_key
 GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
-OPENAI_API_KEY=your_openai_api_key
 ```
 
 ### 4. Database Setup & Initialization

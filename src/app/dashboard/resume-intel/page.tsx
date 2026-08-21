@@ -136,7 +136,9 @@ export default function ResumeIntelPage() {
   const [job, setJob] = useState<JobProfile>({ title: "", description: "", skillsText: "" });
   const [loadingMsg, setLoadingMsg] = useState("");
   const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null);
-  const [activeTab, setActiveTab] = useState<"score" | "keywords" | "issues" | "compare" | "download">("score");
+  const [prevAnalysis, setPrevAnalysis] = useState<ResumeAnalysis | null>(null);
+  const [scanCount, setScanCount] = useState(0);
+  const [activeTab, setActiveTab] = useState<"score" | "keywords" | "issues" | "compare" | "rescan" | "download">("score");
   const [selectedChange, setSelectedChange] = useState<ResumeChange | null>(null);
   const [downloading, setDownloading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -220,7 +222,31 @@ export default function ResumeIntelPage() {
     setStage("upload");
     setFile(null); setFileName(""); setFileSize(0); setResumeText("");
     setJob({ title: "", description: "", skillsText: "" });
-    setAnalysis(null); setSelectedChange(null); setUploadError(null);
+    setAnalysis(null); setPrevAnalysis(null); setScanCount(0); setSelectedChange(null); setUploadError(null);
+  };
+
+  const rescan = async () => {
+    if (!resumeText) return;
+    setPrevAnalysis(analysis);
+    setStage("analyzing");
+    setLoadingMsg(ANALYZE_STAGES[0]);
+    const result = analyzeResumeComplete(resumeText, job, fileName, fileSize);
+    for (let i = 1; i < ANALYZE_STAGES.length; i++) {
+      await delay(280);
+      setLoadingMsg(ANALYZE_STAGES[i]);
+    }
+    await delay(300);
+    setAnalysis(result);
+    setScanCount((c) => c + 1);
+    setStage("results");
+    setActiveTab("rescan");
+    saveResumeInsight({
+      fileName, fileSize,
+      beforeScore: result.beforeScore.total,
+      afterScore: result.afterScore.total,
+      screeningPercent: result.screening.percent,
+      issuesCount: result.issues.length,
+    }).catch(() => {});
   };
 
   const downloadEnhanced = async () => {
@@ -457,11 +483,31 @@ export default function ResumeIntelPage() {
             </div>
           </div>
 
+          {/* Rescan CTA banner */}
+          <div className="flex items-center justify-between gap-4 bg-indigo-50 border border-indigo-200 rounded-2xl px-5 py-3.5">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 rounded-xl">
+                <RefreshCw className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-[13.5px] font-semibold text-indigo-900">Made changes to your resume?</p>
+                <p className="text-[12px] text-indigo-600">{scanCount === 0 ? "Re-run the full ATS analysis and see if your score improved." : `Scan #${scanCount + 1} — track your improvement over time.`}</p>
+              </div>
+            </div>
+            <button
+              id="rescan-resume-btn"
+              onClick={rescan}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-[13px] font-bold rounded-full px-5 py-2.5 transition-all whitespace-nowrap shadow-sm shadow-indigo-200"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Re-scan Resume
+            </button>
+          </div>
+
           {/* Tabs */}
           <div className="flex border-b border-slate-200/80 gap-1 justify-center flex-wrap">
-            {([["score", "ATS Score"], ["keywords", "Keywords"], ["issues", "Issues"], ["compare", "Compare"], ["download", "Download"]] as const).map(([key, label]) => (
-              <button key={key} onClick={() => setActiveTab(key)}
-                className={`pb-3 px-3 text-[14px] font-semibold transition-all relative ${activeTab === key ? "text-[#4f46e5]" : "text-slate-500 hover:text-slate-800"}`}>
+            {([["score", "ATS Score"], ["keywords", "Keywords"], ["issues", "Issues"], ["compare", "Compare"], ...(prevAnalysis ? [["rescan", `Rescan #${scanCount} ✦`] as const] : []), ["download", "Download"]] as [string, string][]).map(([key, label]) => (
+              <button key={key} onClick={() => setActiveTab(key as any)}
+                className={`pb-3 px-3 text-[14px] font-semibold transition-all relative ${activeTab === key ? "text-[#4f46e5]" : key === `Rescan #${scanCount} ✦` || key.startsWith("rescan") ? "text-indigo-500 hover:text-indigo-700" : "text-slate-500 hover:text-slate-800"}`}>
                 {label}
                 {activeTab === key && <motion.div layoutId="tabUnderline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4f46e5]" />}
               </button>
@@ -645,6 +691,51 @@ export default function ResumeIntelPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ---- RESCAN TAB ---- */}
+          {activeTab === "rescan" && prevAnalysis && (
+            <SectionCard title={`Rescan #${scanCount} — Progress Tracker`} icon={<TrendingUp className="w-5 h-5 text-indigo-600" />}>
+              <p className="text-[13px] text-slate-500 mb-5">Shows how your ATS score changed between scans. Each rescan uses the same resume text — make edits outside and re-upload to see real improvements.</p>
+              <div className="grid sm:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                  <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wide mb-1">Scan 1 · Original ATS</p>
+                  <div className="text-4xl font-black text-slate-700">{prevAnalysis.beforeScore.total}<span className="text-lg text-slate-400">/100</span></div>
+                  <div className="mt-2 text-[11px] px-2 py-0.5 rounded-full inline-block font-semibold bg-slate-100 text-slate-600">{prevAnalysis.beforeScore.grade}</div>
+                </div>
+                <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 text-center flex flex-col items-center justify-center">
+                  <p className="text-[11px] text-indigo-500 font-bold uppercase tracking-wide mb-2">ATS Change</p>
+                  {(() => {
+                    const delta = analysis!.afterScore.total - prevAnalysis.afterScore.total;
+                    return (
+                      <div className={`text-5xl font-black ${delta >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                        {delta >= 0 ? "+" : ""}{delta}
+                        <span className="text-lg text-slate-400 font-semibold"> pts</span>
+                      </div>
+                    );
+                  })()}
+                  <p className="text-[11px] text-indigo-500 mt-1">Enhanced score delta</p>
+                </div>
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+                  <p className="text-[11px] text-emerald-600 font-medium uppercase tracking-wide mb-1">Scan {scanCount} · Current ATS</p>
+                  <div className="text-4xl font-black text-emerald-700">{analysis!.afterScore.total}<span className="text-lg text-slate-400">/100</span></div>
+                  <div className="mt-2 text-[11px] px-2 py-0.5 rounded-full inline-block font-semibold bg-emerald-100 text-emerald-700">{analysis!.afterScore.grade}</div>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {categoryDeltas(prevAnalysis.afterScore, analysis!.afterScore).map((d) => (
+                  <div key={d.label} className="p-3 rounded-xl bg-white/60 border border-slate-200">
+                    <p className="text-[11px] font-medium text-slate-500 mb-1">{d.label}</p>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-[14px] font-bold text-slate-400">{d.before}</span>
+                      <ChevronRight className="w-3 h-3 text-slate-300" />
+                      <span className="text-[16px] font-bold text-slate-900">{d.after}</span>
+                      {d.delta !== 0 && <span className={`text-[11px] font-bold ${d.delta > 0 ? "text-emerald-600" : "text-rose-600"}`}>{d.delta > 0 ? `+${d.delta}` : d.delta}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
           )}
 
           {/* ---- DOWNLOAD TAB ---- */}

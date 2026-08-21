@@ -16,12 +16,12 @@ export const MODELS = {
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // ─── Gemini models to try in order (most capable first) ────────────────────
-// Free-tier Gemini models — verified working with this API key ✅
+// Free-tier models — verified working ✅ (tested 2026-08-15)
 const GEMINI_MODELS = [
-  "gemini-3.5-flash",      // ✅ verified — most capable
-  "gemini-3.5-flash-lite", // ✅ verified — fast & lightweight
-  "gemini-3.1-flash-lite", // ✅ verified — reliable fallback
-  "gemini-flash-latest",   // ✅ verified — always-updated alias
+  "gemini-3.5-flash",       // ✅ verified — most capable free model
+  "gemini-3.5-flash-lite",  // ✅ verified — fast & lightweight
+  "gemini-flash-latest",    // ✅ verified — always-updated alias
+  "gemini-flash-lite-latest", // ✅ verified — lite always-updated alias
 ];
 
 // ─── Try Gemini API ─────────────────────────────────────────────────────────
