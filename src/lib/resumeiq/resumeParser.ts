@@ -1,8 +1,4 @@
-import { execSync } from "child_process";
-import fs from "fs";
-import path from "path";
-import os from "os";
-const { PDFParse } = require("pdf-parse") as any;
+import { extractText, getDocumentProxy } from "unpdf";
 import { ResumeData, ExperienceEntry, ProjectEntry, EducationEntry } from "./types";
 
 export function normalizeText(text: string): string {
@@ -74,26 +70,13 @@ export function extractContactInfo(text: string) {
 export async function parsePdfResume(buffer: Buffer): Promise<ResumeData> {
   let rawText = "";
 
-  if (process.env.NODE_ENV === "development") {
-    // In development mode, use isolated child process to bypass Next.js HMR prototype pollution
-    const tempId = Math.random().toString(36).substring(7);
-    const tempPath = path.join(os.tmpdir(), `temp_${tempId}.pdf`);
-    const cliParserPath = path.join(process.cwd(), "src/lib/pdfCliParser.js");
-    
-    fs.writeFileSync(tempPath, buffer);
-    try {
-      const stdout = execSync(`node "${cliParserPath}" "${tempPath}"`, { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
-      rawText = normalizeText(stdout);
-    } finally {
-      if (fs.existsSync(tempPath)) {
-        fs.unlinkSync(tempPath);
-      }
-    }
-  } else {
-    // In production (Vercel serverless environment), run pdf-parse directly in the Node.js route
-    const parser = new PDFParse(new Uint8Array(buffer));
-    const parsedData = await parser.getText();
-    rawText = normalizeText(parsedData.text);
+  try {
+    const pdf = await getDocumentProxy(new Uint8Array(buffer));
+    const { text } = await extractText(pdf, { mergePages: true });
+    rawText = normalizeText(text || "");
+  } catch (err: any) {
+    console.error("PDF parsing via unpdf failed:", err);
+    throw new Error(`PDF parsing failed: ${err?.message || "unknown error"}`);
   }
   
   const contact = extractContactInfo(rawText);
