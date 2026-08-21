@@ -3,7 +3,23 @@ import fs from "fs";
 import path from "path";
 
 // Define the file path for local fallback database
-const DB_FILE = path.join(process.cwd(), "prisma", "db.json");
+const DB_FILE = (() => {
+  if (process.env.VERCEL) {
+    const tmpPath = path.join("/tmp", "db.json");
+    if (!fs.existsSync(tmpPath)) {
+      const srcPath = path.join(process.cwd(), "prisma", "db.json");
+      try {
+        if (fs.existsSync(srcPath)) {
+          fs.copyFileSync(srcPath, tmpPath);
+        }
+      } catch (e) {
+        console.error("Failed to seed tmp db.json:", e);
+      }
+    }
+    return tmpPath;
+  }
+  return path.join(process.cwd(), "prisma", "db.json");
+})();
 
 // Helper to initialize the local JSON database with all 17 tables if it doesn't exist
 function getLocalDB() {
