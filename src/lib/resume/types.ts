@@ -54,6 +54,8 @@ export interface ResumeData {
   achievements: string[];
   // Which standard sections were detected in the original resume.
   sectionsPresent: Record<string, boolean>;
+  // The order sections appeared in the original document.
+  sectionOrder: string[];
   rawText: string;
 }
 

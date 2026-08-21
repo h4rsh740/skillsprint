@@ -3404,12 +3404,12 @@
   "career_scores": [
     {
       "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
-      "overallScore": 52,
-      "resumeScore": 11,
+      "overallScore": 51,
+      "resumeScore": 7,
       "githubScore": 75,
       "portfolioScore": 75,
       "interviewReadiness": 60,
-      "hiringScore": 37,
+      "hiringScore": 36,
       "details": {
         "history": [
           {
@@ -3422,11 +3422,11 @@
           },
           {
             "month": "June",
-            "score": 52
+            "score": 51
           }
         ]
       },
-      "updatedAt": "2026-08-21T12:05:25.806Z"
+      "updatedAt": "2026-08-21T19:31:19.648Z"
     },
     {
       "userId": "cmZy1e7rHiQP1s8N8qK1Hc3sCPg2",

@@ -60,6 +60,254 @@ const SURFACE_MAP: { keyword: string; trigger: RegExp; replacement?: (s: string)
   { keyword: "system design", trigger: /\barchitect|scalab/, replacement: undefined },
 ];
 
+// ---------------------------------------------------------------------------
+// Project intelligence: synthesize new ATS-optimized bullet points
+// ---------------------------------------------------------------------------
+//
+// Rules:
+//   - Only infer from the project title/heading and the user's detected skills.
+//   - Never invent a company name, metric, date, or specific number.
+//   - Each bullet uses a strong action verb.
+//   - Prioritize target keywords missing from the project's existing bullets.
+//   - Add at most MAX_NEW_BULLETS new bullets per project.
+//   - Never duplicate a point already covered by an existing bullet.
+
+const MAX_NEW_BULLETS = 4;
+
+type BulletTemplate = (skills: string[], missingKw: string[]) => string | null;
+
+const PROJECT_DOMAIN_RULES: {
+  match: RegExp;
+  techHints: string[];
+  bulletTemplates: BulletTemplate[];
+}[] = [
+  // ── Web / Full-Stack ────────────────────────────────────────────────────
+  {
+    match: /\b(web|website|web app|web application|full.?stack|portal|dashboard|platform|saas|app)\b/i,
+    techHints: ["react", "next.js", "node.js", "express", "rest api", "mongodb", "postgresql", "typescript", "tailwind"],
+    bulletTemplates: [
+      (skills, _mk) => {
+        const fe = skills.find((s) => ["react", "next.js", "vue", "angular", "svelte"].includes(s));
+        const be = skills.find((s) => ["node.js", "express", "django", "fastapi", "spring boot", "flask"].includes(s));
+        if (fe && be) return `Built a full-stack application using ${titleCase(fe)} on the frontend and ${titleCase(be)} on the backend with RESTful API integration`;
+        if (fe) return `Developed an interactive frontend with ${titleCase(fe)}, implementing component-based architecture and responsive UI design`;
+        if (be) return `Engineered a ${titleCase(be)} backend with RESTful APIs and middleware for authentication and data validation`;
+        return `Designed and developed a responsive web application with clean component-based architecture`;
+      },
+      (skills, mk) => {
+        const db = skills.find((s) => ["mongodb", "postgresql", "mysql", "sqlite", "firebase", "supabase", "redis"].includes(s));
+        if (!db) return null;
+        const hasQuery = mk.includes("sql") || mk.includes("database");
+        return `Integrated ${titleCase(db)} as the primary data store, designing schemas and ${hasQuery ? "optimized SQL queries" : "efficient data access patterns"} for reliable persistence`;
+      },
+      (skills, mk) => {
+        const hasAuth = skills.some((s) => ["jwt", "oauth", "nextauth", "authentication"].includes(s)) || mk.includes("authentication") || mk.includes("jwt");
+        if (!hasAuth) return null;
+        const auth = skills.find((s) => ["jwt", "oauth", "nextauth"].includes(s));
+        return `Implemented secure user authentication and authorization using ${auth ? titleCase(auth) : "JWT"}, protecting routes and managing session state`;
+      },
+      (skills, mk) => {
+        const deployed = skills.find((s) => ["vercel", "netlify", "heroku", "aws", "gcp", "azure", "docker"].includes(s));
+        if (!deployed && !mk.includes("ci/cd")) return null;
+        return `Deployed the application to ${deployed ? titleCase(deployed) : "a cloud platform"} with environment-based configuration and continuous delivery pipeline`;
+      },
+      (skills, mk) => {
+        const hasCss = mk.includes("responsive design") || skills.includes("tailwind") || skills.includes("css");
+        if (!hasCss) return null;
+        const css = skills.find((s) => ["tailwind", "tailwindcss", "bootstrap", "sass", "scss"].includes(s));
+        return `Crafted a fully responsive UI using ${css ? titleCase(css) : "CSS"}, ensuring a consistent cross-device experience on mobile, tablet, and desktop`;
+      },
+    ],
+  },
+  // ── REST / API Service ──────────────────────────────────────────────────
+  {
+    match: /\b(api|rest|microservice|service|backend|server|endpoint)\b/i,
+    techHints: ["node.js", "express", "fastapi", "django", "spring boot", "rest api", "postgresql", "mongodb"],
+    bulletTemplates: [
+      (skills, _mk) => {
+        const fw = skills.find((s) => ["express", "fastapi", "django", "flask", "spring boot"].includes(s));
+        return `Developed a RESTful API${fw ? ` with ${titleCase(fw)}` : ""} supporting CRUD operations, input validation, and structured JSON responses`;
+      },
+      (_s, mk) => {
+        if (!mk.includes("authentication") && !mk.includes("jwt") && !mk.includes("oauth")) return null;
+        return `Secured API endpoints with JWT-based authentication, role-based access control, and token refresh logic`;
+      },
+      (skills, _mk) => {
+        const db = skills.find((s) => ["postgresql", "mongodb", "mysql", "redis"].includes(s));
+        if (!db) return null;
+        return `Connected the service to ${titleCase(db)}, implementing repository patterns and query optimization for efficient data retrieval`;
+      },
+      (_s, mk) => {
+        if (!mk.includes("testing") && !mk.includes("jest") && !mk.includes("mocha")) return null;
+        return `Wrote unit and integration tests covering API endpoints, achieving reliable test coverage and catching edge-case failures`;
+      },
+    ],
+  },
+  // ── Machine Learning / AI ───────────────────────────────────────────────
+  {
+    match: /\b(ml|machine learning|ai|model|prediction|classifier|deep learning|nlp|computer vision|recommendation|neural)\b/i,
+    techHints: ["python", "tensorflow", "pytorch", "scikit-learn", "pandas", "numpy", "keras"],
+    bulletTemplates: [
+      (skills, _mk) => {
+        const fw = skills.find((s) => ["tensorflow", "pytorch", "keras", "scikit-learn"].includes(s));
+        return `Built and trained a machine learning model using ${fw ? titleCase(fw) : "Python"}, covering data preprocessing, feature engineering, and model evaluation`;
+      },
+      (skills, _mk) => {
+        const data = skills.find((s) => ["pandas", "numpy"].includes(s));
+        if (!data) return null;
+        return `Performed exploratory data analysis with ${titleCase(data)}, cleaning and transforming raw datasets to improve model accuracy`;
+      },
+      (_s, mk) => {
+        if (!mk.includes("rest api") && !mk.includes("api")) return null;
+        return `Exposed the trained model as a REST API endpoint, enabling integration with downstream applications and front-end clients`;
+      },
+      () => `Evaluated model performance using precision, recall, F1-score, and confusion matrix analysis to validate results`,
+    ],
+  },
+  // ── Mobile App ─────────────────────────────────────────────────────────
+  {
+    match: /\b(mobile|android|ios|app|flutter|react native)\b/i,
+    techHints: ["react native", "flutter", "android", "ios", "firebase"],
+    bulletTemplates: [
+      (skills, _mk) => {
+        const fw = skills.find((s) => ["react native", "flutter", "android", "ios"].includes(s));
+        return `Developed a cross-platform mobile application using ${fw ? titleCase(fw) : "React Native"}, delivering a native-feel user experience on both Android and iOS`;
+      },
+      (skills, _mk) => {
+        const db = skills.find((s) => ["firebase", "supabase", "sqlite"].includes(s));
+        if (!db) return null;
+        return `Integrated ${titleCase(db)} for real-time data synchronization, offline support, and user authentication`;
+      },
+      (_s, mk) => {
+        if (!mk.includes("rest api") && !mk.includes("api")) return null;
+        return `Consumed REST APIs to fetch and display dynamic content, handling loading states and error scenarios gracefully`;
+      },
+    ],
+  },
+  // ── Data / Analytics ───────────────────────────────────────────────────
+  {
+    match: /\b(data|analytics|dashboard|visualization|report|etl|pipeline|scraper|crawler)\b/i,
+    techHints: ["python", "pandas", "numpy", "sql", "postgresql", "tableau", "power bi", "chart.js"],
+    bulletTemplates: [
+      (skills, _mk) => {
+        const viz = skills.find((s) => ["tableau", "power bi", "chart.js", "d3", "d3.js"].includes(s));
+        const data = skills.find((s) => ["pandas", "numpy"].includes(s));
+        if (viz) return `Built interactive data visualizations using ${titleCase(viz)}, enabling stakeholders to explore trends and derive actionable insights`;
+        if (data) return `Processed and analyzed datasets using ${titleCase(data)}, generating summary statistics and visual reports`;
+        return `Designed a data pipeline to ingest, clean, and aggregate raw data for downstream reporting and analysis`;
+      },
+      (skills, _mk) => {
+        const db = skills.find((s) => ["postgresql", "mysql", "sqlite", "mongodb"].includes(s));
+        if (!db) return null;
+        return `Wrote optimized SQL queries against a ${titleCase(db)} database to extract, aggregate, and transform records for analysis`;
+      },
+    ],
+  },
+  // ── DevOps / Infrastructure ─────────────────────────────────────────────
+  {
+    match: /\b(devops|ci|cd|deploy|infrastructure|docker|kubernetes|pipeline|automation|cloud)\b/i,
+    techHints: ["docker", "kubernetes", "github actions", "terraform", "aws", "gcp", "azure", "ci/cd"],
+    bulletTemplates: [
+      (skills, _mk) => {
+        const ci = skills.find((s) => ["github actions", "jenkins", "gitlab ci"].includes(s));
+        return `Configured a CI/CD pipeline using ${ci ? titleCase(ci) : "GitHub Actions"} to automate build, test, and deployment stages, reducing manual effort and deployment risk`;
+      },
+      (skills, _mk) => {
+        const container = skills.find((s) => ["docker", "kubernetes", "k8s"].includes(s));
+        if (!container) return null;
+        return `Containerized the application with ${titleCase(container)}, enabling consistent environments across development, staging, and production`;
+      },
+      (skills, _mk) => {
+        const cloud = skills.find((s) => ["aws", "gcp", "azure"].includes(s));
+        if (!cloud) return null;
+        return `Provisioned and managed cloud infrastructure on ${titleCase(cloud)}, configuring compute, storage, and networking resources for scalability`;
+      },
+    ],
+  },
+  // ── Generic catch-all ───────────────────────────────────────────────────
+  {
+    match: /./,
+    techHints: [],
+    bulletTemplates: [
+      (skills, mk) => {
+        const top = [...mk, ...skills].slice(0, 3).map(titleCase).join(", ");
+        if (!top) return null;
+        return `Developed the project leveraging ${top}, applying software engineering best practices to deliver a working, maintainable solution`;
+      },
+      (_s, mk) => {
+        if (!mk.includes("git") && !mk.includes("github")) return null;
+        return `Managed version control with Git, maintaining a clean commit history and collaborating through pull requests and code reviews`;
+      },
+    ],
+  },
+];
+
+/**
+ * Synthesize new ATS-optimized bullet points for a project that has
+ * few or no bullets, based on its heading/title, the user's skill set,
+ * and which target keywords are missing from the project's existing content.
+ */
+function synthesizeProjectBullets(
+  project: ProjectEntry,
+  resumeSkills: string[],
+  keywords: KeywordAnalysis,
+): string[] {
+  const heading = (project.heading + " " + (project.title || "")).toLowerCase();
+  const existingText = project.bullets.join(" ").toLowerCase();
+
+  // Target keywords not yet present in this project's existing bullets.
+  const missingFromProject = keywords.targetKeywords.filter(
+    (kw) => !keywordPresence(existingText + " " + heading, kw).exact
+  );
+
+  // User's skills not already mentioned in existing bullets.
+  const relevantSkills = resumeSkills.filter(
+    (s) => !keywordPresence(existingText, s).exact
+  );
+
+  const generated: string[] = [];
+  const alreadySeen = new Set(project.bullets.map((b) => b.toLowerCase().slice(0, 35)));
+
+  for (const rule of PROJECT_DOMAIN_RULES) {
+    // For the catch-all rule, only run if nothing was generated yet.
+    const isCatchAll = rule.match.source === ".";
+    if (isCatchAll && generated.length > 0) continue;
+    if (!isCatchAll && !rule.match.test(heading)) continue;
+
+    // Which of the user's skills overlap with this domain's expected tech?
+    const domainSkills = resumeSkills.filter((s) =>
+      rule.techHints.length === 0 || rule.techHints.includes(s)
+    );
+    const skillsToUse = domainSkills.length > 0 ? domainSkills : relevantSkills;
+
+    for (const template of rule.bulletTemplates) {
+      if (generated.length >= MAX_NEW_BULLETS) break;
+      const bullet = template(skillsToUse, missingFromProject);
+      if (!bullet) continue;
+
+      const key = bullet.toLowerCase().slice(0, 35);
+      if (alreadySeen.has(key)) continue;
+
+      // Only add if the bullet surfaces at least one new keyword or skill signal.
+      const addsKeyword =
+        missingFromProject.some((kw) =>
+          new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(bullet)
+        ) ||
+        relevantSkills.some((s) =>
+          new RegExp(`\\b${s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(bullet)
+        );
+      if (!addsKeyword) continue;
+
+      alreadySeen.add(key);
+      generated.push(bullet);
+    }
+
+    if (generated.length >= MAX_NEW_BULLETS) break;
+  }
+
+  return generated;
+}
+
 function capitalize(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
@@ -316,9 +564,10 @@ export function enhanceResume(
     return { ...e, bullets };
   });
 
-  // Project bullets
+  // Project bullets — enhance existing + synthesize new ATS-boosting bullets
   const projects: ProjectEntry[] = resume.projects.map((p) => {
-    const bullets = p.bullets.map((b) => {
+    // 1. Strengthen existing bullets (verb replacement, keyword surfacing).
+    const enhancedBullets = p.bullets.map((b) => {
       const nb = enhanceBullet(b, job, keywords, aggressive);
       if (nb !== b.trim()) {
         changes.push({
@@ -333,7 +582,27 @@ export function enhanceResume(
       }
       return nb;
     });
-    return { ...p, bullets };
+
+    // 2. Synthesize new bullets from project heading + user skills + missing keywords.
+    const newBullets = synthesizeProjectBullets(
+      { ...p, bullets: enhancedBullets },
+      newSkills,
+      keywords,
+    );
+
+    if (newBullets.length > 0) {
+      changes.push({
+        id: `ch-proj-synth-${p.id}`,
+        section: "Projects",
+        originalText: `"${p.heading}" — ${p.bullets.length === 0 ? "no bullet points" : `${p.bullets.length} existing bullet(s)`}`,
+        enhancedText: newBullets.join("\n"),
+        changeType: "added",
+        reason: `Synthesized ${newBullets.length} ATS-optimized bullet point(s) inferred from the project title, your detected skill set, and the job's missing keywords. No facts were invented — all points reflect the tech context evident from the project heading and your skills.`,
+        atsImpact: "+ Action verbs, keyword coverage & project relevance",
+      });
+    }
+
+    return { ...p, bullets: [...enhancedBullets, ...newBullets] };
   });
 
   // ATS-friendly structure change (headings standardized in the serialized output).

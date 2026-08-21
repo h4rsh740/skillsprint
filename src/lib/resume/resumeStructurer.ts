@@ -10,35 +10,51 @@ import { SKILL_SET, ALIASES } from "./skillDictionary";
 import type { ResumeData, PersonalInfo, ExperienceEntry, ProjectEntry, EducationEntry, CertificationEntry } from "./types";
 
 const HEADING_PATTERNS: Record<string, RegExp> = {
-  summary: /\b(summary|profile|objective|about me|career objective|professional summary)\b/i,
-  experience: /\b(experience|work history|employment|professional experience|internship|internships|work experience)\b/i,
-  education: /\b(education|academic|academics|qualification|qualifications)\b/i,
-  skills: /\b(skills|technical skills|core competencies|tech stack|technologies|technical proficiency|tech)\b/i,
-  projects: /\b(projects|project|personal projects|academic projects|portfolio)\b/i,
-  certifications: /\b(certification|certifications|certificate|certificates|courses)\b/i,
-  achievements: /\b(achievements|awards|honors|honours)\b/i,
+  summary: /^\s*(?:[\d.-]+\s*|[ivxIVX]+\.\s*)?(?:professional\s+|career\s+|personal\s+)?(?:summary|profile|objective|overview|about\s*me|statement)\s*$/i,
+  experience: /^\s*(?:[\d.-]+\s*|[ivxIVX]+\.\s*)?(?:work\s+|professional\s+|employment\s+|career\s+|relevant\s+)?(?:experience|history|employment|positions?\s*held|background)\s*$/i,
+  education: /^\s*(?:[\d.-]+\s*|[ivxIVX]+\.\s*)?(?:education|academic\s+background|academics|qualifications?|schooling)\s*$/i,
+  skills: /^\s*(?:[\d.-]+\s*|[ivxIVX]+\.\s*)?(?:technical\s+|core\s+|key\s+|professional\s+)?(?:skills|proficiencies|technologies|tech\s*stack|expertise|tools?|programming\s*languages?)\s*$/i,
+  projects: /^\s*(?:[\d.-]+\s*|[ivxIVX]+\.\s*)?(?:personal\s+|academic\s+|key\s+|side\s+|selected\s+)?(?:projects?|portfolio|accomplishments)\s*$/i,
+  certifications: /^\s*(?:[\d.-]+\s*|[ivxIVX]+\.\s*)?(?:certifications?|certificates?|credentials?|courses|licenses)\s*$/i,
+  achievements: /^\s*(?:[\d.-]+\s*|[ivxIVX]+\.\s*)?(?:achievements?|awards?|honors?|recognitions?|accomplishments?)\s*$/i,
 };
 
-const BULLET_RE = /^\s*([-*•–·]|\d+[.)])\s+/;
-const YEAR_RANGE_RE = /\b(19|20)\d{2}\s*[-–]\s*((19|20)\d{2}|present|current|now)\b/i;
-const ROLE_WORD_RE = /\b(engineer|developer|intern|analyst|designer|manager|consultant|architect|lead|programmer|administrator|specialist|researcher|devops|scientist|technician)\b/i;
+// Bullet indicators: -, *, •, –, ·, ▸, ▶, ○, ◦, →, » + numbered lists
+const BULLET_RE = /^\s*([-*•–·▸▶○◦→»]|\d+[.):]|[a-z][.)])\s+/;
+const YEAR_RANGE_RE = /\b(19|20)\d{2}\s*[-–—]\s*((19|20)\d{2}|present|current|now|ongoing|till date|to date)\b/i;
+const ROLE_WORD_RE = /\b(engineer|developer|intern|analyst|designer|manager|consultant|architect|lead|programmer|administrator|specialist|researcher|devops|scientist|technician|founder|co-founder|director)\b/i;
 
 function cleanLines(text: string): string[] {
   return text
     .split(/\r?\n/)
-    .map((l) => l.replace(/ /g, " ").trim())
+    .map((l) => l.replace(/[\u00a0\u2009\u200a]/g, " ").trim())
     .filter((l) => l.length > 0);
 }
 
 function looksLikeHeading(line: string): boolean {
   const trimmed = line.trim();
-  if (trimmed.length === 0 || trimmed.length > 45) return false;
-  if (/[.!?:]$/.test(trimmed)) return false;
-  const upper = trimmed.toUpperCase();
-  // All-caps short line, or Title Case short line.
-  const isAllCaps = upper === trimmed && /[A-Z]/.test(trimmed) && !/[a-z]/.test(trimmed);
-  const isTitleCase = /^([A-Z][a-z]+\s?){1,5}$/.test(trimmed);
-  return isAllCaps || isTitleCase;
+  if (trimmed.length === 0 || trimmed.length > 50) return false;
+  if (/[.!?]$/.test(trimmed)) return false;
+
+  // Headings do not contain role/company separator punctuation like hyphens, pipes, commas, or email @ signs
+  if (/[-|,@#]/.test(trimmed)) return false;
+
+  // A heading should not contain common prose verbs or prepositions that imply it's a bullet/sentence
+  if (/\b(developed|built|managed|created|designed|implemented|assisted|worked|using|with|from|through)\b/i.test(trimmed)) return false;
+
+  // Direct match in case-insensitive check
+  const lower = trimmed.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
+  const KNOWN_WORDS = [
+    "skills", "technical skills", "experience", "work experience", "professional experience",
+    "projects", "education", "certifications", "achievements", "awards", "summary",
+    "professional summary", "about me", "profile", "objective", "career objective",
+    "internships", "internship", "activities", "extracurriculars", "courses",
+    "tools", "technologies", "tech stack", "languages", "programming languages",
+    "contact", "references", "publications", "interests", "hobbies", "employment history",
+    "employment", "academic background", "credentials", "projects portfolio",
+  ];
+
+  return KNOWN_WORDS.some((h) => lower === h || lower.startsWith(h + " ") || lower.endsWith(" " + h));
 }
 
 function isBullet(line: string): boolean {
@@ -259,6 +275,9 @@ export function structureResume(rawText: string): ResumeData {
       Boolean(contact.github),
   };
 
+  // Section order as it appeared in the original document.
+  const sectionOrder = sectionIndices.map((s) => s.key);
+
   return {
     personalInfo: contact,
     summary,
@@ -269,6 +288,7 @@ export function structureResume(rawText: string): ResumeData {
     certifications,
     achievements,
     sectionsPresent,
+    sectionOrder,
     rawText,
   };
 }

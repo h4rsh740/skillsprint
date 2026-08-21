@@ -912,10 +912,19 @@ export const db = {
         });
         if (roadmap) {
           const progress = roadmap.progress[0];
-          const weeklyTasks = (roadmap.weeklyRoadmap as any[])?.map((w: any) => ({
-            text: `Week ${w.week}: ${w.goal}`,
-            completed: false
-          })) || [];
+          let weeklyTasks: any[] = [];
+          try {
+            const rawWeekly = roadmap.weeklyRoadmap;
+            const parsedWeekly = typeof rawWeekly === "string" ? JSON.parse(rawWeekly) : rawWeekly;
+            if (Array.isArray(parsedWeekly)) {
+              weeklyTasks = parsedWeekly.map((w: any) => ({
+                text: `Week ${w.week}: ${w.goal}`,
+                completed: false
+              }));
+            }
+          } catch (e) {
+            console.error("Error parsing weeklyRoadmap:", e);
+          }
 
           return {
             id: roadmap.id,
