@@ -42,6 +42,8 @@ async function callGeminiFallback(
   if (!geminiApiKey) return null;
 
   const modelsToTry = [
+    "gemini-1.5-flash",
+    "gemini-2.0-flash",
     "gemini-flash-latest",
     "gemini-3.5-flash",
     "gemini-2.5-flash",

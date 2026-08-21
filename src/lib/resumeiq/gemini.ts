@@ -12,7 +12,7 @@ export class GeminiError extends Error {
   }
 }
 
-const DEFAULT_MODEL = "gemini-3.1-flash-lite";
+const DEFAULT_MODEL = "gemini-1.5-flash";
 
 /** Strip markdown code fences and extract the first JSON object. */
 function extractJson(content: string): string {
@@ -137,6 +137,10 @@ export async function enhanceResumeWithGemini(
       } catch (err) {
         lastError = err;
         console.warn(`[AI] Gemini attempt ${attempt} failed:`, err instanceof Error ? err.message : err);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        if (errMsg.includes("not found") || errMsg.includes("API key") || errMsg.includes("unauthorized") || errMsg.includes("403") || errMsg.includes("400")) {
+          break;
+        }
       }
     }
   }
