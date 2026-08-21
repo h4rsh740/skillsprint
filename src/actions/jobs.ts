@@ -1,155 +1,324 @@
 "use server";
 
+import { prisma } from "@/lib/prisma";
 import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
+import { syncAllJobs } from "@/lib/opportunities/jobs/providers";
+import { computeJobMatch, simulateSkillAcquisition, type MatchResult } from "@/lib/matching/jobMatcher";
+import type { ApplicationStatus } from "@prisma/client";
 
-export type JobListing = {
+export type VerifiedJobCard = {
   id: string;
-  title: string;
+  externalId: string;
+  source: string;
   company: string;
-  location: string;
-  salary: string;
+  title: string;
   description: string;
-  url: string;
-  matchScore: number;
-  matchingSkills: string[];
-  missingSkills: string[];
-  explainableReason: string;
+  location: string;
+  workMode: string;
+  employmentType: string;
+  department?: string | null;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  currency?: string | null;
+  officialUrl: string;
+  applicationUrl: string;
+  requiredSkills: string[];
+  preferredSkills: string[];
+  publishedAt?: Date | null;
+  lastVerifiedAt: Date;
+  match: MatchResult;
+  applicationStatus?: ApplicationStatus | null;
+  appliedAt?: Date | null;
 };
 
-export async function getJobRecommendations(): Promise<JobListing[]> {
+export type JobsOverviewStats = {
+  totalJobs: number;
+  avgMatchScore: number;
+  avgHiringProbability: number;
+  appliedCount: number;
+  interviewCount: number;
+  offerCount: number;
+  topVerifiedSkills: string[];
+};
+
+/**
+ * Retrieves student profile context for matching (combining DB profile, GitHub analysis, and Resume)
+ */
+async function getStudentMatchingContext(userId: string) {
+  const profile = await db.getProfileByUserId(userId);
+  const githubAnalysis = await db.getLatestGitHubAnalysis(userId);
+  const resume = await db.getLatestResumeByUserId(userId);
+
+  // Extract verified skills from GitHub repos/analyses
+  const verifiedGithubSkills: string[] = [];
+  if (githubAnalysis?.suggestions && Array.isArray((githubAnalysis.suggestions as any)?.topSkills)) {
+    verifiedGithubSkills.push(...(githubAnalysis.suggestions as any).topSkills);
+  }
+
+  return {
+    targetRole: profile?.targetRole || "Software Engineer",
+    skills: profile?.skills || ["React", "JavaScript", "HTML", "CSS", "Git"],
+    verifiedGithubSkills: Array.from(new Set(verifiedGithubSkills)),
+    experienceYears: 0,
+    education: profile?.college ? `${profile.college} - ${profile.branch || "CS"}` : undefined,
+    location: profile?.college || "India",
+    preferredWorkMode: "Remote",
+    resumeAtsScore: resume?.atsScore || 70,
+  };
+}
+
+/**
+ * Returns verified real jobs ranked by match score with full AI-estimated hiring probability
+ */
+export async function getVerifiedJobs(filters?: {
+  search?: string;
+  workMode?: string;
+  minMatchScore?: number;
+  status?: string;
+}): Promise<{ jobs: VerifiedJobCard[]; stats: JobsOverviewStats }> {
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const profile = await db.getProfileByUserId(user.id);
-  const targetRole = profile?.targetRole || "Software Developer";
-  const userSkills = profile?.skills || ["React", "JavaScript", "HTML", "CSS"];
-
-  const adzunaAppId = process.env.ADZUNA_APP_ID;
-  const adzunaAppKey = process.env.ADZUNA_APP_KEY;
-  const jsearchApiKey = process.env.JSEARCH_API_KEY;
-
-  let rawJobs: any[] = [];
-
-  // 1. Try JSearch API
-  if (jsearchApiKey) {
-    try {
-      const url = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(targetRole)}&num_pages=1`;
-      const res = await fetch(url, {
-        headers: {
-          "X-RapidAPI-Key": jsearchApiKey,
-          "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
-        },
-        next: { revalidate: 3600 }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        rawJobs = data.data || [];
-      }
-    } catch (err) {
-      console.warn("Failed to fetch JSearch API, falling back:", err);
-    }
-  }
-
-  // 2. Try Adzuna API if JSearch empty
-  if (rawJobs.length === 0 && adzunaAppId && adzunaAppKey) {
-    try {
-      const url = `https://api.adzuna.com/v1/api/jobs/in/search/1?app_id=${adzunaAppId}&app_key=${adzunaAppKey}&what=${encodeURIComponent(targetRole)}`;
-      const res = await fetch(url, { next: { revalidate: 3600 } });
-      if (res.ok) {
-        const data = await res.json();
-        rawJobs = data.results || [];
-      }
-    } catch (err) {
-      console.warn("Failed to fetch Adzuna API, falling back:", err);
-    }
-  }
-
-  // 3. Fallback High-Fidelity Mock Jobs (Hackathon Demo Mode)
-  if (rawJobs.length === 0) {
-    rawJobs = [
-      {
-        id: "mock-1",
-        title: `Junior ${targetRole.split(" ")[0]} Engineer`,
-        company: "Stripe",
-        location: "Bengaluru, India (Remote)",
-        salary: "₹18L - ₹24L / yr",
-        description: "Looking for an engineer to optimize transaction flows and build internal tools. Experience with React, Node.js, and SQL is preferred.",
-        url: "https://stripe.com/jobs",
-        skillsRequired: ["React", "JavaScript", "TypeScript", "Node.js", "SQL"]
-      },
-      {
-        id: "mock-2",
-        title: `Associate Full Stack Developer`,
-        company: "Atlassian",
-        location: "Bengaluru, India",
-        salary: "₹22L - ₹28L / yr",
-        description: "Join the Jira Cloud team. Work on responsive interfaces and high-scale APIs. Experience with Next.js, Docker, and REST APIs is required.",
-        url: "https://atlassian.com/careers",
-        skillsRequired: ["React", "Next.js", "TypeScript", "Docker", "API Design"]
-      },
-      {
-        id: "mock-3",
-        title: "Frontend Development Intern",
-        company: "Razorpay",
-        location: "Mumbai, India",
-        salary: "₹45k - ₹60k / mo",
-        description: "Help build the next generation of online checkout components. Deep knowledge of HTML, CSS, Tailwind, and React is necessary.",
-        url: "https://razorpay.com/jobs",
-        skillsRequired: ["React", "JavaScript", "HTML", "CSS", "Tailwind"]
-      }
-    ];
-  }
-
-  // Calculate Match Score and Skills Overlap
-  const results: JobListing[] = rawJobs.map((job: any) => {
-    // Determine skills required
-    const skillsRequired = job.skillsRequired || 
-      (job.description ? extractSkillsFromText(job.description) : ["React", "JavaScript"]);
-    
-    const matchingSkills = userSkills.filter((us: string) => 
-      skillsRequired.some((rs: string) => rs.toLowerCase() === us.toLowerCase())
-    );
-
-    const missingSkills = skillsRequired.filter((rs: string) => 
-      !userSkills.some((us: string) => us.toLowerCase() === rs.toLowerCase())
-    );
-
-    // Score calculation
-    const overlapPercentage = skillsRequired.length > 0 
-      ? Math.round((matchingSkills.length / skillsRequired.length) * 100)
-      : 50;
-
-    // Explainable AI Annotations
-    let explainableReason = `You match ${matchingSkills.length} of the required skills. `;
-    if (overlapPercentage > 80) {
-      explainableReason += "Your profile is a strong fit. You have outstanding synergy with their stack. We highly recommend applying immediately.";
-    } else if (overlapPercentage > 50) {
-      explainableReason += `Consider learning ${missingSkills.slice(0, 2).join(" or ")} to boost your shortlisting probability.`;
-    } else {
-      explainableReason += "This role requires several missing backend/system capabilities. We suggest generating a roadmap target to acquire them first.";
-    }
-
-    return {
-      id: job.id || job.job_id || Math.random().toString(),
-      title: job.title || job.job_title || `SDE-1 (${targetRole})`,
-      company: job.company || job.employer_name || "Tech Company",
-      location: job.location || job.job_city || "India",
-      salary: job.salary || job.job_max_salary || "₹12L - ₹18L / yr",
-      description: job.description || "Exciting engineering role working on scalable systems.",
-      url: job.url || job.job_apply_link || "https://linkedin.com/jobs",
-      matchScore: overlapPercentage,
-      matchingSkills,
-      missingSkills,
-      explainableReason
-    };
+  // Ensure database has jobs (run initial sync if empty)
+  let dbJobs = await prisma.job.findMany({
+    where: { isActive: true },
+    orderBy: { createdAt: "desc" },
   });
 
-  return results.sort((a, b) => b.matchScore - a.matchScore);
+  if (dbJobs.length === 0) {
+    await syncAllJobs();
+    dbJobs = await prisma.job.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  // Fetch user's existing applications
+  const userApplications = await prisma.jobApplication.findMany({
+    where: { userId: user.id },
+  });
+  const appMap = new Map<string, { status: ApplicationStatus; appliedAt: Date | null }>();
+  for (const app of userApplications) {
+    appMap.set(app.jobId, { status: app.status, appliedAt: app.appliedAt });
+  }
+
+  const profileContext = await getStudentMatchingContext(user.id);
+
+  // Compute matches for all jobs
+  const cards: VerifiedJobCard[] = [];
+  for (const job of dbJobs) {
+    const match = await computeJobMatch(
+      profileContext,
+      {
+        id: job.id,
+        company: job.company,
+        title: job.title,
+        description: job.description,
+        location: job.location,
+        workMode: job.workMode,
+        requiredSkills: job.requiredSkills,
+        preferredSkills: job.preferredSkills,
+        experienceYears: job.experienceYears || 0,
+      },
+      false // quick deterministic for list view
+    );
+
+    const appInfo = appMap.get(job.id);
+
+    cards.push({
+      id: job.id,
+      externalId: job.externalId,
+      source: job.source,
+      company: job.company,
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      workMode: job.workMode,
+      employmentType: job.employmentType,
+      department: job.department,
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
+      currency: job.currency,
+      officialUrl: job.officialUrl,
+      applicationUrl: job.applicationUrl,
+      requiredSkills: job.requiredSkills,
+      preferredSkills: job.preferredSkills,
+      publishedAt: job.publishedAt,
+      lastVerifiedAt: job.lastVerifiedAt,
+      match,
+      applicationStatus: appInfo?.status || null,
+      appliedAt: appInfo?.appliedAt || null,
+    });
+  }
+
+  // Filter
+  let filtered = cards;
+  if (filters?.search) {
+    const query = filters.search.toLowerCase();
+    filtered = filtered.filter(
+      (c) =>
+        c.title.toLowerCase().includes(query) ||
+        c.company.toLowerCase().includes(query) ||
+        c.requiredSkills.some((s) => s.toLowerCase().includes(query))
+    );
+  }
+  if (filters?.workMode && filters.workMode !== "All") {
+    filtered = filtered.filter((c) => c.workMode.toLowerCase() === filters.workMode!.toLowerCase());
+  }
+  if (filters?.minMatchScore) {
+    filtered = filtered.filter((c) => c.match.overallMatchScore >= filters.minMatchScore!);
+  }
+  if (filters?.status && filters.status !== "ALL") {
+    filtered = filtered.filter((c) => c.applicationStatus === filters.status);
+  }
+
+  // Sort by match score desc
+  filtered.sort((a, b) => b.match.overallMatchScore - a.match.overallMatchScore);
+
+  // Compute summary stats
+  const totalJobs = cards.length;
+  const avgMatchScore = totalJobs > 0 ? Math.round(cards.reduce((acc, j) => acc + j.match.overallMatchScore, 0) / totalJobs) : 0;
+  const avgHiringProbability = totalJobs > 0 ? Math.round(cards.reduce((acc, j) => acc + j.match.hiringProbability, 0) / totalJobs) : 0;
+  const appliedCount = userApplications.filter((a) => a.status === "APPLIED" || a.status === "INTERVIEW" || a.status === "OFFER").length;
+  const interviewCount = userApplications.filter((a) => a.status === "INTERVIEW").length;
+  const offerCount = userApplications.filter((a) => a.status === "OFFER").length;
+
+  return {
+    jobs: filtered,
+    stats: {
+      totalJobs,
+      avgMatchScore,
+      avgHiringProbability,
+      appliedCount,
+      interviewCount,
+      offerCount,
+      topVerifiedSkills: profileContext.verifiedGithubSkills.length > 0 ? profileContext.verifiedGithubSkills : profileContext.skills.slice(0, 4),
+    },
+  };
 }
 
-// Simple text search tool for mock matching
-function extractSkillsFromText(text: string): string[] {
-  const commonSkills = ["React", "Next.js", "TypeScript", "JavaScript", "Node.js", "SQL", "PostgreSQL", "Docker", "AWS", "HTML", "CSS", "Tailwind"];
-  return commonSkills.filter(skill => new RegExp(`\\b${skill}\\b`, "i").test(text));
+/**
+ * Returns deep AI-enhanced analysis for a single job
+ */
+export async function getJobDetail(jobId: string): Promise<VerifiedJobCard | null> {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const job = await prisma.job.findUnique({ where: { id: jobId } });
+  if (!job) return null;
+
+  const profileContext = await getStudentMatchingContext(user.id);
+  const match = await computeJobMatch(
+    profileContext,
+    {
+      id: job.id,
+      company: job.company,
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      workMode: job.workMode,
+      requiredSkills: job.requiredSkills,
+      preferredSkills: job.preferredSkills,
+      experienceYears: job.experienceYears || 0,
+    },
+    true // full AI enhancement with OpenRouter
+  );
+
+  const app = await prisma.jobApplication.findUnique({
+    where: { userId_jobId: { userId: user.id, jobId: job.id } },
+  });
+
+  return {
+    id: job.id,
+    externalId: job.externalId,
+    source: job.source,
+    company: job.company,
+    title: job.title,
+    description: job.description,
+    location: job.location,
+    workMode: job.workMode,
+    employmentType: job.employmentType,
+    department: job.department,
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
+    currency: job.currency,
+    officialUrl: job.officialUrl,
+    applicationUrl: job.applicationUrl,
+    requiredSkills: job.requiredSkills,
+    preferredSkills: job.preferredSkills,
+    publishedAt: job.publishedAt,
+    lastVerifiedAt: job.lastVerifiedAt,
+    match,
+    applicationStatus: app?.status || null,
+    appliedAt: app?.appliedAt || null,
+  };
+}
+
+/**
+ * Updates application tracking status for a job (Saved, Applied, Interview, Offer, Rejected, Archived)
+ */
+export async function updateApplicationStatus(
+  jobId: string,
+  status: ApplicationStatus,
+  notes?: string
+) {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const appliedAt = status === "APPLIED" || status === "INTERVIEW" || status === "OFFER" ? new Date() : undefined;
+
+  const application = await prisma.jobApplication.upsert({
+    where: {
+      userId_jobId: {
+        userId: user.id,
+        jobId,
+      },
+    },
+    update: {
+      status,
+      appliedAt: appliedAt ?? undefined,
+      notes: notes ?? undefined,
+    },
+    create: {
+      userId: user.id,
+      jobId,
+      status,
+      appliedAt,
+      notes,
+    },
+  });
+
+  return { success: true, application };
+}
+
+/**
+ * Simulates match score increase if student acquires specified skills
+ */
+export async function simulateJobSkillGain(jobId: string, acquiredSkills: string[]) {
+  const user = await getSessionUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const job = await prisma.job.findUnique({ where: { id: jobId } });
+  if (!job) throw new Error("Job not found");
+
+  const profileContext = await getStudentMatchingContext(user.id);
+  const currentMatch = await computeJobMatch(
+    profileContext,
+    {
+      id: job.id,
+      company: job.company,
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      workMode: job.workMode,
+      requiredSkills: job.requiredSkills,
+      preferredSkills: job.preferredSkills,
+      experienceYears: job.experienceYears || 0,
+    },
+    false
+  );
+
+  const simulation = simulateSkillAcquisition(currentMatch, acquiredSkills, job.requiredSkills.length);
+  return simulation;
 }

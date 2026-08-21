@@ -37,8 +37,10 @@ export async function GET(request: Request) {
         
         const finalRole = syncResult.user?.role || role;
         
-        // Redirect based on role and onboarding status
-        if (finalRole === "STUDENT") {
+        const isOnboarded = syncResult.user?.onboardingCompleted;
+        
+        // Redirect returning students to dashboard, new students to onboarding
+        if (finalRole === "STUDENT" && !isOnboarded) {
           return NextResponse.redirect(`${requestUrl.origin}/onboarding`);
         } else {
           return NextResponse.redirect(`${requestUrl.origin}/dashboard`);

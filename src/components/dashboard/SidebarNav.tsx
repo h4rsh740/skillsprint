@@ -70,7 +70,7 @@ export function SidebarNav() {
     { name: "Mock Interviews", path: "/dashboard/mock-interview", icon: Mic },
     { name: "AI Career Coach", path: "/dashboard/chat", icon: Sparkles },
     { name: "Prep Quizzes", path: "/dashboard/prep-quizzes", icon: ClipboardCheck },
-    { name: "Job Matching", path: "/dashboard/jobs", icon: Briefcase },
+    { name: "Job Intelligence", path: "/dashboard/jobs", icon: Briefcase },
     { name: "Talent Leaderboard", path: "/dashboard/leaderboard", icon: Trophy },
     { name: "Portfolio Analyzer", path: "/dashboard/portfolio-analyzer", icon: Link2 },
     { name: "Hackathons", path: "/dashboard/hackathons", icon: Trophy },

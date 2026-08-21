@@ -281,27 +281,14 @@ async function resolveUserSessionDetails(userId: string, email: string, role: st
   const resumeUploaded = !!resume;
   const careerTwinGenerated = !!twin;
 
-  // Onboarding is complete if the profile has core fields filled in.
-  // We also check the DB-stored flag as a reliable override for returning users.
-  let profileOnboardingDone = !!(profile?.onboardingCompleted);
-
-  // Since onboardingCompleted is not in the Prisma schema, try raw query check on production
-  if (!profileOnboardingDone) {
-    try {
-      const { prisma } = require("@/lib/prisma");
-      const rawRes: any = await prisma.$queryRaw`
-        SELECT "onboardingCompleted" FROM profiles WHERE "userId" = ${userId} LIMIT 1
-      `;
-      if (rawRes && rawRes[0] && rawRes[0].onboardingCompleted) {
-        profileOnboardingDone = true;
-      }
-    } catch (rawErr) {
-      // Ignore if column doesn't exist or query fails
-    }
-  }
-
-  const derivedOnboardingDone = !!(profile?.targetRole && profile?.college);
-  const onboardingCompleted = profileOnboardingDone || derivedOnboardingDone;
+  // Onboarding is complete if the DB field is true, or the profile has data, or accounts exist
+  const profileOnboardingDone = profile?.onboardingCompleted === true;
+  const profileHasData = !!(
+    (profile?.targetRole && profile?.college) ||
+    (profile?.fullName && (profile?.skills && profile.skills.length > 0))
+  );
+  const accountHasHistory = githubConnected || linkedinConnected || resumeUploaded || careerTwinGenerated;
+  const onboardingCompleted = profileOnboardingDone || profileHasData || accountHasHistory;
 
   return {
     name,

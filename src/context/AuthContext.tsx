@@ -135,11 +135,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      if (clientProfile.onboardingCompleted && typeof window !== "undefined") {
+        try {
+          localStorage.setItem("skillsprint_onboarded_" + firebaseUser.uid, "true");
+        } catch {}
+      }
+
       setUser(clientProfile);
     } catch (err: any) {
       console.error("Error syncing user profile:", err);
       setError(err.message || "Failed to sync user profile");
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -149,6 +157,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
 
       if (firebaseUser) {
+        let cachedOnboarded = false;
+        if (typeof window !== "undefined") {
+          try {
+            cachedOnboarded = localStorage.getItem("skillsprint_onboarded_" + firebaseUser.uid) === "true";
+          } catch {}
+        }
+
         // Set optimistic profile immediately so rendering is unblocked
         setUser((prev) => prev || {
           uid: firebaseUser.uid,
@@ -160,13 +175,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           githubConnected: false,
           linkedinConnected: false,
           careerTwinGenerated: false,
-          onboardingCompleted: false,
+          onboardingCompleted: cachedOnboarded,
+          role: "STUDENT",
         });
-        setLoading(false);
 
-        // Sync full profile from PostgreSQL and Firestore in the background
+        // Sync full profile from PostgreSQL and Firestore
         syncUserProfile(firebaseUser).catch((err) => {
           console.warn("[AuthContext] Background profile sync warning:", err);
+          setLoading(false);
         });
       } else {
         try {

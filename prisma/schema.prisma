@@ -42,6 +42,10 @@ model User {
   proTier          Boolean  @default(false)
   unlockedFeatures String[]
   agentActions     AgentAction[]
+  jobMatches       JobMatch[]
+  jobApplications  JobApplication[]
+  hackathonMatches HackathonMatch[]
+  savedHackathons  SavedHackathon[]
 
   @@map("users")
 }
@@ -58,9 +62,10 @@ model Profile {
   targetRole        String?
   githubUsername    String?
   linkedinUrl       String?
-  skills            String[]
-  studyHoursPerWeek Int?     @default(10)
-  updatedAt         DateTime @updatedAt
+  skills              String[]
+  studyHoursPerWeek   Int?     @default(10)
+  onboardingCompleted Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
 
   @@map("profiles")
 }
@@ -410,3 +415,176 @@ model AgentAction {
   @@index([razorpayOrderId])
   @@map("agent_actions")
 }
+
+enum ApplicationStatus {
+  SAVED
+  APPLIED
+  INTERVIEW
+  OFFER
+  REJECTED
+  ARCHIVED
+}
+
+enum OpportunityStatus {
+  UPCOMING
+  OPEN
+  CLOSING_SOON
+  ENDED
+}
+
+enum SavedHackathonStatus {
+  SAVED
+  REGISTERED
+  SUBMITTED
+  WON
+}
+
+model Job {
+  id              String            @id @default(uuid())
+  externalId      String
+  source          String            // "Greenhouse" | "Lever" | "Curated" | "Adzuna"
+  company         String
+  title           String
+  description     String
+  location        String            @default("Remote")
+  workMode        String            @default("Remote") // "Remote" | "Hybrid" | "On-site"
+  employmentType  String            @default("Full-time") // "Full-time" | "Internship" | "Contract"
+  department      String?
+  salaryMin       Int?
+  salaryMax       Int?
+  currency        String?           @default("USD")
+  officialUrl     String
+  applicationUrl  String
+  requiredSkills  String[]
+  preferredSkills String[]
+  experienceYears Int?              @default(0)
+  publishedAt     DateTime?         @default(now())
+  expiresAt       DateTime?
+  lastVerifiedAt  DateTime          @default(now())
+  isActive        Boolean           @default(true)
+  metadata        Json?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  matches         JobMatch[]
+  applications    JobApplication[]
+
+  @@unique([source, externalId])
+  @@index([company])
+  @@index([isActive])
+  @@map("jobs")
+}
+
+model JobMatch {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId              String
+  job                Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  matchScore         Int      @default(0)
+  skillScore         Int      @default(0)
+  experienceScore    Int      @default(0)
+  projectScore       Int      @default(0)
+  educationScore     Int      @default(0)
+  resumeScore        Int      @default(0)
+  hiringProbability  Int      @default(0)
+  confidence         String   @default("medium") // "high" | "medium" | "low" | "unavailable"
+  strengths          String[]
+  skillGaps          Json?    // Array of { skill: string, priority: "Critical"|"High"|"Medium"|"Low", reason: string, recommendation: string }
+  matchingSkills     String[]
+  missingSkills      String[]
+  recommendations    String[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([userId, jobId])
+  @@index([userId, matchScore])
+  @@map("job_matches")
+}
+
+model JobApplication {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId       String
+  job         Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status      ApplicationStatus @default(SAVED)
+  appliedAt   DateTime?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([userId, jobId])
+  @@index([userId, status])
+  @@map("job_applications")
+}
+
+model Hackathon {
+  id                   String               @id @default(uuid())
+  externalId           String
+  source               String               // "Devpost" | "Devfolio" | "MLH" | "Unstop"
+  name                 String
+  organizer            String
+  description          String
+  officialUrl          String
+  registrationUrl      String
+  registrationDeadline DateTime?
+  submissionDeadline   DateTime?
+  teamSizeMin          Int                  @default(1)
+  teamSizeMax          Int                  @default(4)
+  eligibility          String               @default("All Students & Developers")
+  themes               String[]
+  technologies         String[]
+  prize                String?
+  currency             String?              @default("USD")
+  mode                 String               @default("Online") // "Online" | "In-Person" | "Hybrid"
+  location             String?
+  status               OpportunityStatus    @default(OPEN)
+  lastVerifiedAt       DateTime             @default(now())
+  metadata             Json?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  matches              HackathonMatch[]
+  savedHackathons      SavedHackathon[]
+
+  @@unique([source, externalId])
+  @@index([status])
+  @@map("hackathons")
+}
+
+model HackathonMatch {
+  id                   String    @id @default(uuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hackathonId          String
+  hackathon            Hackathon @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  fitScore             Int       @default(0)
+  skillMatch           Int       @default(0)
+  techMatch            Int       @default(0)
+  themeMatch           Int       @default(0)
+  eligibilityScore     Int       @default(100)
+  bridgedJobSkills     String[]  // Skills missing from user's target jobs that this hackathon develops
+  recommendations      String[]
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@unique([userId, hackathonId])
+  @@index([userId, fitScore])
+  @@map("hackathon_matches")
+}
+
+model SavedHackathon {
+  id          String               @id @default(uuid())
+  userId      String
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hackathonId String
+  hackathon   Hackathon            @relation(fields: [hackathonId], references: [id], onDelete: Cascade)
+  status      SavedHackathonStatus @default(SAVED)
+  notes       String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([userId, hackathonId])
+  @@index([userId, status])
+  @@map("saved_hackathons")
+}
+

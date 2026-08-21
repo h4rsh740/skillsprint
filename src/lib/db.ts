@@ -253,21 +253,6 @@ export const db = {
   async updateProfile(userId: string, data: any) {
     if (!useLocalDB) {
       try {
-        // If data contains onboardingCompleted, update it via raw query since it's not in the Prisma schema
-        if ("onboardingCompleted" in data) {
-          const { onboardingCompleted, ...rest } = data;
-          try {
-            await prisma.$executeRaw`
-              UPDATE profiles 
-              SET "onboardingCompleted" = ${onboardingCompleted} 
-              WHERE "userId" = ${userId}
-            `;
-          } catch (rawErr) {
-            console.warn("Raw SQL update of onboardingCompleted failed:", rawErr);
-          }
-          data = rest;
-        }
-
         if (Object.keys(data).length > 0) {
           return await prisma.profile.update({
             where: { userId },

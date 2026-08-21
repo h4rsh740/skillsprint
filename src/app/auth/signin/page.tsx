@@ -57,10 +57,9 @@ function SignInContent() {
   }, [toast]);
 
   const redirectAfterLogin = () => {
-    // Small delay to let AuthContext finish syncing the user profile
     setTimeout(() => {
-      router.push("/onboarding");
-    }, 500);
+      router.push("/dashboard");
+    }, 300);
   };
 
   const handleEmailLogin = async (e: React.FormEvent) => {
