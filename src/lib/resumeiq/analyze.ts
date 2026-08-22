@@ -303,7 +303,7 @@ function calculateFormattingScore(resume: ResumeData): number {
 
   // Basic checks
   if (resume.rawText.length < 200) score -= 2; // Scanned PDF or empty
-  if (!resume.email || !resume.phone) score -= 1.5; // Missing contact info
+  if (!resume.personal?.email || !resume.personal?.phone) score -= 1.5; // Missing contact info
   
   // Check section headings
   const textLower = resume.rawText.toLowerCase();
@@ -413,7 +413,7 @@ function detectIssues(resume: ResumeData, keywords: KeywordAnalysis, job: JobInp
   }
 
   // Contact Information
-  if (!resume.email) {
+  if (!resume.personal?.email) {
     issues.push({
       id: "issue-email-missing",
       severity: "Critical",
@@ -424,7 +424,7 @@ function detectIssues(resume: ResumeData, keywords: KeywordAnalysis, job: JobInp
       recommendation: "Add a professional email address to the top of your resume."
     });
   }
-  if (!resume.phone) {
+  if (!resume.personal?.phone) {
     issues.push({
       id: "issue-phone-missing",
       severity: "Critical",
@@ -438,7 +438,7 @@ function detectIssues(resume: ResumeData, keywords: KeywordAnalysis, job: JobInp
 
   // GitHub check for developer roles
   const isDevRole = /developer|engineer|coder|architect|programmer/i.test(job.jobTitle);
-  if (isDevRole && !resume.github) {
+  if (isDevRole && !resume.personal?.github) {
     issues.push({
       id: "issue-github-missing",
       severity: "High",

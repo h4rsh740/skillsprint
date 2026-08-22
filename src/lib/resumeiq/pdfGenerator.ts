@@ -157,21 +157,38 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
 
   addNewPage(ctx);
 
-  // 1. Name & Contact Info
-  drawText(ctx, resume.name || "Candidate Name", { bold: true, size: 18, align: "center" });
-  ctx.y -= 4;
+  const name = resume.personal?.name || resume.name || "Candidate Name";
+  const title = resume.personal?.title || resume.title || "";
+  const email = resume.personal?.email || resume.email || "";
+  const phone = resume.personal?.phone || resume.phone || "";
+  const location = resume.personal?.location || resume.location || "";
+  const linkedin = resume.personal?.linkedin || resume.linkedin || "";
+  const github = resume.personal?.github || resume.github || "";
+  const portfolio = resume.personal?.portfolio || resume.portfolio || "";
 
+  // 1. Name & Subtitle
+  drawText(ctx, name, { bold: true, size: 18, align: "center" });
+  if (title) {
+    ctx.y -= 2;
+    drawText(ctx, title, { bold: true, size: 10, align: "center" });
+  }
+  ctx.y -= 3;
+
+  // Contact info line
   const contactParts: string[] = [];
-  if (resume.email) contactParts.push(resume.email);
-  if (resume.phone) contactParts.push(resume.phone);
-  if (resume.location) contactParts.push(resume.location);
-  drawText(ctx, contactParts.join("  |  "), { size: 9, align: "center" });
-  ctx.y -= 2;
+  if (email) contactParts.push(email);
+  if (phone) contactParts.push(phone);
+  if (location) contactParts.push(location);
+  if (contactParts.length > 0) {
+    drawText(ctx, contactParts.join("  |  "), { size: 9, align: "center" });
+    ctx.y -= 2;
+  }
 
+  // Social links line
   const socialParts: string[] = [];
-  if (resume.linkedin) socialParts.push(resume.linkedin.replace(/^https?:\/\/(?:www\.)?/, ""));
-  if (resume.github) socialParts.push(resume.github.replace(/^https?:\/\/(?:www\.)?/, ""));
-  if (resume.portfolio) socialParts.push(resume.portfolio.replace(/^https?:\/\/(?:www\.)?/, ""));
+  if (linkedin) socialParts.push(linkedin.replace(/^https?:\/\/(?:www\.)?/, ""));
+  if (github) socialParts.push(github.replace(/^https?:\/\/(?:www\.)?/, ""));
+  if (portfolio) socialParts.push(portfolio.replace(/^https?:\/\/(?:www\.)?/, ""));
   
   if (socialParts.length > 0) {
     drawText(ctx, socialParts.join("  |  "), { size: 9, align: "center" });
@@ -201,16 +218,15 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
 
     resume.experience.forEach(exp => {
       // Company name and Dates on same line
-      const companyWidth = ctx.fontBold.widthOfTextAtSize(exp.company, 10);
+      const companyWidth = ctx.fontBold.widthOfTextAtSize(exp.company || "Company", 10);
       const dateStr = `${exp.startDate || ""} - ${exp.endDate || ""}`;
       const dateWidth = ctx.fontRegular.widthOfTextAtSize(dateStr, 9);
-      const spaceBetween = ctx.width - 2 * ctx.margin - companyWidth - dateWidth;
 
       if (ctx.y < ctx.margin + 25) {
         addNewPage(ctx);
       }
 
-      ctx.currentPage.drawText(exp.company, {
+      ctx.currentPage.drawText(exp.company || "Company", {
         x: ctx.margin,
         y: ctx.y,
         font: ctx.fontBold,
@@ -218,22 +234,26 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
         color: rgb(0.1, 0.1, 0.1),
       });
 
-      ctx.currentPage.drawText(dateStr, {
-        x: ctx.width - ctx.margin - dateWidth,
-        y: ctx.y,
-        font: ctx.fontRegular,
-        size: 9,
-        color: rgb(0.3, 0.3, 0.3),
-      });
+      if (exp.startDate || exp.endDate) {
+        ctx.currentPage.drawText(dateStr, {
+          x: ctx.width - ctx.margin - dateWidth,
+          y: ctx.y,
+          font: ctx.fontRegular,
+          size: 9,
+          color: rgb(0.3, 0.3, 0.3),
+        });
+      }
 
       ctx.y -= 12;
 
       // Position
-      drawText(ctx, exp.position, { bold: true, size: 9 });
-      ctx.y -= 2;
+      if (exp.position) {
+        drawText(ctx, exp.position, { bold: true, size: 9 });
+        ctx.y -= 2;
+      }
 
       // Bullets
-      exp.bullets.forEach(b => {
+      (exp.bullets || []).forEach(b => {
         drawBullet(ctx, b, { size: 9.5 });
       });
       ctx.y -= 8;
@@ -254,7 +274,7 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
         ctx.y -= 2;
       }
 
-      proj.bullets.forEach(b => {
+      (proj.bullets || []).forEach(b => {
         drawBullet(ctx, b, { size: 9.5 });
       });
       ctx.y -= 8;
@@ -267,7 +287,7 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
     drawDivider(ctx);
 
     resume.education.forEach(edu => {
-      const schoolWidth = ctx.fontBold.widthOfTextAtSize(edu.school, 10);
+      const schoolWidth = ctx.fontBold.widthOfTextAtSize(edu.school || "Institution", 10);
       const dateStr = `${edu.startDate || ""} - ${edu.endDate || ""}`;
       const dateWidth = ctx.fontRegular.widthOfTextAtSize(dateStr, 9);
 
@@ -275,7 +295,7 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
         addNewPage(ctx);
       }
 
-      ctx.currentPage.drawText(edu.school, {
+      ctx.currentPage.drawText(edu.school || "Institution", {
         x: ctx.margin,
         y: ctx.y,
         font: ctx.fontBold,
@@ -296,8 +316,10 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
       ctx.y -= 12;
 
       const degreeStr = edu.fieldOfStudy ? `${edu.degree} in ${edu.fieldOfStudy}` : edu.degree;
-      drawText(ctx, degreeStr, { size: 9.5 });
-      ctx.y -= 8;
+      if (degreeStr) {
+        drawText(ctx, degreeStr, { size: 9.5 });
+        ctx.y -= 8;
+      }
     });
   }
 
@@ -318,6 +340,24 @@ export async function generateResumePdf(resume: EnhancedResume): Promise<Uint8Ar
     resume.achievements.forEach(ach => {
       drawBullet(ctx, ach, { size: 9.5 });
     });
+    ctx.y -= 8;
+  }
+
+  // 9. Extracurricular & Activities
+  if (resume.extracurricular && resume.extracurricular.length > 0) {
+    drawText(ctx, "EXTRACURRICULAR ACTIVITIES", { bold: true, size: 11 });
+    drawDivider(ctx);
+    resume.extracurricular.forEach(act => {
+      drawBullet(ctx, act, { size: 9.5 });
+    });
+    ctx.y -= 8;
+  }
+
+  // 10. Areas of Interest
+  if (resume.areasOfInterest && resume.areasOfInterest.length > 0) {
+    drawText(ctx, "AREAS OF INTEREST", { bold: true, size: 11 });
+    drawDivider(ctx);
+    drawText(ctx, resume.areasOfInterest.join(", "));
   }
 
   return await doc.save();

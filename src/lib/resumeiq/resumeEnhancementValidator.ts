@@ -15,17 +15,31 @@ export function validateEnhancedResume(
   const sanitized: EnhancedResume = JSON.parse(JSON.stringify(enhanced));
 
   // 1. Candidate Details Protection
-  if (sanitized.name !== original.name) {
-    violations.push(`Restored candidate name: "${original.name}" (AI modified it to "${sanitized.name}")`);
-    sanitized.name = original.name;
+  const origName = original.personal?.name || original.name || "";
+  const enhName = sanitized.personal?.name || sanitized.name || "";
+  if (origName && enhName && enhName !== origName) {
+    violations.push(`Restored candidate name: "${origName}" (AI modified it to "${enhName}")`);
+    if (sanitized.personal) sanitized.personal.name = origName;
+    sanitized.name = origName;
   }
-  if (sanitized.email !== original.email) {
-    violations.push(`Restored candidate email: "${original.email}"`);
-    sanitized.email = original.email;
+  const origEmail = original.personal?.email || original.email || "";
+  const enhEmail = sanitized.personal?.email || sanitized.email || "";
+  if (origEmail && enhEmail && enhEmail !== origEmail) {
+    violations.push(`Restored candidate email: "${origEmail}"`);
+    if (sanitized.personal) sanitized.personal.email = origEmail;
+    sanitized.email = origEmail;
   }
-  if (sanitized.phone !== original.phone) {
-    violations.push(`Restored candidate phone: "${original.phone}"`);
-    sanitized.phone = original.phone;
+  const origPhone = original.personal?.phone || original.phone || "";
+  const enhPhone = sanitized.personal?.phone || sanitized.phone || "";
+  if (origPhone && enhPhone && enhPhone !== origPhone) {
+    violations.push(`Restored candidate phone: "${origPhone}"`);
+    if (sanitized.personal) sanitized.personal.phone = origPhone;
+    sanitized.phone = origPhone;
+  }
+  const origLoc = original.personal?.location || original.location || "";
+  if (origLoc) {
+    if (sanitized.personal) sanitized.personal.location = origLoc;
+    sanitized.location = origLoc;
   }
 
   // 2. Factual Integrity for Experience
@@ -155,6 +169,23 @@ export function validateEnhancedResume(
     }
     return true;
   });
+
+  // 6. Factual list sections — restore from the original so the AI can never drop,
+  // rewrite, or invent items. These are verbatim facts, not prose to be "improved".
+  const restoreList = (key: "certifications" | "achievements" | "extracurricular" | "areasOfInterest") => {
+    const orig = original[key] || [];
+    const enh = (sanitized as any)[key] || [];
+    const changed =
+      enh.length !== orig.length || enh.some((v: string, i: number) => v !== orig[i]);
+    if (changed) {
+      violations.push(`Restored original ${key} (AI altered a factual list section)`);
+    }
+    (sanitized as any)[key] = [...orig];
+  };
+  restoreList("certifications");
+  restoreList("achievements");
+  restoreList("extracurricular");
+  restoreList("areasOfInterest");
 
   return { sanitized, violations };
 }

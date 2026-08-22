@@ -258,20 +258,11 @@ export function enhanceLocally(
   });
 
   const enhancedResume: EnhancedResume = {
-    name: resume.name,
-    email: resume.email,
-    phone: resume.phone,
-    location: resume.location,
-    linkedin: resume.linkedin,
-    github: resume.github,
-    portfolio: resume.portfolio,
+    ...resume,
     summary: summaryOut.text || resume.summary,
     skills: ordered.length ? ordered : resume.skills,
     experience,
     projects,
-    education: resume.education,
-    certifications: resume.certifications,
-    achievements: resume.achievements,
   };
 
   const recommendations = keywords.missing.slice(0, 8).map(

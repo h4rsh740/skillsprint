@@ -605,16 +605,7 @@ export function enhanceResume(
     return { ...p, bullets: [...enhancedBullets, ...newBullets] };
   });
 
-  // ATS-friendly structure change (headings standardized in the serialized output).
-  changes.push({
-    id: "ch-structure",
-    section: "Structure",
-    originalText: "Original section headings & layout",
-    enhancedText: "Standardized ATS-friendly headings (Professional Summary, Technical Skills, Experience, Projects, Education) in a single-column layout.",
-    changeType: "reordered",
-    reason: "Standard headings and a single-column structure maximize ATS parseability and recruiter scannability.",
-    atsImpact: "+ Structure & formatting compatibility",
-  });
+  // Layout is strictly preserved, so we do not log a structure change.
 
   const enhancedData: ResumeData = {
     ...resume,

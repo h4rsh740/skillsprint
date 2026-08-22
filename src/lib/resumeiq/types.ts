@@ -22,7 +22,22 @@ export interface EducationEntry {
   bullets?: string[];
 }
 
-export interface ResumeData {
+export interface ResumeSection {
+  id: string;
+  title: string;
+  type: "summary" | "skills" | "experience" | "projects" | "education" | "certifications" | "achievements" | "extracurricular" | "areasOfInterest" | "custom";
+  content?: string;
+  items?: any[];
+  order: number;
+  column: "left" | "right" | "main";
+}
+
+export interface ResumeLayout {
+  type: "single-column" | "two-column" | "sidebar" | "custom";
+  sections: ResumeSection[];
+}
+
+export interface PersonalInfo {
   name: string;
   email: string;
   phone: string;
@@ -30,6 +45,20 @@ export interface ResumeData {
   linkedin: string;
   github: string;
   portfolio: string;
+  title?: string;
+  otherLinks?: string[];
+}
+
+export interface ResumeData {
+  personal: PersonalInfo;
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+  title?: string;
   summary: string;
   skills: string[];
   experience: ExperienceEntry[];
@@ -37,12 +66,18 @@ export interface ResumeData {
   education: EducationEntry[];
   certifications: string[];
   achievements: string[];
+  extracurricular: string[];
+  areasOfInterest: string[];
+  customSections: Array<{ title: string; content: string[] }>;
+  layout: ResumeLayout;
   rawText: string;
 }
 
 export type EnhancedResume = Omit<ResumeData, "rawText"> & {
   rawText?: string;
 };
+
+export type ChangeEntry = ResumeChange;
 
 export interface JobInput {
   jobTitle: string;

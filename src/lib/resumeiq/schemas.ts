@@ -24,14 +24,41 @@ const educationEntrySchema = z.object({
   bullets: z.array(z.string()).optional().default([]),
 });
 
+const resumeSectionSchema = z.object({
+  id: z.string().default(""),
+  title: z.string().default(""),
+  type: z.enum(["summary", "skills", "experience", "projects", "education", "certifications", "achievements", "extracurricular", "areasOfInterest", "custom"]).default("custom"),
+  content: z.string().optional(),
+  items: z.array(z.any()).optional(),
+  order: z.number().default(0),
+  column: z.enum(["left", "right", "main"]).default("main"),
+});
+
+const resumeLayoutSchema = z.object({
+  type: z.enum(["single-column", "two-column", "sidebar", "custom"]).default("single-column"),
+  sections: z.array(resumeSectionSchema).default([]),
+});
+
 const enhancedResumeSchema = z.object({
-  name: z.string().default(""),
-  email: z.string().default(""),
-  phone: z.string().default(""),
-  location: z.string().default(""),
-  linkedin: z.string().default(""),
-  github: z.string().default(""),
-  portfolio: z.string().default(""),
+  personal: z.object({
+    name: z.string().default(""),
+    email: z.string().default(""),
+    phone: z.string().default(""),
+    location: z.string().default(""),
+    linkedin: z.string().default(""),
+    github: z.string().default(""),
+    portfolio: z.string().default(""),
+    title: z.string().optional().default(""),
+    otherLinks: z.array(z.string()).optional().default([]),
+  }),
+  name: z.string().optional(),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  location: z.string().optional(),
+  linkedin: z.string().optional(),
+  github: z.string().optional(),
+  portfolio: z.string().optional(),
+  title: z.string().optional(),
   summary: z.string().default(""),
   skills: z.array(z.string()).default([]),
   experience: z.array(experienceEntrySchema).default([]),
@@ -39,6 +66,13 @@ const enhancedResumeSchema = z.object({
   education: z.array(educationEntrySchema).default([]),
   certifications: z.array(z.string()).default([]),
   achievements: z.array(z.string()).default([]),
+  extracurricular: z.array(z.string()).default([]),
+  areasOfInterest: z.array(z.string()).default([]),
+  customSections: z.array(z.object({
+    title: z.string(),
+    content: z.array(z.string())
+  })).default([]),
+  layout: resumeLayoutSchema,
 });
 
 const resumeChangeSchema = z.object({

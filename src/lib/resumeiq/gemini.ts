@@ -3,6 +3,7 @@ import type {
 } from "./types";
 import { enhanceResponseSchema } from "./schemas";
 import { buildSystemPrompt, buildUserPrompt } from "./prompts";
+import { enhanceLocally } from "./localEnhancer";
 
 export class GeminiError extends Error {
   constructor(message: string, public code: string, public retryAfterMs = 0) {
@@ -152,6 +153,13 @@ export async function enhanceResumeWithGemini(
           continue;
         }
         console.log(`[AI] Success with model: ${modelId}`);
+        
+        // Strict Validation: Strip any hallucinated explicit skills.
+        const originalSkills = new Set(resume.skills.map(s => s.toLowerCase()));
+        parsed.data.enhancedResume.skills = parsed.data.enhancedResume.skills.filter(s => 
+          originalSkills.has(s.toLowerCase())
+        );
+
         return {
           enhancedResume: parsed.data.enhancedResume,
           changes: parsed.data.changes.map((c, i) => ({ ...c, id: c.id || `change-${i + 1}` })),
@@ -208,8 +216,27 @@ export async function enhanceResumeWithGemini(
     }
   }
 
-  if (lastError instanceof Error) throw lastError;
-  throw new GeminiError("Resume enhancement failed. Please check your API keys.", "FAILED");
+  // Final fallback: offline, rule-based enhancer.
+  // Guarantees the feature works even when no AI keys are configured (e.g. on Vercel)
+  // or when every AI provider is rate-limited / unreachable. Safe rewrites only —
+  // the result is still passed through the anti-hallucination validator downstream.
+  const reason =
+    !apiKey && !openRouterKey
+      ? "no AI API keys configured"
+      : lastError instanceof Error
+        ? lastError.message.slice(0, 200)
+        : "all AI providers unavailable";
+  console.warn(`[AI] Falling back to offline local enhancer (${reason}).`);
+
+  const local = enhanceLocally(resume, job, keywords);
+  return {
+    enhancedResume: local.enhancedResume,
+    changes: local.changes.map((c, i) => ({ ...c, id: c.id || `change-${i + 1}` })),
+    recommendations: local.recommendations.map((r) => ({
+      title: "ATS Recommendation",
+      description: r,
+    })),
+  };
 }
 
 export { DEFAULT_MODEL as GEMINI_DEFAULT_MODEL };

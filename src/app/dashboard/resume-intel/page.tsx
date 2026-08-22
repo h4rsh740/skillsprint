@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Upload, FileText, Briefcase, Award, CheckCircle, AlertTriangle, 
   ArrowRight, Download, RefreshCw, Layers, Sparkles, ChevronRight, 
   Trash2, Plus, Info, Eye, Check, X, ShieldAlert, TrendingUp 
 } from "lucide-react";
+import { ResumeDocument } from "@/components/resume/ResumeDocument";
 import { Button } from "@/components/ui/button";
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import type { ResumeData, AnalysisBundle, EnhanceResponse, ResumeChange, ResumeIssue, EnhancedResume } from "@/lib/resumeiq/types";
@@ -91,20 +92,28 @@ function ResumePane({
         onScroll={onScroll}
         className="space-y-4 overflow-y-auto pr-1 text-left font-sans text-xs text-neutral-750 dark:text-neutral-350 leading-relaxed flex-1 scrollbar-thin scroll-smooth"
       >
-        {/* Header Info */}
-        <div className="space-y-1 pb-1">
-          <div className="text-lg font-bold text-neutral-950 dark:text-white">
-            {data.name || "Candidate Name"}
-          </div>
-          <div className="text-neutral-450 text-[11px] flex flex-wrap gap-x-1.5 gap-y-0.5">
-            {[data.email, data.phone, data.location, data.linkedin, data.github].filter(Boolean).map((info, i, arr) => (
-              <span key={i} className="inline-flex items-center">
-                {info}
-                {i < arr.length - 1 && <span className="ml-1.5 opacity-50">•</span>}
-              </span>
-            ))}
-          </div>
-        </div>
+        {isOrig ? (
+          <>
+            {/* Header Info */}
+            <div className="space-y-1 pb-1">
+              <div className="text-lg font-bold text-neutral-950 dark:text-white">
+                {data.personal?.name || data.name || "Candidate Name"}
+              </div>
+              <div className="text-neutral-450 text-[11px] flex flex-wrap gap-x-1.5 gap-y-0.5">
+                {[
+                  data.personal?.email || data.email,
+                  data.personal?.phone || data.phone,
+                  data.personal?.location || data.location,
+                  data.personal?.linkedin || data.linkedin,
+                  data.personal?.github || data.github
+                ].filter(Boolean).map((info, i, arr) => (
+                  <span key={i} className="inline-flex items-center">
+                    {info}
+                    {i < arr.length - 1 && <span className="ml-1.5 opacity-50">•</span>}
+                  </span>
+                ))}
+              </div>
+            </div>
 
         {/* Summary Section */}
         {data.summary && (
@@ -230,6 +239,18 @@ function ResumePane({
                 </div>
               ))}
             </div>
+          </div>
+        )}
+          </>
+        ) : (
+          <div className="origin-top scale-[0.8] sm:scale-90 md:scale-100 transition-transform flex justify-center py-4 bg-neutral-100 dark:bg-neutral-900 rounded-lg">
+            <ResumeDocument 
+              data={data} 
+              changes={changes} 
+              selectedId={selectedId} 
+              onSelect={onSelect} 
+              isOrig={false} 
+            />
           </div>
         )}
       </div>
@@ -472,33 +493,35 @@ export default function Home() {
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || "Unable to generate the enhanced resume PDF.");
+        throw new Error(errJson.error || "Unable to prepare the enhanced resume PDF.");
       }
 
-      const contentType = res.headers.get("Content-Type");
-      if (!contentType || !contentType.includes("application/pdf")) {
-        throw new Error("Unable to generate the enhanced resume PDF. Please try again.");
+      const { id } = await res.json();
+      
+      if (!id) {
+        throw new Error("Invalid response from PDF generation server.");
       }
 
-      const blob = new Blob([await res.arrayBuffer()], { type: "application/pdf" });
+      const pdfRes = await fetch(`/api/resume/pdf?id=${id}`);
+      if (!pdfRes.ok) {
+        throw new Error("Failed to download generated PDF.");
+      }
+      const blob = await pdfRes.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.style.display = "none";
       a.href = url;
-      
-      const cleanName = (enhancedData.enhancedResume.name || "Candidate")
-        .trim()
-        .replace(/\s+/g, "_")
-        .replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
+      const rawName = enhancedData.enhancedResume.personal?.name || enhancedData.enhancedResume.name || "Candidate";
+      const cleanName = rawName.trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
       a.download = `${cleanName}_Enhanced_Resume.pdf`;
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 1000);
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      setLoadingStep("");
     } catch (err: any) {
       alert(err.message || "PDF download failed.");
+      setLoadingStep("");
     }
   };
 
@@ -508,7 +531,7 @@ export default function Home() {
 
     try {
       const reportPayload = {
-        name: resumeData.name,
+        name: resumeData.personal?.name || resumeData.name || "Candidate",
         jobTitle: jobTitle,
         originalScore: analysis.ats.score,
         enhancedScore: enhancedAnalysis.ats.score,
@@ -532,26 +555,30 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        throw new Error("Unable to generate the ATS analysis report PDF.");
+        throw new Error("Unable to prepare the ATS analysis report PDF.");
       }
 
-      const blob = new Blob([await res.arrayBuffer()], { type: "application/pdf" });
+      const { id } = await res.json();
+      
+      if (!id) {
+        throw new Error("Invalid response from PDF generation server.");
+      }
+
+      const pdfRes = await fetch(`/api/resume/report?id=${id}`);
+      if (!pdfRes.ok) {
+        throw new Error("Failed to download generated report PDF.");
+      }
+      const blob = await pdfRes.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.style.display = "none";
       a.href = url;
-      
-      const cleanName = (resumeData.name || "Candidate")
-        .trim()
-        .replace(/\s+/g, "_")
-        .replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
+      const rawName = resumeData.personal?.name || resumeData.name || "Candidate";
+      const cleanName = rawName.trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
       a.download = `${cleanName}_ATS_Analysis_Report.pdf`;
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 1000);
+      a.remove();
+      window.URL.revokeObjectURL(url);
     } catch (err: any) {
       alert(err.message || "Report PDF download failed.");
     }
@@ -818,7 +845,7 @@ export default function Home() {
             {/* Header section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-200 dark:border-neutral-850 pb-6">
               <div>
-                <h1 className="text-3xl font-bold">{resumeData?.name || "Resume Analysis"}</h1>
+                <h1 className="text-3xl font-bold">{resumeData?.personal?.name || resumeData?.name || "Resume Analysis"}</h1>
                 <p className="text-neutral-500 dark:text-neutral-400 mt-1">
                   ATS audit against target role: <strong className="text-neutral-800 dark:text-neutral-200">{jobTitle}</strong>
                 </p>
@@ -1370,161 +1397,12 @@ export default function Home() {
             )}
 
             {enhancedTab === "preview" && (
-              <div className="border border-neutral-200 dark:border-neutral-900 bg-white dark:bg-neutral-950 p-8 rounded-2xl max-w-4xl mx-auto shadow-sm">
-                
-                {/* Header preview details */}
-                <div className="text-center space-y-2 pb-6 border-b border-neutral-150 dark:border-neutral-900">
-                  <h2 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                    {enhancedData.enhancedResume.name}
-                  </h2>
-                  <div className="text-xs text-neutral-500 flex justify-center flex-wrap gap-x-4 gap-y-1">
-                    {enhancedData.enhancedResume.email && <span>{enhancedData.enhancedResume.email}</span>}
-                    {enhancedData.enhancedResume.phone && <span>{enhancedData.enhancedResume.phone}</span>}
-                    {enhancedData.enhancedResume.location && <span>{enhancedData.enhancedResume.location}</span>}
-                  </div>
-                  <div className="text-xs text-neutral-500 flex justify-center flex-wrap gap-x-4 gap-y-1">
-                    {enhancedData.enhancedResume.linkedin && (
-                      <span className="truncate max-w-[200px]">{enhancedData.enhancedResume.linkedin.replace(/^https?:\/\/(?:www\.)?/, "")}</span>
-                    )}
-                    {enhancedData.enhancedResume.github && (
-                      <span className="truncate max-w-[200px]">{enhancedData.enhancedResume.github.replace(/^https?:\/\/(?:www\.)?/, "")}</span>
-                    )}
-                    {enhancedData.enhancedResume.portfolio && (
-                      <span className="truncate max-w-[200px]">{enhancedData.enhancedResume.portfolio.replace(/^https?:\/\/(?:www\.)?/, "")}</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Professional Summary */}
-                {enhancedData.enhancedResume.summary && (
-                  <div className="pt-6 pb-4 space-y-2">
-                    <h3 className="text-sm font-bold uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-900 pb-1.5">
-                      Professional Summary
-                    </h3>
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed text-justify">
-                      {enhancedData.enhancedResume.summary}
-                    </p>
-                  </div>
-                )}
-
-                {/* Skills */}
-                {enhancedData.enhancedResume.skills && enhancedData.enhancedResume.skills.length > 0 && (
-                  <div className="py-4 space-y-2">
-                    <h3 className="text-sm font-bold uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-900 pb-1.5">
-                      Technical Skills
-                    </h3>
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
-                      {enhancedData.enhancedResume.skills.join(", ")}
-                    </p>
-                  </div>
-                )}
-
-                {/* Experience */}
-                {enhancedData.enhancedResume.experience && enhancedData.enhancedResume.experience.length > 0 && (
-                  <div className="py-4 space-y-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-900 pb-1.5">
-                      Work Experience
-                    </h3>
-                    
-                    {enhancedData.enhancedResume.experience.map((exp, idx) => (
-                      <div key={idx} className="space-y-1.5">
-                        <div className="flex justify-between items-baseline text-sm">
-                          <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
-                            {exp.company}
-                          </strong>
-                          <span className="text-xs text-neutral-400">
-                            {exp.startDate} - {exp.endDate}
-                          </span>
-                        </div>
-                        <div className="text-xs font-semibold text-neutral-500 italic">
-                          {exp.position}
-                        </div>
-                        <ul className="list-disc pl-5 space-y-1 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                          {exp.bullets.map((b, i) => (
-                            <li key={i}>{b}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Projects */}
-                {enhancedData.enhancedResume.projects && enhancedData.enhancedResume.projects.length > 0 && (
-                  <div className="py-4 space-y-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-900 pb-1.5">
-                      Projects
-                    </h3>
-
-                    {enhancedData.enhancedResume.projects.map((proj, idx) => (
-                      <div key={idx} className="space-y-1.5">
-                        <h4 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{proj.name}</h4>
-                        {proj.description && <p className="text-xs text-neutral-500 italic">{proj.description}</p>}
-                        <ul className="list-disc pl-5 space-y-1 mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                          {proj.bullets.map((b, i) => (
-                            <li key={i}>{b}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Education */}
-                {enhancedData.enhancedResume.education && enhancedData.enhancedResume.education.length > 0 && (
-                  <div className="py-4 space-y-3">
-                    <h3 className="text-sm font-bold uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-900 pb-1.5">
-                      Education
-                    </h3>
-
-                    {enhancedData.enhancedResume.education.map((edu, idx) => (
-                      <div key={idx} className="flex justify-between items-baseline text-sm">
-                        <div>
-                          <strong className="font-semibold text-neutral-800 dark:text-neutral-200">
-                            {edu.school}
-                          </strong>
-                          <span className="text-xs text-neutral-500 block">
-                            {edu.degree} {edu.fieldOfStudy ? `in ${edu.fieldOfStudy}` : ""}
-                          </span>
-                        </div>
-                        {edu.startDate && (
-                          <span className="text-xs text-neutral-400">
-                            {edu.startDate} - {edu.endDate}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Certifications */}
-                {enhancedData.enhancedResume.certifications && enhancedData.enhancedResume.certifications.length > 0 && (
-                  <div className="py-4 space-y-2">
-                    <h3 className="text-sm font-bold uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-900 pb-1.5">
-                      Certifications
-                    </h3>
-                    <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-                      {enhancedData.enhancedResume.certifications.map((cert, i) => (
-                        <li key={i}>{cert}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Achievements */}
-                {enhancedData.enhancedResume.achievements && enhancedData.enhancedResume.achievements.length > 0 && (
-                  <div className="py-4 space-y-2">
-                    <h3 className="text-sm font-bold uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-900 pb-1.5">
-                      Achievements
-                    </h3>
-                    <ul className="list-disc pl-5 space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
-                      {enhancedData.enhancedResume.achievements.map((ach, i) => (
-                        <li key={i}>{ach}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
+              <div className="border border-neutral-200 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 p-8 rounded-2xl max-w-4xl mx-auto shadow-sm overflow-x-auto flex justify-center">
+                <ResumeDocument 
+                  data={enhancedData.enhancedResume} 
+                  changes={enhancedData.changes} 
+                  isOrig={false} 
+                />
               </div>
             )}
 
