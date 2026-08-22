@@ -482,9 +482,11 @@ export default function Home() {
   // 3. Download Resume PDF
   const downloadEnhancedPdf = async () => {
     if (!enhancedData) return;
-    
+
     setLoadingStep("Generating ATS-friendly PDF...");
     try {
+      // Single POST — generates and returns the PDF in one request.
+      // Two-step POST+GET fails on Vercel (isolated serverless containers).
       const res = await fetch("/api/resume/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -492,32 +494,35 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || "Unable to prepare the enhanced resume PDF.");
+        let errMsg = "Failed to generate enhanced resume PDF.";
+        try { const j = await res.json(); errMsg = j.error || errMsg; } catch {}
+        throw new Error(errMsg);
       }
 
-      const { id } = await res.json();
-      
-      if (!id) {
-        throw new Error("Invalid response from PDF generation server.");
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/pdf")) {
+        throw new Error(`Unexpected server response: ${contentType}`);
       }
 
-      const pdfRes = await fetch(`/api/resume/pdf?id=${id}`);
-      if (!pdfRes.ok) {
-        throw new Error("Failed to download generated PDF.");
+      const blob = await res.blob();
+      if (!blob || blob.size === 0) {
+        throw new Error("PDF generation returned an empty file.");
       }
-      const blob = await pdfRes.blob();
+
+      const rawName = enhancedData.enhancedResume.personal?.name || enhancedData.enhancedResume.name || "Candidate";
+      const cleanName = rawName.trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
+      const filename = `${cleanName}_Enhanced_Resume.pdf`;
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const rawName = enhancedData.enhancedResume.personal?.name || enhancedData.enhancedResume.name || "Candidate";
-      const cleanName = rawName.trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
-      a.download = `${cleanName}_Enhanced_Resume.pdf`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      window.URL.revokeObjectURL(url);
-      
+      // Defer revocation — browser needs time to start the download
+      setTimeout(() => window.URL.revokeObjectURL(url), 10_000);
+
       setLoadingStep("");
     } catch (err: any) {
       alert(err.message || "PDF download failed.");
@@ -548,6 +553,8 @@ export default function Home() {
         recommendations: enhancedData?.recommendations || [],
       };
 
+      // Single POST — generates and returns the PDF in one request.
+      // Two-step POST+GET fails on Vercel (isolated serverless containers).
       const res = await fetch("/api/resume/report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -555,30 +562,28 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        throw new Error("Unable to prepare the ATS analysis report PDF.");
+        let errMsg = "Failed to generate ATS report PDF.";
+        try { const j = await res.json(); errMsg = j.error || errMsg; } catch {}
+        throw new Error(errMsg);
       }
 
-      const { id } = await res.json();
-      
-      if (!id) {
-        throw new Error("Invalid response from PDF generation server.");
+      const blob = await res.blob();
+      if (!blob || blob.size === 0) {
+        throw new Error("Report PDF generation returned an empty file.");
       }
 
-      const pdfRes = await fetch(`/api/resume/report?id=${id}`);
-      if (!pdfRes.ok) {
-        throw new Error("Failed to download generated report PDF.");
-      }
-      const blob = await pdfRes.blob();
+      const rawName = resumeData.personal?.name || resumeData.name || "Candidate";
+      const cleanName = rawName.trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const rawName = resumeData.personal?.name || resumeData.name || "Candidate";
-      const cleanName = rawName.trim().replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "") || "Candidate";
       a.download = `${cleanName}_ATS_Analysis_Report.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      window.URL.revokeObjectURL(url);
+      // Defer revocation — browser needs time to start the download
+      setTimeout(() => window.URL.revokeObjectURL(url), 10_000);
     } catch (err: any) {
       alert(err.message || "Report PDF download failed.");
     }
