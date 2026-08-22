@@ -1865,26 +1865,40 @@ export async function generateStructuredAIResponse(
       }
     }
 
-    if (simulatedPayload) return simulatedPayload;
+    // Gemini failed — fall through to OpenRouter below
+    console.warn("[AI] All Gemini models failed for structured response, falling through to OpenRouter");
   }
 
-  if (!process.env.OPENROUTER_API_KEY && simulatedPayload) {
-    await delay(2000);
+  // Try OpenRouter (preferred fallback — always attempt if key is set)
+  if (process.env.OPENROUTER_API_KEY) {
+    try {
+      const completion = await openai.chat.completions.create({
+        model,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt }
+        ],
+      });
+      const raw = completion.choices[0].message.content || "{}";
+      try {
+        return JSON.parse(raw);
+      } catch {
+        // Strip markdown fences if present
+        const stripped = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+        return JSON.parse(stripped);
+      }
+    } catch (error) {
+      console.error("[AI] OpenRouter structured generation failed:", error);
+    }
+  }
+
+  // Last resort: return simulatedPayload
+  if (simulatedPayload) {
+    console.warn("[AI] All AI providers failed — returning simulated payload");
+    await delay(500);
     return simulatedPayload;
   }
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt }
-      ],
-    });
-    return JSON.parse(completion.choices[0].message.content || "{}");
-  } catch (error) {
-    console.error("[AI] Structured AI Generation Error:", error);
-    throw new Error("Failed to generate structured AI response.");
-  }
+  throw new Error("Failed to generate structured AI response: all providers exhausted.");
 }
