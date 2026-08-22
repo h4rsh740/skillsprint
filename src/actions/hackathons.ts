@@ -54,11 +54,23 @@ export async function getVerifiedHackathons(filters?: {
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Ensure hackathons exist in database
-  let dbHackathons = await prisma.hackathon.findMany({
-    orderBy: { registrationDeadline: "asc" },
-  });
+  // Execute independent database queries concurrently
+  const [initialDbHackathons, profile, activeJobs, savedList] = await Promise.all([
+    prisma.hackathon.findMany({
+      orderBy: { registrationDeadline: "asc" },
+    }),
+    db.getProfileByUserId(user.id),
+    prisma.job.findMany({
+      where: { isActive: true },
+      select: { requiredSkills: true, preferredSkills: true },
+      take: 10,
+    }),
+    prisma.savedHackathon.findMany({
+      where: { userId: user.id },
+    })
+  ]);
 
+  let dbHackathons = initialDbHackathons;
   if (dbHackathons.length === 0) {
     await syncAllHackathons();
     dbHackathons = await prisma.hackathon.findMany({
@@ -66,16 +78,8 @@ export async function getVerifiedHackathons(filters?: {
     });
   }
 
-  // Get user profile & missing skills from their target jobs
-  const profile = await db.getProfileByUserId(user.id);
   const studentSkills = profile?.skills || ["React", "JavaScript", "HTML", "CSS"];
 
-  // Query active jobs to find common missing skills
-  const activeJobs = await prisma.job.findMany({
-    where: { isActive: true },
-    select: { requiredSkills: true, preferredSkills: true },
-    take: 10,
-  });
   const allJobSkills = new Set<string>();
   for (const j of activeJobs) {
     j.requiredSkills.forEach((s) => allJobSkills.add(s));
@@ -85,10 +89,6 @@ export async function getVerifiedHackathons(filters?: {
     (s) => !studentSkills.some((us: string) => us.toLowerCase() === s.toLowerCase())
   );
 
-  // Fetch user's saved/registered hackathons
-  const savedList = await prisma.savedHackathon.findMany({
-    where: { userId: user.id },
-  });
   const savedMap = new Map<string, SavedHackathonStatus>();
   for (const s of savedList) {
     savedMap.set(s.hackathonId, s.status);

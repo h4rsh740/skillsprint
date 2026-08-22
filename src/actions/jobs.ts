@@ -45,10 +45,18 @@ export type JobsOverviewStats = {
 /**
  * Retrieves student profile context for matching (combining DB profile, GitHub analysis, and Resume)
  */
-async function getStudentMatchingContext(userId: string) {
-  const profile = await db.getProfileByUserId(userId);
-  const githubAnalysis = await db.getLatestGitHubAnalysis(userId);
-  const resume = await db.getLatestResumeByUserId(userId);
+async function getStudentMatchingContext(userId: string, ctx?: { profile: any; githubAnalysis: any; resume: any }) {
+  let profile = ctx?.profile;
+  let githubAnalysis = ctx?.githubAnalysis;
+  let resume = ctx?.resume;
+
+  if (!ctx) {
+    [profile, githubAnalysis, resume] = await Promise.all([
+      db.getProfileByUserId(userId),
+      db.getLatestGitHubAnalysis(userId),
+      db.getLatestResumeByUserId(userId)
+    ]);
+  }
 
   // Extract verified skills from GitHub repos/analyses
   const verifiedGithubSkills: string[] = [];
@@ -80,12 +88,21 @@ export async function getVerifiedJobs(filters?: {
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Ensure database has jobs (run initial sync if empty)
-  let dbJobs = await prisma.job.findMany({
-    where: { isActive: true },
-    orderBy: { createdAt: "desc" },
-  });
+  // Execute independent database queries concurrently
+  const [initialDbJobs, userApplications, profile, githubAnalysis, resume] = await Promise.all([
+    prisma.job.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.jobApplication.findMany({
+      where: { userId: user.id },
+    }),
+    db.getProfileByUserId(user.id),
+    db.getLatestGitHubAnalysis(user.id),
+    db.getLatestResumeByUserId(user.id)
+  ]);
 
+  let dbJobs = initialDbJobs;
   if (dbJobs.length === 0) {
     await syncAllJobs();
     dbJobs = await prisma.job.findMany({
@@ -94,16 +111,12 @@ export async function getVerifiedJobs(filters?: {
     });
   }
 
-  // Fetch user's existing applications
-  const userApplications = await prisma.jobApplication.findMany({
-    where: { userId: user.id },
-  });
   const appMap = new Map<string, { status: ApplicationStatus; appliedAt: Date | null }>();
   for (const app of userApplications) {
     appMap.set(app.jobId, { status: app.status, appliedAt: app.appliedAt });
   }
 
-  const profileContext = await getStudentMatchingContext(user.id);
+  const profileContext = await getStudentMatchingContext(user.id, { profile, githubAnalysis, resume });
 
   // Compute matches for all jobs
   const cards: VerifiedJobCard[] = [];

@@ -40,18 +40,30 @@ export type CareerScoresResult = {
   };
 };
 
-export async function getSkillSprintScores(): Promise<CareerScoresResult> {
-  const user = await getSessionUser();
+export type SkillSprintContext = {
+  user: any;
+  dbScores: any;
+  resume: any;
+  github: any;
+  linkedin: any;
+  interviews: any;
+  profile: any;
+};
+
+export async function getSkillSprintScores(ctx?: SkillSprintContext): Promise<CareerScoresResult> {
+  const user = ctx ? ctx.user : await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const [dbScores, resume, github, linkedin, interviews, profile] = await Promise.all([
-    db.getScoresByUserId(user.id),
-    db.getLatestResumeAnalysis(user.id),
-    db.getLatestGitHubAnalysis(user.id),
-    db.getLatestLinkedInAnalysis(user.id),
-    db.getInterviewsByUserId(user.id),
-    db.getProfileByUserId(user.id),
-  ]);
+  const [dbScores, resume, github, linkedin, interviews, profile] = ctx 
+    ? [ctx.dbScores, ctx.resume, ctx.github, ctx.linkedin, ctx.interviews, ctx.profile]
+    : await Promise.all([
+        db.getScoresByUserId(user.id),
+        db.getLatestResumeAnalysis(user.id),
+        db.getLatestGitHubAnalysis(user.id),
+        db.getLatestLinkedInAnalysis(user.id),
+        db.getInterviewsByUserId(user.id),
+        db.getProfileByUserId(user.id),
+      ]);
 
   // 1. Resolve individual scores dynamically based on synced integrations
   const resumeScore = resume?.resumeScore || dbScores.resume;
@@ -239,7 +251,9 @@ export async function getDashboardData(): Promise<DashboardData> {
   if (!user) throw new Error("Unauthorized");
 
   const [
-    scores,
+    dbScores,
+    interviews,
+    profile,
     recommendationsRaw,
     activeRoadmap,
     githubAnalysis,
@@ -249,7 +263,9 @@ export async function getDashboardData(): Promise<DashboardData> {
     syncHistory,
     notifications,
   ] = await Promise.all([
-    getSkillSprintScores(),
+    db.getScoresByUserId(user.id),
+    db.getInterviewsByUserId(user.id),
+    db.getProfileByUserId(user.id),
     db.getRecommendedProjects(user.id),
     db.getLatestRoadmap(user.id),
     db.getLatestGitHubAnalysis(user.id),
@@ -259,6 +275,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     db.getSyncHistory(user.id),
     db.getNotifications(user.id),
   ]);
+
+  const scores = await getSkillSprintScores({
+    user,
+    dbScores,
+    resume: resumeAnalysis,
+    github: githubAnalysis,
+    linkedin: linkedinAnalysis,
+    interviews,
+    profile,
+  });
 
   let recommendations = recommendationsRaw;
   if (!recommendations || recommendations.length === 0) {
