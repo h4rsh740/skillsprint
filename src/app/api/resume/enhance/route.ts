@@ -7,7 +7,7 @@ import { validateEnhancedResume } from "@/lib/resumeiq/resumeEnhancementValidato
 import { enhancedToResumeData } from "@/lib/resumeiq/resumeText";
 
 export const runtime = "nodejs";
-export const maxDuration = 90;
+export const maxDuration = 60;
 
 const bodySchema = z.object({
   resume: z.any(),
@@ -22,13 +22,15 @@ export async function POST(req: NextRequest) {
   let body: unknown;
   try {
     body = await req.json();
-  } catch {
-    return NextResponse.json({ ok: false, error: "Invalid request body." }, { status: 400 });
+  } catch (err: any) {
+    console.error("Failed to parse JSON body:", err);
+    return NextResponse.json({ ok: false, error: `Invalid request body: ${err.message}` }, { status: 400 });
   }
 
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Missing resume or job data." }, { status: 400 });
+    console.error("Zod parse failed:", parsed.error.format());
+    return NextResponse.json({ ok: false, error: "Missing resume or job data.", details: parsed.error.format() }, { status: 400 });
   }
 
   const resume = parsed.data.resume as ResumeData;
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
     const code = err instanceof GeminiError ? err.code : "UNKNOWN";
     const msg = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { ok: false, error: `Gemini enhancement failed: ${msg}`, code, aiUnavailable: true },
+      { ok: false, error: `Gemini enhancement failed: ${msg}`, code, aiUnavailable: true, originalAnalysis },
       { status: 502 }
     );
   }

@@ -12,7 +12,7 @@ export class GeminiError extends Error {
   }
 }
 
-const DEFAULT_MODEL = "gemini-1.5-flash";
+const DEFAULT_MODEL = "gemini-2.0-flash";
 
 /** Strip markdown code fences and extract the first JSON object. */
 function extractJson(content: string): string {
@@ -118,17 +118,31 @@ export async function enhanceResumeWithGemini(
   const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
   
   if (apiKey) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
+    // Try models in order of preference — first working one wins
+    const modelsToTry = [
+      process.env.GEMINI_MODEL,   // user-configured model (may be undefined)
+      "gemini-2.0-flash",
+      "gemini-2.0-flash-lite",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-latest",
+    ].filter(Boolean) as string[];
+
+    // Deduplicate while preserving order
+    const uniqueModels = [...new Set(modelsToTry)];
+
+    for (const modelId of uniqueModels) {
       try {
-        console.log(`[AI] Attempt ${attempt}: Calling Google Gemini API...`);
-        const content = await callGemini(apiKey, model, system, user);
+        console.log(`[AI] Trying Google Gemini model: ${modelId}`);
+        const content = await callGemini(apiKey, modelId, system, user);
         const jsonStr = extractJson(content);
         const raw = JSON.parse(jsonStr);
         const parsed = enhanceResponseSchema.safeParse(raw);
         if (!parsed.success) {
+          console.warn(`[AI] Schema validation failed for model ${modelId}, trying next...`);
           lastError = new GeminiError("Gemini response failed schema validation.", "SCHEMA");
           continue;
         }
+        console.log(`[AI] Success with model: ${modelId}`);
         return {
           enhancedResume: parsed.data.enhancedResume,
           changes: parsed.data.changes.map((c, i) => ({ ...c, id: c.id || `change-${i + 1}` })),
@@ -136,11 +150,15 @@ export async function enhanceResumeWithGemini(
         };
       } catch (err) {
         lastError = err;
-        console.warn(`[AI] Gemini attempt ${attempt} failed:`, err instanceof Error ? err.message : err);
         const errMsg = err instanceof Error ? err.message : String(err);
-        if (errMsg.includes("not found") || errMsg.includes("API key") || errMsg.includes("unauthorized") || errMsg.includes("403") || errMsg.includes("400")) {
+        console.warn(`[AI] Model ${modelId} failed:`, errMsg.slice(0, 200));
+        
+        // Stop immediately on auth errors — no point trying more models
+        if (errMsg.includes("API key") || errMsg.includes("unauthorized") || errMsg.includes("403")) {
           break;
         }
+        // Otherwise (404 model not found, 400, 429 rate limit) — continue to next model
+        continue;
       }
     }
   }

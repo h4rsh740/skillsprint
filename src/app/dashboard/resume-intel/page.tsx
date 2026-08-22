@@ -381,7 +381,7 @@ export default function Home() {
 
       // Step 2: Run ATS Analysis (locally in backend)
       setLoadingStep("Matching job keywords & calculating ATS score...");
-      const analyzeRes = await fetch("/api/resume/enhance", {
+      const analyzeRes = await fetch("/api/resume/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -394,21 +394,8 @@ export default function Home() {
         }),
       });
 
-      // Since the enhance route does both analysis and enhancement, we can split them or capture the result
-      // But wait! To save calls and perform initial analysis local, we can extract only the originalAnalysis!
       const analyzeData = await analyzeRes.json();
       if (!analyzeRes.ok || !analyzeData.ok) {
-        if (analyzeData.aiUnavailable) {
-          // If Gemini fails but parsing succeeded, we can fall back to local analysis
-          setResumeData(parseData.resume);
-          // Calculate locally or extract if returned
-          if (analyzeData.originalAnalysis) {
-            setAnalysis(analyzeData.originalAnalysis);
-            setAiUnavailable(true);
-            setView("dashboard");
-            return;
-          }
-        }
         throw new Error(analyzeData.error || "Failed to analyze resume.");
       }
 
