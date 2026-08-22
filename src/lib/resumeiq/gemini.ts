@@ -3,7 +3,6 @@ import type {
 } from "./types";
 import { enhanceResponseSchema } from "./schemas";
 import { buildSystemPrompt, buildUserPrompt } from "./prompts";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export class GeminiError extends Error {
   constructor(message: string, public code: string, public retryAfterMs = 0) {
@@ -32,7 +31,7 @@ async function callOpenRouter(apiKey: string, model: string, system: string, use
     headers: {
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:3000",
+      "HTTP-Referer": "https://skillsprint-umber.vercel.app",
       "X-Title": "ResumeIQ AI"
     },
     body: JSON.stringify({
@@ -58,44 +57,51 @@ async function callOpenRouter(apiKey: string, model: string, system: string, use
   return text;
 }
 
+/**
+ * Call Gemini via direct REST API — avoids SDK v1beta path issues on Vercel.
+ */
 async function callGemini(
   apiKey: string,
   model: string,
   system: string,
   user: string
 ): Promise<string> {
-  const genAI = new GoogleGenerativeAI(apiKey);
-  
-  try {
-    const modelInstance = genAI.getGenerativeModel({
-      model: model,
-      systemInstruction: system,
-    });
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-    const result = await modelInstance.generateContent({
-      contents: [{ role: "user", parts: [{ text: user }] }],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 4096,
-        responseMimeType: "application/json",
-      },
-    });
+  const payload = {
+    system_instruction: {
+      parts: [{ text: system }],
+    },
+    contents: [
+      { role: "user", parts: [{ text: user }] }
+    ],
+    generationConfig: {
+      temperature: 0.3,
+      maxOutputTokens: 8192,
+      responseMimeType: "application/json",
+    },
+  };
 
-    const text = result.response.text();
-    if (!text || !text.trim()) {
-      throw new GeminiError("Empty Gemini response.", "EMPTY");
-    }
-    return text;
-  } catch (err: any) {
-    const errMsg = err?.message || "";
-    if (errMsg.includes("429") || errMsg.includes("quota")) {
-      throw new GeminiError("Gemini rate limit reached or quota exceeded.", "RATE_LIMIT");
-    }
-    if (errMsg.includes("API key")) {
-      throw new GeminiError("Invalid Gemini API key or unauthorized access.", "AUTH");
-    }
-    throw new GeminiError(`Gemini request failed: ${errMsg}`, "UPSTREAM");
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => "");
+    throw new GeminiError(
+      `Gemini API error (${res.status}): ${errBody.slice(0, 300)}`,
+      res.status === 429 ? "RATE_LIMIT" : res.status === 403 ? "AUTH" : "UPSTREAM"
+    );
   }
+
+  const data = await res.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text || !text.trim()) {
+    throw new GeminiError("Empty Gemini response.", "EMPTY");
+  }
+  return text;
 }
 
 /**
@@ -112,33 +118,31 @@ export async function enhanceResumeWithGemini(
   const user = buildUserPrompt(resume, job, keywords, ats, issues);
 
   let lastError: unknown;
-  
-  // Try Gemini first
+
+  // Try Gemini first — iterate through models until one works
   const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
-  
+
   if (apiKey) {
-    // Try models in order of preference — first working one wins
+    // All free-tier Gemini models via Google AI Studio key
     const modelsToTry = [
-      process.env.GEMINI_MODEL,   // user-configured model (may be undefined)
-      "gemini-2.0-flash",
-      "gemini-2.0-flash-lite",
-      "gemini-1.5-flash",
-      "gemini-1.5-flash-latest",
+      process.env.GEMINI_MODEL,
+      "gemini-2.0-flash-lite",  // fastest & free
+      "gemini-2.0-flash",       // free tier
+      "gemini-1.5-flash",       // free tier
+      "gemini-1.5-flash-8b",    // smallest & free
     ].filter(Boolean) as string[];
 
-    // Deduplicate while preserving order
     const uniqueModels = [...new Set(modelsToTry)];
 
     for (const modelId of uniqueModels) {
       try {
-        console.log(`[AI] Trying Google Gemini model: ${modelId}`);
+        console.log(`[AI] Trying Gemini model via REST: ${modelId}`);
         const content = await callGemini(apiKey, modelId, system, user);
         const jsonStr = extractJson(content);
         const raw = JSON.parse(jsonStr);
         const parsed = enhanceResponseSchema.safeParse(raw);
         if (!parsed.success) {
-          console.warn(`[AI] Schema validation failed for model ${modelId}, trying next...`);
+          console.warn(`[AI] Schema validation failed for ${modelId}:`, parsed.error.issues.slice(0, 3));
           lastError = new GeminiError("Gemini response failed schema validation.", "SCHEMA");
           continue;
         }
@@ -152,44 +156,55 @@ export async function enhanceResumeWithGemini(
         lastError = err;
         const errMsg = err instanceof Error ? err.message : String(err);
         console.warn(`[AI] Model ${modelId} failed:`, errMsg.slice(0, 200));
-        
-        // Stop immediately on auth errors — no point trying more models
-        if (errMsg.includes("API key") || errMsg.includes("unauthorized") || errMsg.includes("403")) {
+        // Auth errors — stop immediately
+        if (errMsg.includes("AUTH") || errMsg.includes("403") || errMsg.includes("API key")) {
           break;
         }
-        // Otherwise (404 model not found, 400, 429 rate limit) — continue to next model
+        // All other errors (404, 400, rate limit) — try next model
         continue;
       }
     }
   }
 
-  // Fallback to OpenRouter if Gemini failed or is not configured
+  // Fallback to OpenRouter — free models only
   const openRouterKey = process.env.OPENROUTER_API_KEY;
-  const openRouterModel = process.env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct:free";
+  // Try multiple free OpenRouter models in sequence
+  const openRouterFreeModels = [
+    process.env.OPENROUTER_MODEL,
+    "google/gemini-2.0-flash-exp:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "mistralai/mistral-7b-instruct:free",
+  ].filter(Boolean) as string[];
 
   if (openRouterKey) {
-    console.log("[AI] Falling back to OpenRouter API (Llama 3.3)...");
-    try {
-      const content = await callOpenRouter(openRouterKey, openRouterModel, system, user);
-      const jsonStr = extractJson(content);
-      const raw = JSON.parse(jsonStr);
-      const parsed = enhanceResponseSchema.safeParse(raw);
-      if (!parsed.success) {
-        throw new Error("OpenRouter response failed schema validation.");
+    for (const orModel of [...new Set(openRouterFreeModels)]) {
+      console.log(`[AI] Trying OpenRouter free model: ${orModel}`);
+      try {
+        const content = await callOpenRouter(openRouterKey, orModel, system, user);
+        const jsonStr = extractJson(content);
+        const raw = JSON.parse(jsonStr);
+        const parsed = enhanceResponseSchema.safeParse(raw);
+        if (!parsed.success) {
+          console.warn(`[AI] OpenRouter schema validation failed for ${orModel}`);
+          lastError = new Error("OpenRouter response failed schema validation.");
+          continue;
+        }
+        console.log(`[AI] Success with OpenRouter model: ${orModel}`);
+        return {
+          enhancedResume: parsed.data.enhancedResume,
+          changes: parsed.data.changes.map((c, i) => ({ ...c, id: c.id || `change-${i + 1}` })),
+          recommendations: parsed.data.recommendations,
+        };
+      } catch (err: any) {
+        console.warn(`[AI] OpenRouter model ${orModel} failed:`, err.message?.slice(0, 150));
+        lastError = err;
+        continue;
       }
-      return {
-        enhancedResume: parsed.data.enhancedResume,
-        changes: parsed.data.changes.map((c, i) => ({ ...c, id: c.id || `change-${i + 1}` })),
-        recommendations: parsed.data.recommendations,
-      };
-    } catch (err: any) {
-      console.error("[AI] OpenRouter fallback also failed:", err.message);
-      lastError = err;
     }
   }
 
   if (lastError instanceof Error) throw lastError;
-  throw new GeminiError("Resume enhancement failed on both Gemini and OpenRouter.", "FAILED");
+  throw new GeminiError("Resume enhancement failed. Please check your API keys.", "FAILED");
 }
 
 export { DEFAULT_MODEL as GEMINI_DEFAULT_MODEL };
