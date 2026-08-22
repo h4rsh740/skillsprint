@@ -127,21 +127,16 @@ export async function enhanceResumeWithGemini(
   if (apiKey) {
     // Try free Gemini models on both v1beta and v1 endpoints — first working one wins
     const modelsToTry: Array<{ model: string; apiVersion: string }> = [
-      // User-configured model first (try both API versions)
+      // User-configured model first
       ...(process.env.GEMINI_MODEL ? [
         { model: process.env.GEMINI_MODEL, apiVersion: "v1beta" },
-        { model: process.env.GEMINI_MODEL, apiVersion: "v1" },
       ] : []),
-      // Gemini 2.0 free models (v1beta)
-      { model: "gemini-2.0-flash-lite",      apiVersion: "v1beta" },
-      { model: "gemini-2.0-flash",            apiVersion: "v1beta" },
-      { model: "gemini-2.0-flash-exp",        apiVersion: "v1beta" },
-      // Gemini 1.5 free models — try v1 (stable) first, then v1beta
-      { model: "gemini-1.5-flash",            apiVersion: "v1" },
-      { model: "gemini-1.5-flash-latest",     apiVersion: "v1" },
-      { model: "gemini-1.5-flash-001",        apiVersion: "v1" },
-      { model: "gemini-1.5-flash",            apiVersion: "v1beta" },
-      { model: "gemini-1.5-flash-latest",     apiVersion: "v1beta" },
+      // Current free-tier Gemini models (updated names as of 2025)
+      { model: "gemini-3.5-flash-lite",  apiVersion: "v1beta" },
+      { model: "gemini-3.6-flash",       apiVersion: "v1beta" },
+      { model: "gemini-3.5-flash",       apiVersion: "v1beta" },
+      { model: "gemini-2.5-flash-lite",  apiVersion: "v1beta" },
+      { model: "gemini-2.5-flash",       apiVersion: "v1beta" },
     ];
 
     for (const { model: modelId, apiVersion } of modelsToTry) {
