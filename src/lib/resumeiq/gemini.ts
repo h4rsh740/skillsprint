@@ -64,9 +64,10 @@ async function callGemini(
   apiKey: string,
   model: string,
   system: string,
-  user: string
+  user: string,
+  apiVersion = "v1beta"
 ): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${apiKey}`;
 
   const payload = {
     system_instruction: {
@@ -91,7 +92,7 @@ async function callGemini(
   if (!res.ok) {
     const errBody = await res.text().catch(() => "");
     throw new GeminiError(
-      `Gemini API error (${res.status}): ${errBody.slice(0, 300)}`,
+      `Gemini API error (${res.status}) [${apiVersion}/${model}]: ${errBody.slice(0, 300)}`,
       res.status === 429 ? "RATE_LIMIT" : res.status === 403 ? "AUTH" : "UPSTREAM"
     );
   }
@@ -103,6 +104,7 @@ async function callGemini(
   }
   return text;
 }
+
 
 /**
  * Enhance a resume via Google Gemini (with OpenRouter fallback when rate-limited).
@@ -123,21 +125,29 @@ export async function enhanceResumeWithGemini(
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (apiKey) {
-    // All free-tier Gemini models via Google AI Studio key
-    const modelsToTry = [
-      process.env.GEMINI_MODEL,
-      "gemini-2.0-flash-lite",  // fastest & free
-      "gemini-2.0-flash",       // free tier
-      "gemini-1.5-flash",       // free tier
-      "gemini-1.5-flash-8b",    // smallest & free
-    ].filter(Boolean) as string[];
+    // Try free Gemini models on both v1beta and v1 endpoints — first working one wins
+    const modelsToTry: Array<{ model: string; apiVersion: string }> = [
+      // User-configured model first (try both API versions)
+      ...(process.env.GEMINI_MODEL ? [
+        { model: process.env.GEMINI_MODEL, apiVersion: "v1beta" },
+        { model: process.env.GEMINI_MODEL, apiVersion: "v1" },
+      ] : []),
+      // Gemini 2.0 free models (v1beta)
+      { model: "gemini-2.0-flash-lite",      apiVersion: "v1beta" },
+      { model: "gemini-2.0-flash",            apiVersion: "v1beta" },
+      { model: "gemini-2.0-flash-exp",        apiVersion: "v1beta" },
+      // Gemini 1.5 free models — try v1 (stable) first, then v1beta
+      { model: "gemini-1.5-flash",            apiVersion: "v1" },
+      { model: "gemini-1.5-flash-latest",     apiVersion: "v1" },
+      { model: "gemini-1.5-flash-001",        apiVersion: "v1" },
+      { model: "gemini-1.5-flash",            apiVersion: "v1beta" },
+      { model: "gemini-1.5-flash-latest",     apiVersion: "v1beta" },
+    ];
 
-    const uniqueModels = [...new Set(modelsToTry)];
-
-    for (const modelId of uniqueModels) {
+    for (const { model: modelId, apiVersion } of modelsToTry) {
       try {
-        console.log(`[AI] Trying Gemini model via REST: ${modelId}`);
-        const content = await callGemini(apiKey, modelId, system, user);
+        console.log(`[AI] Trying ${apiVersion}/models/${modelId}`);
+        const content = await callGemini(apiKey, modelId, system, user, apiVersion);
         const jsonStr = extractJson(content);
         const raw = JSON.parse(jsonStr);
         const parsed = enhanceResponseSchema.safeParse(raw);
