@@ -284,11 +284,11 @@ export default function GitHubIntelPage() {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 w-full sm:w-auto">
                 <button
                   onClick={handleSync}
                   disabled={isAnalyzing}
-                  className="flex items-center gap-1.5 bg-[#4f46e5]/10 hover:bg-[#4f46e5]/20 text-[#4f46e5] font-bold text-[12px] px-4 py-2 rounded-xl transition-all disabled:opacity-50 cursor-pointer"
+                  className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 bg-[#4f46e5]/10 hover:bg-[#4f46e5]/20 text-[#4f46e5] font-bold text-[12px] px-4 py-2 rounded-xl transition-all disabled:opacity-50 cursor-pointer"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
                   Re-sync Footprint
@@ -296,7 +296,7 @@ export default function GitHubIntelPage() {
                 <button
                   onClick={handleDisconnect}
                   disabled={isAnalyzing}
-                  className="flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-150 font-bold text-[12px] px-4 py-2 rounded-xl transition-all cursor-pointer"
+                  className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-150 font-bold text-[12px] px-4 py-2 rounded-xl transition-all cursor-pointer"
                 >
                   Disconnect Account
                 </button>

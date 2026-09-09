@@ -505,7 +505,7 @@ export default function RoadmapPage() {
                 </div>
 
                 {/* 2B. Interactive Flowchart Map (Mobile Map Tab, or Desktop Map Mode) */}
-                <div className={`${activeMobileTab === "map" ? "block" : "hidden"} lg:block ${desktopViewMode === "flowchart" ? "lg:block" : "lg:hidden"} relative select-none py-6`}>
+                <div className={`${activeMobileTab === "map" ? "block" : "hidden"} lg:block ${desktopViewMode === "flowchart" ? "lg:block" : "lg:hidden"} relative select-none py-6 overflow-x-auto`}>
                   {/* Vertical Progress Connector Line */}
                   <div className="absolute top-16 bottom-16 left-1/2 -translate-x-1/2 w-[2.5px] bg-gray-200 -z-10">
                     <div 
