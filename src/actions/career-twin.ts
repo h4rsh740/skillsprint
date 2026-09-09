@@ -18,6 +18,7 @@ export async function getStudentProfileForTwin() {
 
 import { buildCandidateEvidenceGraph } from "@/lib/evidence";
 import { buildCandidateGroundTruth, validateTwinSWOT, type CareerTwinValidationReport } from "@/lib/validation";
+import { extractTargetRoleProfile, compareEvidenceToRole } from "@/lib/role-intelligence";
 
 export type CareerTwinTimeline = {
   month: string;
@@ -25,7 +26,15 @@ export type CareerTwinTimeline = {
   subtitle: string;
   skills: string[];
   salary: string;
+  salaryMethodology?: string;
   resources?: { name: string; url: string; }[];
+};
+
+export type GroundedTwinClaim = {
+  claim: string;
+  evidence: string;
+  confidence: "HIGH" | "MEDIUM" | "LOW";
+  limitations?: string;
 };
 
 export type CareerTwinResult = {
@@ -33,9 +42,15 @@ export type CareerTwinResult = {
   growthOpportunities: {
     title: string;
     impact: string;
+    confidence?: "HIGH" | "MEDIUM" | "LOW";
   }[];
   riskFactors: string[];
   placementReadiness?: number;
+  placementConfidence?: "HIGH" | "MEDIUM" | "LOW";
+  placementWhy?: string;
+  placementLimitations?: string;
+  salaryLimitations?: string;
+  groundedClaims?: GroundedTwinClaim[];
   swot?: {
     strengths: string[];
     weaknesses: string[];
@@ -208,6 +223,44 @@ export async function generateCareerTwin(formData: FormData): Promise<CareerTwin
     twinResult.swot = sanitizedSWOT;
     twinResult.validationReport = report;
   }
+
+  // Ground placement readiness and target role alignment
+  const targetRoleProfile = extractTargetRoleProfile({ title: targetRole });
+  const roleReadiness = compareEvidenceToRole(evidenceGraph, targetRoleProfile);
+
+  twinResult.placementReadiness = roleReadiness.overallReadinessScore;
+  twinResult.placementConfidence = evidenceGraph.overallConfidence;
+  twinResult.placementWhy = `Deterministic alignment against ${targetRole}: ${roleReadiness.matchedCount} required skills matched, ${roleReadiness.partialCount} partial, ${roleReadiness.missingCount} missing.`;
+  twinResult.placementLimitations = "SkillSprint measures verified engineering qualification readiness. It does not provide actuarial hiring guarantees due to company-specific quotas and macroeconomic market cycles.";
+  twinResult.salaryLimitations = "Salary projections represent indicative entry-to-mid engineering compensation ranges from public industry benchmarks (Levels.fyi / Glassdoor tech cohorts) and are not contractual guarantees.";
+
+  // Generate grounded claims
+  const topStrengths = evidenceGraph.directSkills.slice(0, 3);
+  const groundedClaims: GroundedTwinClaim[] = [
+    {
+      claim: `Primary Target Readiness: ${targetRole}`,
+      evidence: `${roleReadiness.matchedCount} verified skills (${topStrengths.join(", ") || "Foundational"})`,
+      confidence: evidenceGraph.overallConfidence,
+      limitations: roleReadiness.criticalGaps.length > 0 ? `Critical gaps: ${roleReadiness.criticalGaps.join(", ")}` : undefined,
+    },
+    {
+      claim: "12-Month Progression Feasibility",
+      evidence: `Based on current evidence velocity with ${evidenceGraph.totalVerifiedSkills} verified capabilities`,
+      confidence: evidenceGraph.overallConfidence === "HIGH" ? "HIGH" : "MEDIUM",
+      limitations: "Assumes continuous weekly project shipping and testing adoption",
+    },
+  ];
+
+  if (roleReadiness.criticalGaps.length > 0) {
+    groundedClaims.push({
+      claim: `Highest Priority Gap: ${roleReadiness.criticalGaps[0]}`,
+      evidence: `No verified repository code or project artifact found for ${roleReadiness.criticalGaps[0]}`,
+      confidence: "HIGH",
+      limitations: "Can be closed with a targeted test-backed project repository",
+    });
+  }
+
+  twinResult.groundedClaims = groundedClaims;
 
   // Label simulation flag clearly if returned object matches simulated fallback
   twinResult.isSimulated = (result === simulatedPayload);

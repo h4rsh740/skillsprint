@@ -10,6 +10,7 @@ export interface ActionSelectionInputs {
   hasResume?: boolean;
   hasGithub?: boolean;
   hasInterview?: boolean;
+  repositories?: string[];
 }
 
 export function selectHighestImpactAction(inputs: ActionSelectionInputs): ActionPlanSummary {
@@ -20,8 +21,10 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
     hasResume = false,
     hasGithub = false,
     hasInterview = false,
+    repositories = [],
   } = inputs;
 
+  const primaryRepo = repositories.length > 0 ? repositories[0] : undefined;
   const actions: NextBestAction[] = [];
 
   // 1. Missing Required Skills from Target Role (P0)
@@ -35,14 +38,32 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
       const canonical = item.requirement.normalizedName;
 
       if (canonical.includes("test") || canonical.includes("jest") || canonical.includes("cypress")) {
+        const title = primaryRepo
+          ? `Add Automated Test Suite to ${primaryRepo}`
+          : "Add Automated Test Suite to Primary Repository";
+        const why = primaryRepo
+          ? `Testing is required by ${targetRoleTitle}, but repository ${primaryRepo} contains no automated test scripts or test suites.`
+          : `Testing is required by ${targetRoleTitle}, but repository analysis detected zero automated test suites or CI/CD test commands.`;
+
         actions.push({
           id: `action-test-${Date.now()}`,
-          title: "Add Automated Test Suite to Primary Repository",
+          title,
           category: "TESTING_COVERAGE",
           priority: "P0_CRITICAL",
           targetRole: targetRoleTitle,
+          targetSkill: "Automated Testing",
           gapSkill: "Automated Testing",
-          whyThisAction: `Testing is required by ${targetRoleTitle}, but repository analysis detected zero automated test suites or CI/CD test commands.`,
+          targetRequirement: item.requirement.name,
+          evidence: primaryRepo
+            ? `Repository ${primaryRepo} contains no test configuration or test files`
+            : "Zero test suites detected across evidence graph",
+          repository: primaryRepo,
+          reason: why,
+          whyThisAction: why,
+          estimatedEffort: "2-4 hours",
+          prerequisites: primaryRepo
+            ? ["Node.js / package manager installed", `Local clone of ${primaryRepo}`]
+            : ["Codebase with testing framework (Jest, Vitest, PyTest)"],
           evidenceToProduce: [
             "Unit tests configured with Jest, Vitest, or Node Test Runner",
             "Integration test cases covering primary API endpoints or core UI state flows",
@@ -50,7 +71,9 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
           ],
           completionCriteria: [
             "All unit and integration tests run successfully with 0 failures",
-            "Test files committed to public GitHub repository",
+            primaryRepo
+              ? `Test files committed to repository ${primaryRepo}`
+              : "Test files committed to public GitHub repository",
             "Repository rescan confirms automated test presence",
           ],
           estimatedImpact: {
@@ -62,21 +85,41 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
           verificationMethod: "GITHUB_RESCAN",
         });
       } else if (canonical.includes("docker") || canonical.includes("container") || canonical.includes("k8s")) {
+        const title = primaryRepo
+          ? `Containerize ${primaryRepo} with Docker`
+          : "Containerize Web Application with Docker";
+        const why = primaryRepo
+          ? `Containerization is required for ${targetRoleTitle}, but zero Dockerfiles or container configuration exists in ${primaryRepo}.`
+          : `Containerization is required for ${targetRoleTitle}, but zero Dockerfiles or container configuration exists in candidate evidence.`;
+
         actions.push({
           id: `action-docker-${Date.now()}`,
-          title: `Containerize Web Application with Docker`,
+          title,
           category: "EVIDENCE_CLOSURE",
           priority: "P0_CRITICAL",
           targetRole: targetRoleTitle,
+          targetSkill: "Docker",
           gapSkill: "Docker",
-          whyThisAction: `Containerization is required for ${targetRoleTitle}, but zero Dockerfiles or container configuration exists in candidate evidence.`,
+          targetRequirement: item.requirement.name,
+          evidence: primaryRepo
+            ? `No Dockerfile or docker-compose.yml found in ${primaryRepo}`
+            : "No Dockerfiles found in candidate evidence graph",
+          repository: primaryRepo,
+          reason: why,
+          whyThisAction: why,
+          estimatedEffort: "1-2 hours",
+          prerequisites: primaryRepo
+            ? ["Docker Desktop installed", `Local clone of ${primaryRepo}`]
+            : ["Docker Desktop installed"],
           evidenceToProduce: [
             "Multi-stage Dockerfile optimizing production image footprint",
             "docker-compose.yml orchestrating application server and database",
             "Clear local startup documentation in repository README.md",
           ],
           completionCriteria: [
-            "Dockerfile committed to project repository",
+            primaryRepo
+              ? `Dockerfile committed to repository ${primaryRepo}`
+              : "Dockerfile committed to project repository",
             "Container builds and runs application reliably",
             "Rescan detects container configuration in repository files",
           ],
@@ -89,21 +132,42 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
           verificationMethod: "GITHUB_RESCAN",
         });
       } else {
+        const formattedSkill = formatSkillDisplay(canonical);
+        const title = primaryRepo
+          ? `Ship a Production Feature Demonstrating ${formattedSkill} in ${primaryRepo}`
+          : `Ship a Production Feature Demonstrating ${formattedSkill}`;
+        const why = primaryRepo
+          ? `Target role requires ${skillName}, but no verifiable evidence exists across repository ${primaryRepo} or resume.`
+          : `Target role requires ${skillName}, but no verifiable evidence exists across Resume, GitHub, or Projects.`;
+
         actions.push({
           id: `action-skill-${canonical}-${Date.now()}`,
-          title: `Ship a Production Feature Demonstrating ${formatSkillDisplay(canonical)}`,
+          title,
           category: "CODE_VERIFICATION",
           priority: "P0_CRITICAL",
           targetRole: targetRoleTitle,
-          gapSkill: formatSkillDisplay(canonical),
-          whyThisAction: `Target role requires ${skillName}, but no verifiable evidence exists across Resume, GitHub, or Projects.`,
+          targetSkill: formattedSkill,
+          gapSkill: formattedSkill,
+          targetRequirement: skillName,
+          evidence: primaryRepo
+            ? `Repository ${primaryRepo} lacks source code files matching ${skillName}`
+            : `Missing verifiable code or project evidence for ${skillName}`,
+          repository: primaryRepo,
+          reason: why,
+          whyThisAction: why,
+          estimatedEffort: "4-8 hours",
+          prerequisites: primaryRepo
+            ? [`Local development environment for ${primaryRepo}`]
+            : ["Public Git repository"],
           evidenceToProduce: [
             `Feature or mini-project codebase utilizing ${skillName}`,
             `Documented usage in repository README with architecture explanation`,
             `Quantified bullet point in resume describing outcome`,
           ],
           completionCriteria: [
-            `Active source code containing ${skillName} committed to public GitHub repo`,
+            primaryRepo
+              ? `Active source code containing ${skillName} committed to ${primaryRepo}`
+              : `Active source code containing ${skillName} committed to public GitHub repo`,
             `Demonstrable functionality verified on GitHub rescan`,
           ],
           estimatedImpact: {
@@ -121,14 +185,28 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
   // 2. Weak Profile Claims (P1: User claimed skill, but zero code proof)
   if (evidenceGraph.weakSkills.length > 0) {
     const topWeak = evidenceGraph.weakSkills[0];
+    const title = primaryRepo
+      ? `Provide Verifiable Repository Code for ${topWeak} in ${primaryRepo}`
+      : `Provide Verifiable Repository Code for ${topWeak}`;
+    const why = primaryRepo
+      ? `You listed ${topWeak} on your profile, but repository ${primaryRepo} contains no source code corroborating this claim.`
+      : `You listed ${topWeak} on your profile, but the evidence engine classifies it as WEAK because no repository code or production bullets corroborate it.`;
+
     actions.push({
       id: `action-weak-${Date.now()}`,
-      title: `Provide Verifiable Repository Code for ${topWeak}`,
+      title,
       category: "CODE_VERIFICATION",
       priority: "P1_HIGH",
       targetRole: targetRoleTitle,
+      targetSkill: topWeak,
       gapSkill: topWeak,
-      whyThisAction: `You listed ${topWeak} on your profile, but the evidence engine classifies it as WEAK because no repository code or production bullets corroborate it.`,
+      targetRequirement: topWeak,
+      evidence: `Profile claim for ${topWeak} lacks repository code backing`,
+      repository: primaryRepo,
+      reason: why,
+      whyThisAction: why,
+      estimatedEffort: "2-3 hours",
+      prerequisites: primaryRepo ? [`Access to ${primaryRepo}`] : ["Public GitHub repository"],
       evidenceToProduce: [
         `Public repository with ${topWeak} code making up at least 5% of repository volume`,
         `README section explaining how ${topWeak} was used to solve a practical problem`,
@@ -155,8 +233,14 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
       category: "RESUME_ALIGNMENT",
       priority: "P0_CRITICAL",
       targetRole: targetRoleTitle,
+      targetSkill: "Resume Evidence",
       gapSkill: "Resume Evidence",
+      targetRequirement: "ATS-Parsed Technical Resume",
+      evidence: "No resume document uploaded in profile",
+      reason: "No resume has been uploaded. An uploaded resume provides verified work history, projects, and ATS alignment.",
       whyThisAction: "No resume has been uploaded. An uploaded resume provides verified work history, projects, and ATS alignment.",
+      estimatedEffort: "15-30 minutes",
+      prerequisites: ["Updated PDF resume with metric-driven project descriptions"],
       evidenceToProduce: ["Technical resume in PDF format with metric-driven bullet points"],
       completionCriteria: ["Resume uploaded and successfully parsed by deterministic ATS engine"],
       estimatedImpact: {
@@ -176,8 +260,14 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
       category: "CODE_VERIFICATION",
       priority: "P0_CRITICAL",
       targetRole: targetRoleTitle,
+      targetSkill: "Codebase Evidence",
       gapSkill: "Codebase Evidence",
+      targetRequirement: "Connected GitHub Repository Portfolio",
+      evidence: "Zero connected GitHub repositories or commit histories",
+      reason: "Connecting GitHub enables deterministic ingestion of real languages, pull requests, CI/CD, and repository health.",
       whyThisAction: "Connecting GitHub enables deterministic ingestion of real languages, pull requests, CI/CD, and repository health.",
+      estimatedEffort: "2 minutes",
+      prerequisites: ["Active GitHub account with public code repositories"],
       evidenceToProduce: ["Linked active GitHub account with public repositories"],
       completionCriteria: ["GitHub account connected and initial analysis synced"],
       estimatedImpact: {
@@ -197,8 +287,14 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
       category: "INTERVIEW_BENCHMARK",
       priority: "P1_HIGH",
       targetRole: targetRoleTitle,
+      targetSkill: "Oral Problem Solving",
       gapSkill: "Oral Problem Solving",
-      whyThisAction: "Demonstrate technical verbal articulation, problem solving, and architecture design.",
+      targetRequirement: "Mock Interview Performance Evaluation",
+      evidence: "No technical mock interview recordings or transcripts found",
+      reason: "Demonstrate technical verbal articulation, problem solving, and architecture design under timed conditions.",
+      whyThisAction: "Demonstrate technical verbal articulation, problem solving, and architecture design under timed conditions.",
+      estimatedEffort: "20-30 minutes",
+      prerequisites: ["Working microphone and quiet environment"],
       evidenceToProduce: ["Recorded evaluation from 3 mock interview questions"],
       completionCriteria: ["Complete simulation session and submit answers for evaluation"],
       estimatedImpact: {
@@ -215,12 +311,21 @@ export function selectHighestImpactAction(inputs: ActionSelectionInputs): Action
   if (actions.length === 0) {
     actions.push({
       id: `action-maintain-${Date.now()}`,
-      title: "Publish Case Study and Engage Open Source",
+      title: primaryRepo
+        ? `Publish Architectural Case Study for ${primaryRepo}`
+        : "Publish Case Study and Engage Open Source",
       category: "CODE_VERIFICATION",
       priority: "P2_MEDIUM",
       targetRole: targetRoleTitle,
+      targetSkill: "System Architecture",
       gapSkill: "System Architecture",
+      targetRequirement: "Technical Writing & Architecture Demonstration",
+      evidence: "Candidate possesses strong baseline across all required dimensions",
+      repository: primaryRepo,
+      reason: "All core required skills are verified. Deepen market visibility with production case studies.",
       whyThisAction: "All core required skills are verified. Deepen market visibility with production case studies.",
+      estimatedEffort: "3-5 hours",
+      prerequisites: primaryRepo ? [`Completed project in ${primaryRepo}`] : ["Completed software project"],
       evidenceToProduce: ["Technical write-up or published blog post on project architecture"],
       completionCriteria: ["Case study published on portfolio or GitHub README"],
       estimatedImpact: {

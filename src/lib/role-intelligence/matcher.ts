@@ -22,8 +22,12 @@ export function compareEvidenceToRole(
   const weakEvidence: RequirementMatchDetail[] = [];
   const missing: RequirementMatchDetail[] = [];
 
+  const requiredSkills = Array.isArray(targetRole?.requiredSkills) ? targetRole.requiredSkills : [];
+  const preferredSkills = Array.isArray(targetRole?.preferredSkills) ? targetRole.preferredSkills : [];
+
   // 1. Process Required Skills
-  for (const rawSkill of targetRole.requiredSkills) {
+  for (const rawSkill of requiredSkills) {
+    if (!rawSkill || typeof rawSkill !== "string") continue;
     const canonical = normalizeSkillName(rawSkill);
     const summary = evidenceGraph.skills[canonical];
 
@@ -40,6 +44,8 @@ export function compareEvidenceToRole(
         classification: "MISSING",
         evidenceConfidence: "NONE",
         score: 0,
+        gapSeverity: "CRITICAL",
+        currentEvidence: "None detected in repository code, project artifacts, or parsed resume.",
         evidenceSummary: `No code, project, or resume evidence found for required skill ${rawSkill}.`,
         supportingEvidenceIds: [],
         recommendation: `Build a concrete project utilizing ${rawSkill} with unit tests and repository evidence.`,
@@ -52,6 +58,8 @@ export function compareEvidenceToRole(
         classification: "MATCHED",
         evidenceConfidence: summary.confidence,
         score: summary.score,
+        gapSeverity: "NONE",
+        currentEvidence: summary.summary,
         evidenceSummary: summary.summary,
         supportingEvidenceIds: summary.evidence.map((e) => e.id),
       };
@@ -63,6 +71,8 @@ export function compareEvidenceToRole(
         classification: "PARTIAL",
         evidenceConfidence: summary.confidence,
         score: summary.score,
+        gapSeverity: "MODERATE",
+        currentEvidence: summary.summary,
         evidenceSummary: summary.summary,
         supportingEvidenceIds: summary.evidence.map((e) => e.id),
         recommendation: `Elevate ${rawSkill} from indirect or introductory usage into explicit production projects.`,
@@ -76,6 +86,8 @@ export function compareEvidenceToRole(
         classification: "WEAK_EVIDENCE",
         evidenceConfidence: "LOW",
         score: summary.score,
+        gapSeverity: "CRITICAL",
+        currentEvidence: summary.summary,
         evidenceSummary: summary.summary,
         supportingEvidenceIds: summary.evidence.map((e) => e.id),
         recommendation: `Provide verifiable repository commits or technical interview demonstrations for ${rawSkill}.`,
@@ -86,7 +98,8 @@ export function compareEvidenceToRole(
   }
 
   // 2. Process Preferred Skills
-  for (const rawSkill of targetRole.preferredSkills) {
+  for (const rawSkill of preferredSkills) {
+    if (!rawSkill || typeof rawSkill !== "string") continue;
     const canonical = normalizeSkillName(rawSkill);
     const summary = evidenceGraph.skills[canonical];
 
@@ -103,6 +116,8 @@ export function compareEvidenceToRole(
         classification: "MISSING",
         evidenceConfidence: "NONE",
         score: 0,
+        gapSeverity: "MODERATE",
+        currentEvidence: "None detected in candidate portfolio.",
         evidenceSummary: `Preferred skill ${rawSkill} not present in candidate evidence portfolio.`,
         supportingEvidenceIds: [],
         recommendation: `Consider learning ${rawSkill} as an auxiliary strength.`,
@@ -115,6 +130,8 @@ export function compareEvidenceToRole(
         classification: "MATCHED",
         evidenceConfidence: summary.confidence,
         score: summary.score,
+        gapSeverity: "NONE",
+        currentEvidence: summary.summary,
         evidenceSummary: summary.summary,
         supportingEvidenceIds: summary.evidence.map((e) => e.id),
       };
@@ -126,6 +143,8 @@ export function compareEvidenceToRole(
         classification: "PARTIAL",
         evidenceConfidence: summary.confidence,
         score: summary.score,
+        gapSeverity: "MINOR",
+        currentEvidence: summary.summary,
         evidenceSummary: summary.summary,
         supportingEvidenceIds: summary.evidence.map((e) => e.id),
       };
@@ -137,6 +156,8 @@ export function compareEvidenceToRole(
         classification: "WEAK_EVIDENCE",
         evidenceConfidence: "LOW",
         score: summary.score,
+        gapSeverity: "MINOR",
+        currentEvidence: summary.summary,
         evidenceSummary: summary.summary,
         supportingEvidenceIds: summary.evidence.map((e) => e.id),
       };

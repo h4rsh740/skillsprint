@@ -721,12 +721,36 @@ export const db = {
       interview: 60,
       marketDemand: 75,
       skillsprintScore: 68,
-      history: [
-        { month: "April", score: 58 },
-        { month: "May", score: 67 },
-        { month: "June", score: 68 }
-      ]
+      history: []
     };
+  },
+
+  async getHistoricalScoresByUserId(userId: string) {
+    if (!useLocalDB) {
+      try {
+        const scoreRecords = await prisma.careerScore.findMany({
+          where: { userId },
+          orderBy: { createdAt: "asc" }
+        });
+        if (scoreRecords && scoreRecords.length > 0) {
+          const latest = scoreRecords[scoreRecords.length - 1];
+          const storedHistory = (latest.details as any)?.history;
+          if (Array.isArray(storedHistory) && storedHistory.length > 0) {
+            return storedHistory;
+          }
+          return scoreRecords.map(s => ({
+            month: new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(new Date(s.createdAt)),
+            score: s.overallScore,
+            timestamp: s.createdAt.toISOString()
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to query historical career scores:", err);
+      }
+    }
+    const store = getLocalDB();
+    const scoreItem = store.career_scores.find((s: any) => s.userId === userId);
+    return (scoreItem?.details as any)?.history || [];
   },
 
   async updateScores(userId: string, data: {
@@ -777,11 +801,7 @@ export const db = {
       interviewReadiness: 60,
       hiringScore: 75,
       details: {
-        history: [
-          { month: "April", score: 58 },
-          { month: "May", score: 67 },
-          { month: "June", score: 68 }
-        ]
+        history: []
       }
     };
 

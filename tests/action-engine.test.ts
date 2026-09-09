@@ -98,4 +98,72 @@ describe("Highest-Impact Action Engine — Phase 6 Verification", () => {
     assert.equal(afterPlan.primaryAction.gapSkill, "Docker");
     assert.notEqual(afterPlan.primaryAction.id, beforePlan.primaryAction.id);
   });
+
+  it("grounds recommendations in real connected repository and populates enriched fields", () => {
+    const evidence = buildCandidateEvidenceGraph({
+      resume: { skills: ["Node.js", "Express"] },
+      github: { languages: [{ name: "JavaScript", percentage: 100 }] },
+    });
+
+    const targetRole = extractTargetRoleProfile({
+      title: "Backend Engineer",
+      requiredSkills: ["Node.js", "Docker"],
+    });
+
+    const roleReadiness = compareEvidenceToRole(evidence, targetRole);
+
+    // Provide a real connected repository
+    const actionPlan = selectHighestImpactAction({
+      evidenceGraph: evidence,
+      roleReadiness,
+      targetRoleTitle: "Backend Engineer",
+      hasResume: true,
+      hasGithub: true,
+      hasInterview: true,
+      repositories: ["order-processing-service"],
+    });
+
+    assert.ok(actionPlan.primaryAction);
+    assert.equal(actionPlan.primaryAction.repository, "order-processing-service");
+    assert.ok(actionPlan.primaryAction.title.includes("order-processing-service"));
+    assert.ok(actionPlan.primaryAction.reason.includes("order-processing-service"));
+    assert.equal(actionPlan.primaryAction.targetSkill, "Docker");
+    assert.ok(actionPlan.primaryAction.evidence.includes("order-processing-service"));
+    assert.ok(actionPlan.primaryAction.estimatedEffort);
+    assert.ok(Array.isArray(actionPlan.primaryAction.prerequisites));
+    assert.ok(
+      actionPlan.primaryAction.prerequisites!.some((p) => p.includes("order-processing-service")),
+      "Prerequisites should mention the specific repo"
+    );
+  });
+
+  it("never fabricates or invents fake repository names when repositories are omitted", () => {
+    const evidence = buildCandidateEvidenceGraph({
+      resume: { skills: ["Python"] },
+      github: { languages: [{ name: "Python", percentage: 100 }] },
+    });
+
+    const targetRole = extractTargetRoleProfile({
+      title: "Data Engineer",
+      requiredSkills: ["Python", "Docker"],
+    });
+
+    const roleReadiness = compareEvidenceToRole(evidence, targetRole);
+
+    const actionPlan = selectHighestImpactAction({
+      evidenceGraph: evidence,
+      roleReadiness,
+      targetRoleTitle: "Data Engineer",
+      hasResume: true,
+      hasGithub: true,
+      hasInterview: true,
+      // No repositories provided
+      repositories: [],
+    });
+
+    assert.ok(actionPlan.primaryAction);
+    assert.equal(actionPlan.primaryAction.repository, undefined, "Must not invent a repository name");
+    assert.equal(actionPlan.primaryAction.title, "Containerize Web Application with Docker");
+    assert.ok(!actionPlan.primaryAction.title.includes("undefined"));
+  });
 });

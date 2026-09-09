@@ -16,12 +16,11 @@ export const MODELS = {
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // ─── Gemini models to try in order (most capable first) ────────────────────
-// Free-tier models — verified working ✅ (tested 2026-08-15)
 const GEMINI_MODELS = [
-  "gemini-3.5-flash",       // ✅ verified — most capable free model
-  "gemini-3.5-flash-lite",  // ✅ verified — fast & lightweight
-  "gemini-flash-latest",    // ✅ verified — always-updated alias
-  "gemini-flash-lite-latest", // ✅ verified — lite always-updated alias
+  "gemini-2.0-flash",       // Active Google flagship fast model
+  "gemini-1.5-flash",       // High-availability production tier
+  "gemini-2.0-flash-lite",  // Lightweight fast response tier
+  "gemini-1.5-pro",         // Deep reasoning tier
 ];
 
 // ─── Try Gemini API ─────────────────────────────────────────────────────────

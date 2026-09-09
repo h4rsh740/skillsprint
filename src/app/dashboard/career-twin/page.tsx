@@ -626,6 +626,9 @@ export default function CareerTwinPage() {
                       <motion.span key={countedReadiness} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{countedReadiness}</motion.span>%
                     </p>
                   </div>
+                  <div className="col-span-2 text-[10px] text-slate-400 px-1 leading-normal">
+                    * Readiness based on verified skills & ATS evidence. Salary projections represent median tech compensation benchmarks, not guarantees.
+                  </div>
                   <button
                     onClick={() => exportCareerTwinToPDF(result, { cgpa, targetRole, skills })}
                     className="no-print col-span-2 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-indigo-50 cursor-pointer"
@@ -703,7 +706,9 @@ export default function CareerTwinPage() {
                           <p className="text-[11px] text-slate-500">Click any quadrant to expand details</p>
                         </div>
                       </div>
-                      <span className="px-2.5 py-1 bg-emerald-500/15 text-emerald-400 text-[11px] font-black rounded-full border border-emerald-500/20">92% Confidence</span>
+                      <span className="px-2.5 py-1 bg-emerald-500/15 text-emerald-400 text-[11px] font-black rounded-full border border-emerald-500/20">
+                        {result.placementConfidence || result.validationReport?.overallConfidence || "MEDIUM"} Confidence
+                      </span>
                     </div>
 
                     {([
@@ -806,9 +811,14 @@ export default function CareerTwinPage() {
                           <span className="block text-[9px] text-slate-500 font-bold mt-0.5 uppercase tracking-widest">Ready</span>
                         </div>
                       </div>
-                      <p className="text-[12px] text-slate-400 mt-4 leading-relaxed max-w-[200px]">
-                        {placementReadiness >= 80 ? "Outstanding! Profile meets high-bar hiring standards." : placementReadiness >= 60 ? "Good potential. Address SWOT weaknesses to maximize shortlisting." : "Priority updates needed. Enhance portfolio and skill diversity."}
+                      <p className="text-[12px] text-slate-400 mt-4 leading-relaxed max-w-[220px]">
+                        {result.placementWhy || (placementReadiness >= 80 ? "Outstanding! Profile meets high-bar hiring standards." : placementReadiness >= 60 ? "Good potential. Address SWOT weaknesses to maximize shortlisting." : "Priority updates needed. Enhance portfolio and skill diversity.")}
                       </p>
+                      {result.placementLimitations && (
+                        <p className="text-[10px] text-slate-500 mt-2 max-w-[220px] italic leading-tight">
+                          {result.placementLimitations}
+                        </p>
+                      )}
                     </div>
 
                     {/* Role Match Bars */}
@@ -851,6 +861,44 @@ export default function CareerTwinPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Grounded Claims & Limitations */}
+                  {result.groundedClaims && result.groundedClaims.length > 0 && (
+                    <div className="rounded-2xl border border-white/10 overflow-hidden shadow-xl" style={{ background: "linear-gradient(135deg, #111827 0%, #0f172a 100%)" }}>
+                      <div className="px-6 py-4 border-b border-white/8 flex items-center justify-between">
+                        <h3 className="text-[13px] font-bold text-white flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-400" /> Evidence-Grounded Claims & Transparency
+                        </h3>
+                        <span className="text-[10.5px] text-slate-400">Target Role & Provenance Aligned</span>
+                      </div>
+                      <div className="p-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {result.groundedClaims.map((item, i) => (
+                          <div key={i} className="bg-white/[0.04] border border-white/8 rounded-xl p-3.5 flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className={`text-[9.5px] font-extrabold px-2 py-0.5 rounded-full border ${
+                                  item.confidence === "HIGH" ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" :
+                                  item.confidence === "MEDIUM" ? "bg-amber-500/15 text-amber-300 border-amber-500/30" :
+                                  "bg-rose-500/15 text-rose-400 border-rose-500/30"
+                                }`}>
+                                  {item.confidence} Confidence
+                                </span>
+                              </div>
+                              <h4 className="text-xs font-bold text-white mb-1.5">{item.claim}</h4>
+                              <p className="text-[11px] text-slate-300 leading-relaxed">
+                                <strong>Evidence:</strong> {item.evidence}
+                              </p>
+                            </div>
+                            {item.limitations && (
+                              <p className="text-[10px] text-slate-400 mt-2.5 pt-2 border-t border-white/5 italic">
+                                Note: {item.limitations}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Phase-by-phase skill breakdown */}
                   <div className="rounded-2xl border border-white/10 overflow-hidden shadow-xl" style={{ background: "linear-gradient(135deg, #111827 0%, #0f172a 100%)" }}>

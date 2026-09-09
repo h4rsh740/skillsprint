@@ -25,8 +25,15 @@ export interface NextBestAction {
   category: ActionCategory;
   priority: ActionPriority;
   targetRole: string;
-  whyThisAction: string;
+  targetSkill: string;
   gapSkill: string;
+  targetRequirement?: string;
+  evidence: string;
+  repository?: string;
+  reason: string;
+  whyThisAction: string;
+  estimatedEffort?: string;
+  prerequisites?: string[];
   evidenceToProduce: string[];
   completionCriteria: string[];
   estimatedImpact: EstimatedImpact;

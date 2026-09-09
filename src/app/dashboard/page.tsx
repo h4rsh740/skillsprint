@@ -132,11 +132,7 @@ export default function DashboardOverview() {
   ];
 
   // Prepare history chart data
-  const historyData = data?.scores?.history || [
-    { month: "April", score: 55 },
-    { month: "May", score: 65 },
-    { month: "June", score: 75 }
-  ];
+  const historyData = data?.scores?.history || [];
 
   // Helper to generate simulated commit squares for 12 weeks (84 days)
   const commitGrid = Array.from({ length: 84 }).map((_, i) => {
@@ -225,6 +221,16 @@ export default function DashboardOverview() {
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
                   Target: {data.actionPlan.primaryAction.targetRole}
                 </span>
+                {data.actionPlan.primaryAction.repository && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Repo: {data.actionPlan.primaryAction.repository}
+                  </span>
+                )}
+                {data.actionPlan.primaryAction.estimatedEffort && (
+                  <span className="text-[11px] font-medium text-slate-400">
+                    Effort: {data.actionPlan.primaryAction.estimatedEffort}
+                  </span>
+                )}
                 <span className="text-[11px] font-semibold text-emerald-400">
                   {data.actionPlan.primaryAction.estimatedImpact.label}
                 </span>
@@ -310,12 +316,33 @@ export default function DashboardOverview() {
           </div>
 
           <div className="mt-4 flex flex-col items-center gap-1.5">
-            <div className="text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 font-bold flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5" /> +{data?.scores?.growthPercentage || 12}% Growth this month
+            {data?.scores?.growthPercentage && data.scores.growthPercentage > 0 ? (
+              <div className="text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 font-bold flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5" /> +{data.scores.growthPercentage}% Growth
+              </div>
+            ) : (
+              <div className="text-xs text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 font-bold flex items-center gap-1.5">
+                Baseline Established
+              </div>
+            )}
+            <div className="flex items-center gap-2 mt-0.5">
+              {data?.scores?.provenance === "VERIFIED" ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Calculated from your verified GitHub repositories and analyzed resume.">
+                  ✓ Verified
+                </span>
+              ) : data?.scores?.provenance === "DEMO" ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                  Demo
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200" title="Provisional estimate — connect additional integrations to fully verify.">
+                  ~ Provisional
+                </span>
+              )}
+              <span className="text-[10.5px] font-semibold text-slate-500">
+                Confidence: <strong className="text-slate-800 uppercase">{data?.scores?.explainableReadiness?.confidence || "MEDIUM"}</strong>
+              </span>
             </div>
-            <span className="text-[10.5px] font-semibold text-slate-500">
-              Confidence: <strong className="text-slate-800 uppercase">{data?.scores?.explainableReadiness?.confidence || "MEDIUM"}</strong>
-            </span>
           </div>
         </div>
 
@@ -389,7 +416,22 @@ export default function DashboardOverview() {
           {data?.scores?.metrics && Object.entries(data.scores.metrics).map(([key, value]: [string, any]) => (
             <div key={key} className="bg-white/60 hover:bg-white transition-all border border-gray-150 rounded-2xl p-4.5 flex flex-col justify-between group">
               <div className="flex items-center justify-between border-b border-gray-100 pb-2 mb-2.5">
-                <span className="text-[12px] font-bold text-gray-505 uppercase tracking-wider">{key.replace(/([A-Z])/g, ' $1')}</span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[12px] font-bold text-gray-700 uppercase tracking-wider">{key.replace(/([A-Z])/g, ' $1')}</span>
+                  {value.provenance === "VERIFIED" ? (
+                    <span className="text-[9.5px] font-extrabold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200" title="Verified by candidate evidence">
+                      ✓ Verified
+                    </span>
+                  ) : value.provenance === "DEMO" ? (
+                    <span className="text-[9.5px] font-bold px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                      Demo
+                    </span>
+                  ) : (
+                    <span className="text-[9.5px] font-medium px-1.5 py-0.2 rounded bg-amber-50 text-amber-700 border border-amber-200" title="Provisional baseline calculation">
+                      ~ Provisional
+                    </span>
+                  )}
+                </div>
                 <span className="text-base font-black text-slate-800">{value.current}/100</span>
               </div>
               <p className="text-xs text-gray-500 leading-relaxed mb-3 line-clamp-2">{value.reason}</p>
@@ -658,11 +700,37 @@ export default function DashboardOverview() {
 
       {/* 9. SCORE TREND OVER TIME (HISTORY) */}
       <div className="liquid-glass rounded-3xl p-6 sm:p-8 border border-white/50 shadow-sm">
-        <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider mb-1">Score Progression</h3>
-        <p className="text-xs text-gray-500 mb-6">Historical index tracking your Career Operating updates.</p>
-        <div className="h-64 w-full">
-          <DynamicAreaChart data={historyData} />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+          <div>
+            <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider mb-1">Score Progression</h3>
+            <p className="text-xs text-gray-500">Historical index tracking your verified Career Operating updates.</p>
+          </div>
+          {historyData && historyData.length >= 2 ? (
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full w-fit">
+              {historyData.length} Verified Assessment Snapshots
+            </span>
+          ) : (
+            <span className="text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full w-fit">
+              Baseline Assessment
+            </span>
+          )}
         </div>
+
+        {historyData && historyData.length >= 2 ? (
+          <div className="h-64 w-full">
+            <DynamicAreaChart data={historyData} />
+          </div>
+        ) : (
+          <div className="bg-slate-50/80 border border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+            <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-sm mb-3">
+              <TrendingUp className="w-6 h-6 text-indigo-500" />
+            </div>
+            <h4 className="text-sm font-bold text-slate-800">Initial Baseline Established ({data?.scores?.skillsprintScore || 60}/100)</h4>
+            <p className="text-xs text-slate-500 mt-1 max-w-md leading-relaxed">
+              Historical progress will appear as SkillSprint records new assessments and scans your updated codebases, resumes, and interview evaluations.
+            </p>
+          </div>
+        )}
       </div>
 
     </div>

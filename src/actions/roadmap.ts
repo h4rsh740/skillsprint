@@ -103,6 +103,21 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
 
   const role = extractTargetRoleProfile({ title: targetRoleTitle });
   const readiness = compareEvidenceToRole(evidence, role);
+  // Extract real repo names if available (never invent fake repo names)
+  const connectedRepos: string[] = [];
+  if (github?.pinnedRepos && Array.isArray(github.pinnedRepos)) {
+    for (const r of github.pinnedRepos) {
+      if (typeof r === "string" && r.trim()) {
+        connectedRepos.push(r.trim());
+      } else if (r && typeof r === "object") {
+        const name = r.name || r.repoName || r.title;
+        if (typeof name === "string" && name.trim()) {
+          connectedRepos.push(name.trim());
+        }
+      }
+    }
+  }
+
   const actionPlan = selectHighestImpactAction({
     evidenceGraph: evidence,
     roleReadiness: readiness,
@@ -110,6 +125,7 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
     hasResume: !!resume,
     hasGithub: !!github,
     hasInterview: !!(interviews && interviews.length > 0),
+    repositories: connectedRepos,
   });
 
   const missingSkills = readiness.criticalGaps.length > 0

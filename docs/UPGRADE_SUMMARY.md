@@ -61,12 +61,15 @@ When AI generates career projections, SWOT, or skill endorsements:
 ## 4. Test & Benchmark Verification
 
 ### 4.1 Automated Test Suite (`npm test`)
-All 17 automated tests pass consistently:
+All 30 automated tests pass consistently across 8 suites:
+- `tests/edge-cases-reliability.test.ts` (3 tests): Fresh candidate handling with completely empty profiles without fabricating claims, fork-only/zero-code GitHub account defense against false skill attribution, safe handling of corrupted/non-string tokens without throwing TypeErrors.
+- `tests/career-twin-grounding.test.ts` (3 tests): Target role gap severity classification (`CRITICAL`, `MODERATE`, `MINOR`), evidence-grounded placement readiness and explicit limitations disclosure, empty profile handling without unsupported precision claims.
+- `tests/provenance-history.test.ts` (5 tests): Initial baseline establishment without synthetic offsets, genuine chronological historical tracking, VERIFIED provenance assignment, PROVISIONAL fallback classification, DEMO candidate tagging.
 - `tests/evidence.test.ts` (7 tests): Normalization, empty evidence handling, multi-source corroboration, framework inference, weak claim detection, missing skill tracking, conflicting evidence.
 - `tests/role-intelligence.test.ts` (2 tests): Requirement extraction from unstructured job descriptions, accurate classification of MATCHED, PARTIAL, MISSING, and WEAK_EVIDENCE.
 - `tests/readiness.test.ts` (2 tests): Explainable score calculation without arbitrary constants, dynamic weight normalization for missing dimensions.
 - `tests/validation.test.ts` (4 tests): Unsupported claim rejection, grounded claim verification, unverified claim downgrading, Career Twin SWOT sanitization.
-- `tests/action-engine.test.ts` (2 tests): P0 critical next best action prioritization, adaptive rescan loop verification.
+- `tests/action-engine.test.ts` (4 tests): P0 critical next best action prioritization, adaptive rescan loop verification, real connected repository grounding with enriched action metadata (`targetSkill`, `evidence`, `prerequisites`, `estimatedEffort`), and strict protection against inventing fake repository names.
 
 ### 4.2 Benchmark Evaluation (`scripts/benchmark/run_benchmark.ts`)
 - **ATS Resume Scoring Pipeline**: Evaluated 8 diverse held-out resumes.

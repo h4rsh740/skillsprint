@@ -26,7 +26,7 @@
 | **14. Reliability** | **PASS** | [`src/lib/ai.ts`](file:///Users/harshsingh/Desktop/skillsprint/src/lib/ai.ts) | None. Gemini $\rightarrow$ OpenRouter $\rightarrow$ simulated payload with explicit `_source` and `_isFallback` provenance tags. |
 | **15. Security** | **PASS** | [`src/actions/auth.ts`](file:///Users/harshsingh/Desktop/skillsprint/src/actions/auth.ts), [`src/lib/encryption.ts`](file:///Users/harshsingh/Desktop/skillsprint/src/lib/encryption.ts) | None. Secrets isolated server-side; AES-256 token encryption; all queries scoped to `user.id`. |
 | **16. Demo / Static Data** | **PASS** | [`src/lib/ai.ts`](file:///Users/harshsingh/Desktop/skillsprint/src/lib/ai.ts), [`src/lib/candidateData.ts`](file:///Users/harshsingh/Desktop/skillsprint/src/lib/candidateData.ts) | None. All fallback responses tagged with `_source: "SIMULATED_FALLBACK"`; candidate demo data explicitly isolated. |
-| **17. Testing Suite** | **PASS** | Command: `npm test` | None. 17 passing tests across 5 test suites (151ms execution). |
+| **17. Testing Suite** | **PASS** | Command: `npm test` | None. 30 passing tests across 8 test suites (including edge-cases-reliability, career-twin-grounding, provenance-history, action-engine repository grounding). |
 | **18. Production Build** | **PASS** | Command: `npm run build` | None. Next.js 16.2.9 compiled successfully; 31 static and dynamic routes generated cleanly in 7.9s. |
 
 ---
@@ -81,7 +81,7 @@ Every required component from the upgrade specification has been inspected, impl
   - Scoring is deterministic and explainable (answers "Why 72/100?").
   - Anti-hallucination claim validation prevents AI from silently inventing skills or metrics.
   - The UI reflects a unified Command Center layout without decorative clutter.
-  - 17 unit/integration tests pass with 0 errors, and the production build completes in under 8 seconds.
+  - 30 unit/integration tests pass with 0 errors, and the production build completes in under 8 seconds.
 - **Top Enhancements for 10.0**:
   1. Add AST-level multi-file static analysis for candidate GitHub repositories (e.g. counting actual test assertion calls).
   2. Implement Webhook-based live GitHub push notifications to trigger automatic Career Twin rescans.

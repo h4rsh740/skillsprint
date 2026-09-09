@@ -127,6 +127,7 @@ const CANONICAL_FOLDS: Record<string, string> = {
  * Normalizes skill strings to canonical lowercase format.
  */
 export function normalizeSkillName(raw: string): string {
+  if (!raw || typeof raw !== "string") return "";
   const norm = normalizeText(raw);
   const canon = canonicalize(norm);
   return CANONICAL_FOLDS[canon] || canon;
@@ -136,6 +137,7 @@ export function normalizeSkillName(raw: string): string {
  * Formats a canonical skill for display.
  */
 export function formatSkillDisplay(canonical: string): string {
+  if (!canonical || typeof canonical !== "string") return "";
   const map: Record<string, string> = {
     javascript: "JavaScript",
     typescript: "TypeScript",
@@ -222,7 +224,9 @@ export function buildCandidateEvidenceGraph(inputs: CandidateRawInputs): Candida
     const { skills = [], experience = [], projects = [], rawText = "", certifications = [] } = inputs.resume;
 
     // A. Explicit Resume Skills
-    for (const raw of skills) {
+    const resumeSkills = Array.isArray(skills) ? skills : [];
+    for (const raw of resumeSkills) {
+      if (!raw || typeof raw !== "string") continue;
       const canonical = normalizeSkillName(raw);
       if (!canonical) continue;
       registerEvidence({
@@ -239,11 +243,12 @@ export function buildCandidateEvidenceGraph(inputs: CandidateRawInputs): Candida
 
     // B. Resume Project and Experience Bullets (demonstrating application)
     const allBullets: string[] = [
-      ...experience.flatMap((e) => e.bullets || []),
-      ...projects.flatMap((p) => p.bullets || []),
+      ...(Array.isArray(experience) ? experience : []).flatMap((e) => e?.bullets || []),
+      ...(Array.isArray(projects) ? projects : []).flatMap((p) => p?.bullets || []),
     ];
 
     for (const bullet of allBullets) {
+      if (!bullet || typeof bullet !== "string") continue;
       const bLower = bullet.toLowerCase();
       for (const [key] of Object.entries(SKILL_CATEGORY_MAP)) {
         // Look for whole token presence
@@ -290,36 +295,41 @@ export function buildCandidateEvidenceGraph(inputs: CandidateRawInputs): Candida
   // ──────────────────────────────────────────────────────────────────────────
   if (inputs.github) {
     const { languages = [], repositoryHealth = [], cicdActive, readmeQuality } = inputs.github;
+    const langList = Array.isArray(languages) ? languages : [];
 
     // A. Verified Codebase Languages & Proportions
-    for (const lang of languages) {
-      const canonical = normalizeSkillName(lang.name);
+    for (const lang of langList) {
+      if (!lang) continue;
+      const langName = typeof lang === "string" ? lang : lang.name;
+      const langPercentage = typeof lang === "object" && typeof lang.percentage === "number" ? lang.percentage : 25;
+      if (!langName || typeof langName !== "string") continue;
+      const canonical = normalizeSkillName(langName);
       if (!canonical) continue;
 
-      if (lang.percentage >= 5) {
+      if (langPercentage >= 5) {
         registerEvidence({
           source: "GITHUB",
           type: "CODEBASE_LANGUAGE",
           skill: formatSkillDisplay(canonical),
           normalizedSkill: canonical,
-          description: `Active repository codebase contains ${lang.percentage}% ${lang.name} source code`,
-          strength: lang.percentage >= 20 ? "STRONG" : "MODERATE",
+          description: `Active repository codebase contains ${langPercentage}% ${langName} source code`,
+          strength: langPercentage >= 20 ? "STRONG" : "MODERATE",
           confidence: "HIGH",
           classification: "DIRECT",
-          metadata: { percentage: lang.percentage },
+          metadata: { percentage: langPercentage },
         });
-      } else if (lang.percentage > 0 && lang.percentage < 5) {
+      } else if (langPercentage > 0 && langPercentage < 5) {
         // Barely any code: Weak evidence
         registerEvidence({
           source: "GITHUB",
           type: "CODEBASE_LANGUAGE_MINOR",
           skill: formatSkillDisplay(canonical),
           normalizedSkill: canonical,
-          description: `Minor presence (<${lang.percentage}%) in repositories`,
+          description: `Minor presence (<${langPercentage}%) in repositories`,
           strength: "WEAK",
           confidence: "LOW",
           classification: "WEAK",
-          metadata: { percentage: lang.percentage },
+          metadata: { percentage: langPercentage },
         });
       }
     }

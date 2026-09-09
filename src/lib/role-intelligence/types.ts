@@ -28,11 +28,15 @@ export interface TargetRoleProfile {
   rawText?: string;
 }
 
+export type GapSeverity = "CRITICAL" | "MODERATE" | "MINOR" | "NONE";
+
 export interface RequirementMatchDetail {
   requirement: NormalizedRoleRequirement;
   classification: RequirementClassification;
   evidenceConfidence: "HIGH" | "MEDIUM" | "LOW" | "NONE";
   score: number; // 0 - 100 match for this requirement
+  gapSeverity?: GapSeverity;
+  currentEvidence?: string;
   evidenceSummary: string;
   supportingEvidenceIds: string[];
   recommendation?: string;
