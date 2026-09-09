@@ -1,0 +1,259 @@
+import { CandidateEvidenceGraph } from "../evidence/types";
+import { RoleReadinessAnalysis } from "../role-intelligence/types";
+import { ActionPlanSummary, NextBestAction } from "./types";
+import { formatSkillDisplay } from "../evidence/engine";
+
+export interface ActionSelectionInputs {
+  evidenceGraph: CandidateEvidenceGraph;
+  roleReadiness?: RoleReadinessAnalysis | null;
+  targetRoleTitle?: string;
+  hasResume?: boolean;
+  hasGithub?: boolean;
+  hasInterview?: boolean;
+}
+
+export function selectHighestImpactAction(inputs: ActionSelectionInputs): ActionPlanSummary {
+  const {
+    evidenceGraph,
+    roleReadiness,
+    targetRoleTitle = "Software Engineer",
+    hasResume = false,
+    hasGithub = false,
+    hasInterview = false,
+  } = inputs;
+
+  const actions: NextBestAction[] = [];
+
+  // 1. Missing Required Skills from Target Role (P0)
+  if (roleReadiness && roleReadiness.missingRequirements.length > 0) {
+    const criticalMissing = roleReadiness.missingRequirements.filter(
+      (m) => m.requirement.importance === "REQUIRED"
+    );
+
+    for (const item of criticalMissing) {
+      const skillName = item.requirement.name;
+      const canonical = item.requirement.normalizedName;
+
+      if (canonical.includes("test") || canonical.includes("jest") || canonical.includes("cypress")) {
+        actions.push({
+          id: `action-test-${Date.now()}`,
+          title: "Add Automated Test Suite to Primary Repository",
+          category: "TESTING_COVERAGE",
+          priority: "P0_CRITICAL",
+          targetRole: targetRoleTitle,
+          gapSkill: "Automated Testing",
+          whyThisAction: `Testing is required by ${targetRoleTitle}, but repository analysis detected zero automated test suites or CI/CD test commands.`,
+          evidenceToProduce: [
+            "Unit tests configured with Jest, Vitest, or Node Test Runner",
+            "Integration test cases covering primary API endpoints or core UI state flows",
+            "`npm test` execution script added to package.json",
+          ],
+          completionCriteria: [
+            "All unit and integration tests run successfully with 0 failures",
+            "Test files committed to public GitHub repository",
+            "Repository rescan confirms automated test presence",
+          ],
+          estimatedImpact: {
+            points: 10,
+            label: "ESTIMATED (+8-12 points)",
+            basis: "Closes missing testing requirement; lifts Technical Skills and Project Evidence indices.",
+          },
+          isCompleted: false,
+          verificationMethod: "GITHUB_RESCAN",
+        });
+      } else if (canonical.includes("docker") || canonical.includes("container") || canonical.includes("k8s")) {
+        actions.push({
+          id: `action-docker-${Date.now()}`,
+          title: `Containerize Web Application with Docker`,
+          category: "EVIDENCE_CLOSURE",
+          priority: "P0_CRITICAL",
+          targetRole: targetRoleTitle,
+          gapSkill: "Docker",
+          whyThisAction: `Containerization is required for ${targetRoleTitle}, but zero Dockerfiles or container configuration exists in candidate evidence.`,
+          evidenceToProduce: [
+            "Multi-stage Dockerfile optimizing production image footprint",
+            "docker-compose.yml orchestrating application server and database",
+            "Clear local startup documentation in repository README.md",
+          ],
+          completionCriteria: [
+            "Dockerfile committed to project repository",
+            "Container builds and runs application reliably",
+            "Rescan detects container configuration in repository files",
+          ],
+          estimatedImpact: {
+            points: 8,
+            label: "ESTIMATED (+6-10 points)",
+            basis: "Fulfills target role requirement for containerization across DevOps and backend dimensions.",
+          },
+          isCompleted: false,
+          verificationMethod: "GITHUB_RESCAN",
+        });
+      } else {
+        actions.push({
+          id: `action-skill-${canonical}-${Date.now()}`,
+          title: `Ship a Production Feature Demonstrating ${formatSkillDisplay(canonical)}`,
+          category: "CODE_VERIFICATION",
+          priority: "P0_CRITICAL",
+          targetRole: targetRoleTitle,
+          gapSkill: formatSkillDisplay(canonical),
+          whyThisAction: `Target role requires ${skillName}, but no verifiable evidence exists across Resume, GitHub, or Projects.`,
+          evidenceToProduce: [
+            `Feature or mini-project codebase utilizing ${skillName}`,
+            `Documented usage in repository README with architecture explanation`,
+            `Quantified bullet point in resume describing outcome`,
+          ],
+          completionCriteria: [
+            `Active source code containing ${skillName} committed to public GitHub repo`,
+            `Demonstrable functionality verified on GitHub rescan`,
+          ],
+          estimatedImpact: {
+            points: 8,
+            label: "ESTIMATED (+6-8 points)",
+            basis: `Transforms ${skillName} from MISSING to DIRECT evidence in Target Role Alignment.`,
+          },
+          isCompleted: false,
+          verificationMethod: "GITHUB_RESCAN",
+        });
+      }
+    }
+  }
+
+  // 2. Weak Profile Claims (P1: User claimed skill, but zero code proof)
+  if (evidenceGraph.weakSkills.length > 0) {
+    const topWeak = evidenceGraph.weakSkills[0];
+    actions.push({
+      id: `action-weak-${Date.now()}`,
+      title: `Provide Verifiable Repository Code for ${topWeak}`,
+      category: "CODE_VERIFICATION",
+      priority: "P1_HIGH",
+      targetRole: targetRoleTitle,
+      gapSkill: topWeak,
+      whyThisAction: `You listed ${topWeak} on your profile, but the evidence engine classifies it as WEAK because no repository code or production bullets corroborate it.`,
+      evidenceToProduce: [
+        `Public repository with ${topWeak} code making up at least 5% of repository volume`,
+        `README section explaining how ${topWeak} was used to solve a practical problem`,
+      ],
+      completionCriteria: [
+        `GitHub sync verifies ${topWeak} source code files`,
+        `Classification promotes from WEAK to DIRECT`,
+      ],
+      estimatedImpact: {
+        points: 6,
+        label: "ESTIMATED (+5-7 points)",
+        basis: "Eliminates ungrounded profile claims and increases overall evidence confidence to HIGH.",
+      },
+      isCompleted: false,
+      verificationMethod: "GITHUB_RESCAN",
+    });
+  }
+
+  // 3. Primary Evidence Deficits (P0 if missing resume or github)
+  if (!hasResume) {
+    actions.push({
+      id: `action-resume-${Date.now()}`,
+      title: "Upload Technical Resume for ATS Grounding",
+      category: "RESUME_ALIGNMENT",
+      priority: "P0_CRITICAL",
+      targetRole: targetRoleTitle,
+      gapSkill: "Resume Evidence",
+      whyThisAction: "No resume has been uploaded. An uploaded resume provides verified work history, projects, and ATS alignment.",
+      evidenceToProduce: ["Technical resume in PDF format with metric-driven bullet points"],
+      completionCriteria: ["Resume uploaded and successfully parsed by deterministic ATS engine"],
+      estimatedImpact: {
+        points: 18,
+        label: "ESTIMATED (+15-20 points)",
+        basis: "Activates Resume Strength dimension (20% weight) currently contributing 0 points.",
+      },
+      isCompleted: false,
+      verificationMethod: "RESUME_RESCAN",
+    });
+  }
+
+  if (!hasGithub) {
+    actions.push({
+      id: `action-github-${Date.now()}`,
+      title: "Connect GitHub Account for Codebase Verification",
+      category: "CODE_VERIFICATION",
+      priority: "P0_CRITICAL",
+      targetRole: targetRoleTitle,
+      gapSkill: "Codebase Evidence",
+      whyThisAction: "Connecting GitHub enables deterministic ingestion of real languages, pull requests, CI/CD, and repository health.",
+      evidenceToProduce: ["Linked active GitHub account with public repositories"],
+      completionCriteria: ["GitHub account connected and initial analysis synced"],
+      estimatedImpact: {
+        points: 15,
+        label: "ESTIMATED (+12-16 points)",
+        basis: "Activates Project Evidence and Code Quality signals.",
+      },
+      isCompleted: false,
+      verificationMethod: "GITHUB_RESCAN",
+    });
+  }
+
+  if (!hasInterview) {
+    actions.push({
+      id: `action-interview-${Date.now()}`,
+      title: "Complete First Mock Technical Interview",
+      category: "INTERVIEW_BENCHMARK",
+      priority: "P1_HIGH",
+      targetRole: targetRoleTitle,
+      gapSkill: "Oral Problem Solving",
+      whyThisAction: "Demonstrate technical verbal articulation, problem solving, and architecture design.",
+      evidenceToProduce: ["Recorded evaluation from 3 mock interview questions"],
+      completionCriteria: ["Complete simulation session and submit answers for evaluation"],
+      estimatedImpact: {
+        points: 12,
+        label: "ESTIMATED (+10-14 points)",
+        basis: "Activates Interview Readiness dimension (15% weight) with real evaluation data.",
+      },
+      isCompleted: false,
+      verificationMethod: "INTERVIEW_RETAKE",
+    });
+  }
+
+  // Fallback if candidate already has exceptional scores across all criteria
+  if (actions.length === 0) {
+    actions.push({
+      id: `action-maintain-${Date.now()}`,
+      title: "Publish Case Study and Engage Open Source",
+      category: "CODE_VERIFICATION",
+      priority: "P2_MEDIUM",
+      targetRole: targetRoleTitle,
+      gapSkill: "System Architecture",
+      whyThisAction: "All core required skills are verified. Deepen market visibility with production case studies.",
+      evidenceToProduce: ["Technical write-up or published blog post on project architecture"],
+      completionCriteria: ["Case study published on portfolio or GitHub README"],
+      estimatedImpact: {
+        points: 4,
+        label: "ESTIMATED (+3-5 points)",
+        basis: "Refines portfolio completeness and recruiter radar score.",
+      },
+      isCompleted: false,
+      verificationMethod: "PORTFOLIO_AUDIT",
+    });
+  }
+
+  // Order actions by priority: P0_CRITICAL first, then P1_HIGH, then P2_MEDIUM
+  const priorityOrder: Record<string, number> = {
+    P0_CRITICAL: 0,
+    P1_HIGH: 1,
+    P2_MEDIUM: 2,
+  };
+
+  actions.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+  const primaryAction = actions[0];
+  const secondaryActions = actions.slice(1, 4);
+
+  const achievablePoints = actions
+    .slice(0, 3)
+    .reduce((sum, a) => sum + a.estimatedImpact.points, 0);
+
+  return {
+    primaryAction,
+    secondaryActions,
+    totalGapsIdentified: actions.length,
+    criticalGapsCount: actions.filter((a) => a.priority === "P0_CRITICAL").length,
+    achievablePointsPotential: Math.min(30, achievablePoints),
+  };
+}

@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
 import { track } from "@/lib/track";
 
+import { buildCandidateEvidenceGraph } from "@/lib/evidence";
+import { extractTargetRoleProfile, compareEvidenceToRole } from "@/lib/role-intelligence";
+import { computeExplainableReadiness, type ExplainableReadiness } from "@/lib/readiness";
+
 export type ScoreExplanation = {
   current: number;
   reason: string;
@@ -20,6 +24,7 @@ export type CareerScoresResult = {
   marketDemand: number;
   growthPercentage: number;
   history: { month: string; score: number }[];
+  explainableReadiness?: ExplainableReadiness;
   
   // Normalized 14 SDE index scores
   metrics: {
@@ -76,44 +81,78 @@ export async function getSkillSprintScores(ctx?: SkillSprintContext): Promise<Ca
   const portfolioScore = user.linkedinConnected || user.githubConnected ? 75 : 50;
 
   const latestInterview = interviews?.[0];
-  const interviewScore = latestInterview?.overallScore || dbScores.interview;
+  const interviewScore = latestInterview?.overallScore || dbScores.interview || 0;
 
-  // SDE focus scores based on listed profile skills
+  // 2. Build deterministic CandidateEvidenceGraph and ExplainableReadiness
+  const targetRoleTitle = profile?.targetRole || "Software Engineer";
+  const evidenceGraph = buildCandidateEvidenceGraph({
+    resume: resume ? {
+      skills: (resume.suggestions as any)?.skills || profile?.skills || [],
+      atsScore: resume.atsScore,
+    } : null,
+    github: github ? {
+      languages: Array.isArray(github.languagesUsed) ? github.languagesUsed : [],
+      cicdActive: typeof github.cicdStatus === "string" ? github.cicdStatus.toLowerCase().includes("active") : false,
+      readmeQuality: github.readmeQuality || "Med",
+      commitStreak: github.contributionStreak || 0,
+    } : null,
+    interviews: interviews && interviews.length > 0 ? interviews.map((i: any) => ({
+      technicalScore: i.technicalScore || i.overallScore,
+      communicationScore: i.communicationScore || i.overallScore,
+      overallScore: i.overallScore,
+    })) : null,
+    profile: {
+      targetRole: targetRoleTitle,
+      skills: profile?.skills || [],
+      cgpa: profile?.cgpa,
+    }
+  });
+
+  const targetRole = extractTargetRoleProfile({
+    title: targetRoleTitle,
+  });
+
+  const roleReadiness = compareEvidenceToRole(evidenceGraph, targetRole);
+
+  const explainableReadiness = computeExplainableReadiness({
+    evidenceGraph,
+    roleReadiness,
+    resumeAnalysis: resume,
+    githubAnalysis: github,
+    interviewSessions: interviews,
+    targetRoleTitle,
+  });
+
+  // Evidence-grounded domain scores
   const skillsList = (profile?.skills as string[] || []).map((s: string) => s.toLowerCase());
-  
-  let frontendScore = 55;
-  if (skillsList.some(s => ["react", "next.js", "tailwind", "css", "html", "vue"].includes(s))) {
-    frontendScore = 78;
-  }
-  
-  let backendScore = 50;
-  if (skillsList.some(s => ["node", "python", "go", "java", "postgresql", "docker", "redis"].includes(s))) {
-    backendScore = 80;
-  }
+  const feSkills = ["react", "javascript", "typescript", "html", "css", "tailwind", "next.js", "vue"];
+  const feMatches = feSkills.map(s => evidenceGraph.skills[s]).filter(Boolean);
+  const frontendScore = feMatches.length > 0
+    ? Math.round(feMatches.reduce((acc, cur) => acc + cur.score, 0) / feMatches.length)
+    : (skillsList.some(s => feSkills.includes(s)) ? 65 : 45);
 
-  const problemSolvingScore = latestInterview?.technicalScore || 70;
-  
-  let systemDesignScore = 60;
-  if (skillsList.some(s => ["system design", "microservices", "gateway", "kafka", "redis"].includes(s))) {
-    systemDesignScore = 82;
-  }
+  const beSkills = ["node", "python", "sql", "postgresql", "docker", "redis", "fastapi", "django", "java"];
+  const beMatches = beSkills.map(s => evidenceGraph.skills[s]).filter(Boolean);
+  const backendScore = beMatches.length > 0
+    ? Math.round(beMatches.reduce((acc, cur) => acc + cur.score, 0) / beMatches.length)
+    : (skillsList.some(s => beSkills.includes(s)) ? 60 : 40);
 
-  const aiReadiness = skillsList.some(s => ["ai", "llm", "rag", "langchain", "pytorch", "transformers"].includes(s)) ? 85 : 45;
+  const problemSolvingScore = latestInterview?.technicalScore || (evidenceGraph.skills["problem-solving"]?.score ?? 70);
+  
+  const sysDesignMatch = evidenceGraph.skills["system design"] || evidenceGraph.skills["microservices"];
+  const systemDesignScore = sysDesignMatch ? sysDesignMatch.score : (skillsList.includes("system design") ? 72 : 55);
+
+  const aiMatch = evidenceGraph.skills["machine learning"] || evidenceGraph.skills["llm"] || evidenceGraph.skills["ai_ml"];
+  const aiReadiness = aiMatch ? aiMatch.score : (skillsList.some(s => ["ai", "llm", "rag"].includes(s)) ? 75 : 40);
+
   const hiringScore = Math.round((resumeScore + githubScore + linkedinScore + interviewScore) / 4);
 
-  // Recalculate Overall SDE Score
-  const subTotal = 
-    resumeScore + 
-    githubScore + 
-    portfolioScore + 
-    interviewScore + 
-    hiringScore;
-  
-  const skillsprintScore = Math.round(subTotal / 5);
+  // Derive Overall Career Score directly from the explainable readiness calculation
+  const skillsprintScore = explainableReadiness.overallScore;
 
   const history = [
-    { month: "April", score: 58 },
-    { month: "May", score: 67 },
+    { month: "April", score: Math.max(35, skillsprintScore - 14) },
+    { month: "May", score: Math.max(45, skillsprintScore - 6) },
     { month: "June", score: skillsprintScore }
   ];
 
@@ -132,7 +171,8 @@ export async function getSkillSprintScores(ctx?: SkillSprintContext): Promise<Ca
   await track(user.id, "gap_analysis_completed", { skillsprintScore });
   // ───────────────────────────────────────────────────────────────────────
 
-  const growthPercentage = Math.round(((skillsprintScore - 58) / 58) * 100);
+  const baselineScore = history[0]?.score || 58;
+  const growthPercentage = Math.round(((skillsprintScore - baselineScore) / baselineScore) * 100);
 
   return {
     skillsprintScore,
@@ -143,96 +183,99 @@ export async function getSkillSprintScores(ctx?: SkillSprintContext): Promise<Ca
     marketDemand: hiringScore,
     growthPercentage,
     history,
+    explainableReadiness,
     
-    // Structured details for Requirement 9
+    // Structured details grounded in real evidence
     metrics: {
       overall: {
         current: skillsprintScore,
-        reason: "Aggregated index representing your production code quality, ATS resume ranking, and interview readiness.",
-        howToImprove: "Complete a recommended high-value SDE project and re-upload resume to increase ATS scores.",
-        expectedImprovement: "+8-12 Points"
+        reason: explainableReadiness.whyThisScore,
+        howToImprove: `${explainableReadiness.highestImpactImprovement.title}: ${explainableReadiness.highestImpactImprovement.description}`,
+        expectedImprovement: explainableReadiness.highestImpactImprovement.potentialGain
       },
       resume: {
         current: resumeScore,
-        reason: resume ? "Your resume contains active experience but lacks sufficient action verbs and metric ratios." : "No resume scanned. Resume score defaults to template benchmark.",
+        reason: resume ? `Resume ATS score is ${resume.atsScore}/100 with verified keyword extraction.` : "No resume uploaded. Upload a PDF resume to establish ATS benchmark.",
         howToImprove: "Implement metric-based STAR bullet points to describe project outcomes.",
-        expectedImprovement: "+15 Points"
+        expectedImprovement: "+12-15 Points"
       },
       github: {
         current: githubScore,
-        reason: user.githubConnected ? `GitHub profile linked with ${github?.publicReposCount || 10} public repositories.` : "GitHub integration is inactive.",
-        howToImprove: "Link your GitHub account to sync star metrics, commit history, and streak consistency.",
-        expectedImprovement: "+25 Points"
+        reason: user.githubConnected ? `GitHub profile connected with ${github?.publicReposCount || 0} repositories and ${github?.languagesUsed ? (github.languagesUsed as any[]).length : 0} languages verified.` : "GitHub integration is inactive.",
+        howToImprove: user.githubConnected ? "Add automated test suites and activate GitHub Actions CI/CD workflows." : "Link your GitHub account to sync verified codebase languages and commits.",
+        expectedImprovement: "+15-20 Points"
       },
       linkedin: {
         current: linkedinScore,
-        reason: user.linkedinConnected ? "LinkedIn profile linked. Headline contains target engineering keywords." : "LinkedIn profile is missing.",
-        howToImprove: "Connect LinkedIn and integrate professional summary keywords matching target SDE jobs.",
-        expectedImprovement: "+20 Points"
+        reason: user.linkedinConnected ? "LinkedIn profile linked with industry keywords." : "LinkedIn profile is not linked.",
+        howToImprove: "Connect LinkedIn and integrate professional summary keywords matching target engineering roles.",
+        expectedImprovement: "+10 Points"
       },
       portfolio: {
         current: portfolioScore,
-        reason: "Your personal portfolio site design satisfies standard responsive rendering guidelines.",
-        howToImprove: "Compress heavy hero image assets and adjust color contrasts to satisfy WCAG AA accessibility standards.",
+        reason: user.linkedinConnected || user.githubConnected ? "Portfolio and codebase footprint evaluated." : "Limited portfolio and deployment assets connected.",
+        howToImprove: "Audit live portfolio URL and optimize Core Web Vitals to satisfy responsive web standards.",
         expectedImprovement: "+10 Points"
       },
       openSource: {
         current: openSourceScore,
-        reason: user.githubConnected ? `Commit streak is currently at ${github?.contributionStreak || 0} consecutive days.` : "No active repository contribution streak.",
-        howToImprove: "Establish a daily commit habit. Contribute PRs to public repositories or frameworks.",
-        expectedImprovement: "+15 Points"
+        reason: user.githubConnected ? `Commit streak is currently at ${github?.contributionStreak || 0} days.` : "No active repository contribution streak.",
+        howToImprove: "Establish regular commit habits and contribute pull requests to open repositories.",
+        expectedImprovement: "+10-15 Points"
       },
       frontend: {
         current: frontendScore,
-        reason: skillsList.includes("react") ? "Strong React and TypeScript footprint found in profile skills." : "Limited modern UI framework exposure.",
-        howToImprove: "Learn Tailwind CSS and Next.js page state rendering patterns.",
-        expectedImprovement: "+18 Points"
+        reason: feMatches.length > 0 ? `Verified frontend evidence for ${feMatches.map(m => m.skill).join(", ")}.` : "Limited verified frontend code in repositories.",
+        howToImprove: "Build responsive Next.js applications and verify state management with unit tests.",
+        expectedImprovement: "+15 Points"
       },
       backend: {
         current: backendScore,
-        reason: skillsList.includes("docker") ? "Node.js and containerization experience verified in profile." : "Missing SQL or database scaling metrics.",
-        howToImprove: "Learn Redis caching pipelines and PostgreSQL relational database design.",
-        expectedImprovement: "+20 Points"
+        reason: beMatches.length > 0 ? `Verified backend evidence for ${beMatches.map(m => m.skill).join(", ")}.` : "Limited backend and database code verified in repositories.",
+        howToImprove: "Build RESTful APIs with PostgreSQL database integration and Docker containerization.",
+        expectedImprovement: "+18 Points"
       },
       problemSolving: {
         current: problemSolvingScore,
-        reason: "Evaluated based on your mock interview technical answers and DSA fundamentals.",
-        howToImprove: "Solve daily LeetCode problems on Arrays, Strings, and dynamic programming.",
+        reason: latestInterview ? `Evaluated from mock interview technical performance (${latestInterview.technicalScore || 70}/100).` : "Baseline technical problem solving benchmark.",
+        howToImprove: "Practice mock interview evaluations and solve algorithmic challenges.",
         expectedImprovement: "+12 Points"
       },
       systemDesign: {
         current: systemDesignScore,
-        reason: skillsList.includes("system design") ? "System architecture pattern keywords are present in your twin." : "No system design experience documented in profile assets.",
-        howToImprove: "Build a microservice gateway project implementing Kafka pub/sub messaging queues.",
+        reason: sysDesignMatch ? `Evidence found for ${sysDesignMatch.skill}.` : "No direct distributed system design projects detected.",
+        howToImprove: "Architect a scalable microservice system with caching and asynchronous queues.",
         expectedImprovement: "+15 Points"
       },
       aiReadiness: {
         current: aiReadiness,
-        reason: skillsList.includes("llm") ? "Hands-on generative AI and RAG search history found in profile." : "No AI/LLM API integrations found.",
-        howToImprove: "Build a document chat engine using Gemini API, vector database indexers, and LangChain.",
-        expectedImprovement: "+25 Points"
+        reason: aiMatch ? `Evidence found for ${aiMatch.skill}.` : "No AI/LLM API integrations detected in codebase.",
+        howToImprove: "Integrate LLM API calls, embeddings, or retrieval-augmented generation pipelines into projects.",
+        expectedImprovement: "+20 Points"
       },
       interviewReadiness: {
         current: interviewScore,
-        reason: latestInterview ? `Based on your last mock interview overall score of ${latestInterview.overallScore}/100.` : "No mock interviews practiced yet.",
-        howToImprove: "Practice mock interview simulation on behavioral and SDE architecture scenarios.",
+        reason: latestInterview ? `Based on mock interview evaluation of ${latestInterview.overallScore}/100.` : "No mock interviews recorded yet.",
+        howToImprove: "Complete a mock technical interview session to benchmark verbal explanation and problem solving.",
         expectedImprovement: "+15 Points"
       },
       ats: {
         current: atsScore,
-        reason: resume ? `ATS matches ${resume.atsScore}% SDE profile requirements.` : "No resume uploaded to evaluate ATS compatibility.",
-        howToImprove: "Insert missing ATS keywords: Next.js, Jest unit testing, and Docker containerizations.",
-        expectedImprovement: "+18 Points"
+        reason: resume ? `ATS alignment currently measured at ${resume.atsScore}/100.` : "No resume uploaded to evaluate ATS compatibility.",
+        howToImprove: "Ensure all core skills and tools required by target roles appear explicitly in your resume.",
+        expectedImprovement: "+15 Points"
       },
       hiring: {
         current: hiringScore,
-        reason: "Computed based on aggregated employer indices (LinkedIn visibility + code quality + ATS score).",
-        howToImprove: "Publish case-studies of projects and set Recruiter Talent Radar visibility to active.",
+        reason: "Aggregated market demand index combining resume strength, code quality, and interview readiness.",
+        howToImprove: "Complete highest-impact action items to elevate profile qualification ranking.",
         expectedImprovement: "+10 Points"
       }
     }
   };
 }
+
+import { selectHighestImpactAction, type ActionPlanSummary } from "@/lib/action-engine";
 
 export type DashboardData = {
   scores: CareerScoresResult;
@@ -244,6 +287,7 @@ export type DashboardData = {
   careerTwin: any;
   syncHistory: any[];
   notifications: any[];
+  actionPlan?: ActionPlanSummary;
 };
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -297,6 +341,25 @@ export async function getDashboardData(): Promise<DashboardData> {
     }
   }
 
+  // Compute highest impact action plan for Command Center
+  const targetRoleTitle = profile?.targetRole || "Software Engineer";
+  const evidence = buildCandidateEvidenceGraph({
+    resume: resumeAnalysis ? { skills: profile?.skills || [], atsScore: resumeAnalysis.atsScore } : null,
+    github: githubAnalysis ? { languages: Array.isArray(githubAnalysis.languagesUsed) ? githubAnalysis.languagesUsed : [] } : null,
+    interviews: interviews || null,
+    profile: { targetRole: targetRoleTitle, skills: profile?.skills || [] }
+  });
+  const role = extractTargetRoleProfile({ title: targetRoleTitle });
+  const roleReadiness = compareEvidenceToRole(evidence, role);
+  const actionPlan = selectHighestImpactAction({
+    evidenceGraph: evidence,
+    roleReadiness,
+    targetRoleTitle,
+    hasResume: !!resumeAnalysis,
+    hasGithub: !!githubAnalysis,
+    hasInterview: !!(interviews && interviews.length > 0),
+  });
+
   return {
     scores,
     recommendations: recommendations || [],
@@ -306,7 +369,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     resumeAnalysis,
     careerTwin,
     syncHistory: syncHistory || [],
-    notifications: notifications || []
+    notifications: notifications || [],
+    actionPlan,
   };
 }
 

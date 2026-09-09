@@ -1851,7 +1851,11 @@ export async function generateStructuredAIResponse(
           const text: string | undefined = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (text) {
             try {
-              return JSON.parse(text);
+              const parsed = JSON.parse(text);
+              if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+                return { ...parsed, _isFallback: false, _source: "LIVE_AI" };
+              }
+              return parsed;
             } catch {
               console.warn(`[AI] Structured response from ${m} was not valid JSON`);
             }
@@ -1882,21 +1886,32 @@ export async function generateStructuredAIResponse(
       });
       const raw = completion.choices[0].message.content || "{}";
       try {
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+          return { ...parsed, _isFallback: false, _source: "LIVE_AI" };
+        }
+        return parsed;
       } catch {
         // Strip markdown fences if present
         const stripped = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-        return JSON.parse(stripped);
+        const parsed = JSON.parse(stripped);
+        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+          return { ...parsed, _isFallback: false, _source: "LIVE_AI" };
+        }
+        return parsed;
       }
     } catch (error) {
       console.error("[AI] OpenRouter structured generation failed:", error);
     }
   }
 
-  // Last resort: return simulatedPayload
+  // Last resort: return simulatedPayload with explicit fallback provenance
   if (simulatedPayload) {
     console.warn("[AI] All AI providers failed — returning simulated payload");
     await delay(500);
+    if (typeof simulatedPayload === "object" && simulatedPayload !== null && !Array.isArray(simulatedPayload)) {
+      return { ...simulatedPayload, _isFallback: true, _source: "SIMULATED_FALLBACK" };
+    }
     return simulatedPayload;
   }
 

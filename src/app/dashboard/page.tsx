@@ -213,16 +213,76 @@ export default function DashboardOverview() {
         </div>
       )}
 
-      {/* 3. CORE SCORES TELEMETRY GRID */}
+      {/* 3. CAREER TWIN COMMAND CENTER & NEXT BEST ACTION */}
+      {data?.actionPlan?.primaryAction && (
+        <div className="bg-gradient-to-br from-[#0f172a] via-slate-900 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white border border-indigo-500/20 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+            <div className="space-y-3 flex-1">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                  <Zap className="w-3 h-3 text-amber-400" /> Next Best Action
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  Target: {data.actionPlan.primaryAction.targetRole}
+                </span>
+                <span className="text-[11px] font-semibold text-emerald-400">
+                  {data.actionPlan.primaryAction.estimatedImpact.label}
+                </span>
+              </div>
+
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                {data.actionPlan.primaryAction.title}
+              </h2>
+
+              <p className="text-sm text-slate-300 leading-relaxed max-w-3xl">
+                {data.actionPlan.primaryAction.whyThisAction}
+              </p>
+
+              {/* Evidence Checklist */}
+              <div className="pt-2">
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Evidence Required to Produce:</p>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {data.actionPlan.primaryAction.evidenceToProduce.map((ev, i) => (
+                    <div key={i} className="flex items-start gap-2 text-xs text-slate-200 bg-white/5 border border-white/10 rounded-xl p-2.5 backdrop-blur-sm">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{ev}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex lg:flex-col items-center gap-3 shrink-0">
+              <Link
+                href="/dashboard/roadmap"
+                className="w-full sm:w-auto text-center px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
+              >
+                <span>Follow in Roadmap</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <button
+                onClick={loadDashboard}
+                className="w-full sm:w-auto text-center px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 font-semibold text-xs transition-all border border-white/10 cursor-pointer"
+              >
+                Rescan Evidence
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. CORE SCORES & EXPLAINABLE READINESS TELEMETRY */}
       <div className="grid lg:grid-cols-3 gap-8">
         
-        {/* Overall Score Circle Progress Card */}
+        {/* Career Readiness Circle Progress Card */}
         <div className="liquid-glass rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-between text-center relative overflow-hidden border border-white/50 shadow-sm">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-65" />
-          <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <Trophy className="w-4 h-4 text-amber-500" /> Career Operating Score
+          <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <Trophy className="w-4 h-4 text-amber-500" /> Career Readiness
           </h3>
-          <p className="text-xs text-gray-500 mb-6 max-w-[200px]">Combined metric representing SDE hiring readiness.</p>
+          <p className="text-xs text-gray-500 mb-4 max-w-[220px]">
+            Deterministic readiness for {data?.scores?.explainableReadiness?.targetRole || "Software Engineer"}.
+          </p>
           
           <div className="relative w-44 h-44 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90">
@@ -249,19 +309,66 @@ export default function DashboardOverview() {
             </div>
           </div>
 
-          <div className="mt-6 text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 font-bold flex items-center gap-1.5">
-            <TrendingUp className="w-3.5 h-3.5" /> +{data?.scores?.growthPercentage || 12}% Growth this month
+          <div className="mt-4 flex flex-col items-center gap-1.5">
+            <div className="text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100 font-bold flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5" /> +{data?.scores?.growthPercentage || 12}% Growth this month
+            </div>
+            <span className="text-[10.5px] font-semibold text-slate-500">
+              Confidence: <strong className="text-slate-800 uppercase">{data?.scores?.explainableReadiness?.confidence || "MEDIUM"}</strong>
+            </span>
           </div>
         </div>
 
-        {/* Skill Radar Chart Card */}
+        {/* Explainable Why This Score Breakdown Card */}
         <div className="liquid-glass rounded-3xl p-6 sm:p-8 flex flex-col justify-between border border-white/50 shadow-sm col-span-1 lg:col-span-2">
           <div>
-            <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider mb-1">Skill Radar</h3>
-            <p className="text-xs text-gray-500 mb-6">Target SDE architectural dimension alignment.</p>
-          </div>
-          <div className="h-64 w-full flex items-center justify-center">
-            <DynamicRadarChart data={radarData} />
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-md font-bold text-slate-800 uppercase tracking-wider">Why This Score?</h3>
+              <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full">
+                Evidence-Grounded
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              {data?.scores?.explainableReadiness?.whyThisScore || "Derived from verified repository languages, ATS keyword alignment, and project evidence."}
+            </p>
+
+            {/* Contributing Dimensions Bar */}
+            <div className="grid sm:grid-cols-2 gap-3 mb-5">
+              {data?.scores?.explainableReadiness?.contributingFactors?.map((f, i) => (
+                <div key={i} className="bg-white/70 border border-gray-150 rounded-xl p-3 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-700">{f.label}</span>
+                  <span className="text-xs font-extrabold text-indigo-600">+{f.pointsContributed} pts</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Strengths & Weaknesses Quick View */}
+            <div className="grid sm:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+              <div>
+                <p className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                  ✓ Verified Strengths
+                </p>
+                <div className="space-y-1">
+                  {data?.scores?.explainableReadiness?.strengths?.slice(0, 2).map((s, i) => (
+                    <p key={i} className="text-[11.5px] text-slate-600 line-clamp-1">
+                      {s}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                  ⚠ Primary Gaps
+                </p>
+                <div className="space-y-1">
+                  {data?.scores?.explainableReadiness?.weaknesses?.slice(0, 2).map((w, i) => (
+                    <p key={i} className="text-[11.5px] text-slate-600 line-clamp-1">
+                      {w}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

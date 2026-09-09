@@ -4,6 +4,10 @@ import { generateStructuredAIResponse, MODELS } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
 
+import { buildCandidateEvidenceGraph } from "@/lib/evidence";
+import { extractTargetRoleProfile, compareEvidenceToRole } from "@/lib/role-intelligence";
+import { selectHighestImpactAction } from "@/lib/action-engine";
+
 export type TaskItem = {
   text: string;
   completed: boolean;
@@ -20,18 +24,51 @@ export type RoadmapResult = {
   completionPercentage: number;
 };
 
+async function getCandidateMissingSkills(userId: string, targetRoleTitle: string): Promise<string[]> {
+  try {
+    const [profile, resume, github] = await Promise.all([
+      db.getProfileByUserId(userId).catch(() => null),
+      db.getLatestResumeAnalysis(userId).catch(() => null),
+      db.getLatestGitHubAnalysis(userId).catch(() => null),
+    ]);
+
+    const evidence = buildCandidateEvidenceGraph({
+      resume: resume ? { skills: profile?.skills || [], atsScore: resume.atsScore } : null,
+      github: github ? { languages: Array.isArray(github.languagesUsed) ? github.languagesUsed : [] } : null,
+      profile: { targetRole: targetRoleTitle, skills: profile?.skills || [] }
+    });
+
+    const role = extractTargetRoleProfile({ title: targetRoleTitle });
+    const readiness = compareEvidenceToRole(evidence, role);
+    return readiness.criticalGaps.length > 0
+      ? readiness.criticalGaps
+      : (readiness.weakEvidenceRequirements.length > 0
+          ? readiness.weakEvidenceRequirements.map(w => w.requirement.name).slice(0, 4)
+          : ["System Architecture", "Performance Optimization", "Automated Testing"]);
+  } catch {
+    return ["System Architecture", "Automated Testing", "Performance Optimization"];
+  }
+}
+
 export async function getRoadmap(): Promise<RoadmapResult | null> {
   const user = await getSessionUser();
   if (!user) throw new Error("Unauthorized");
 
-  const latest = await db.getLatestRoadmap(user.id);
+  const [latest, profile] = await Promise.all([
+    db.getLatestRoadmap(user.id),
+    db.getProfileByUserId(user.id).catch(() => null),
+  ]);
+
   if (!latest) return null;
+
+  const targetRoleTitle = latest.targetRole || profile?.targetRole || "Software Engineer";
+  const missingSkills = await getCandidateMissingSkills(user.id, targetRoleTitle);
 
   return {
     id: latest.id,
     targetCompany: latest.targetCompany || "Google",
-    targetRole: latest.targetRole || "Software Engineer",
-    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    targetRole: targetRoleTitle,
+    missingSkills,
     dailyTasks: (latest.dailyTasks as TaskItem[]) || [],
     weeklyTasks: (latest.weeklyTasks as TaskItem[]) || [],
     monthlyTasks: (latest.monthlyTasks as TaskItem[]) || [],
@@ -45,48 +82,85 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
 
   const targetCompany = (formData.get("targetCompany") as string) || "Google";
   const duration = (formData.get("duration") as string) || "90";
-  const profile = await db.getProfileByUserId(user.id);
-  const targetRole = profile?.targetRole || "Software Developer";
+  
+  const [profile, resume, github, interviews] = await Promise.all([
+    db.getProfileByUserId(user.id).catch(() => null),
+    db.getLatestResumeAnalysis(user.id).catch(() => null),
+    db.getLatestGitHubAnalysis(user.id).catch(() => null),
+    db.getInterviewsByUserId(user.id).catch(() => null),
+  ]);
+
+  const targetRoleTitle = profile?.targetRole || "Software Developer";
   const skills = profile?.skills?.join(", ") || "React, JavaScript";
 
-  const prompt = `Generate a highly structured ${duration}-day learning roadmap for a student aiming to land a ${targetRole} position at ${targetCompany}.
-  Current Skills: ${skills}
-  Provide exactly:
-  - 4 daily habits/tasks (e.g. solve 2 DSA questions, write 1 code commit)
-  - 4 weekly core milestones/goals suitable for a ${duration}-day timeline
-  - 4 monthly checkpoints/milestones that divide this ${duration}-day roadmap evenly.`;
+  // Build real evidence & role gap analysis
+  const evidence = buildCandidateEvidenceGraph({
+    resume: resume ? { skills: profile?.skills || [], atsScore: resume.atsScore } : null,
+    github: github ? { languages: Array.isArray(github.languagesUsed) ? github.languagesUsed : [] } : null,
+    interviews: interviews || null,
+    profile: { targetRole: targetRoleTitle, skills: profile?.skills || [] }
+  });
 
-  const systemPrompt = `You are a career development architect. Design a roadmap for a tech student. Return a JSON object matching this schema:
+  const role = extractTargetRoleProfile({ title: targetRoleTitle });
+  const readiness = compareEvidenceToRole(evidence, role);
+  const actionPlan = selectHighestImpactAction({
+    evidenceGraph: evidence,
+    roleReadiness: readiness,
+    targetRoleTitle,
+    hasResume: !!resume,
+    hasGithub: !!github,
+    hasInterview: !!(interviews && interviews.length > 0),
+  });
+
+  const missingSkills = readiness.criticalGaps.length > 0
+    ? readiness.criticalGaps
+    : (readiness.weakEvidenceRequirements.length > 0
+        ? readiness.weakEvidenceRequirements.map(w => w.requirement.name).slice(0, 4)
+        : ["Automated Testing", "CI/CD Deployment", "System Design"]);
+
+  const topGap = missingSkills[0] || "Testing";
+
+  const prompt = `Generate an evidence-based ${duration}-day career roadmap for a student targeting ${targetRoleTitle} at ${targetCompany}.
+  Verified Skills: ${skills}
+  Highest Priority Evidence Gap: ${topGap}
+  Next Best Action: ${actionPlan.primaryAction.title} (${actionPlan.primaryAction.whyThisAction})
+  Required Evidence to Produce: ${actionPlan.primaryAction.evidenceToProduce.join("; ")}
+  Provide exactly:
+  - 4 daily habits/tasks
+  - 4 weekly core milestones
+  - 4 monthly checkpoints.`;
+
+  const systemPrompt = `You are a technical career development architect. Design a roadmap that guides a candidate from current evidence to target role readiness. Return a JSON object matching this schema:
   {
     "dailyTasks": [
-      { "text": "task description (e.g. solve 2 DSA problems)", "completed": false }
+      { "text": "task description", "completed": false }
     ],
     "weeklyTasks": [
-      { "text": "weekly target (e.g. build a Node/Express API)", "completed": false }
+      { "text": "weekly milestone", "completed": false }
     ],
     "monthlyTasks": [
-      { "text": "monthly milestone (e.g. publish full-stack portfolio)", "completed": false }
+      { "text": "monthly checkpoint", "completed": false }
     ]
   }`;
 
   const simulatedPayload = {
     dailyTasks: [
-      { text: "Solve 2 LeetCode problems (Array / String) in Python/JS", completed: false },
-      { text: "Review 1 System Design concept (Caching, Load Balancers)", completed: false },
-      { text: "Commit at least once to GitHub project repositories", completed: false },
-      { text: "Read 1 technical blog post or framework documentation page", completed: false },
+      { text: `[${topGap}] Write and run 2 automated test cases verifying core logic`, completed: false },
+      { text: "Solve 2 LeetCode problems (Array / String / Tree) in TypeScript/Python", completed: false },
+      { text: "Review 1 System Architecture pattern (Caching, Event-driven queues)", completed: false },
+      { text: "Push at least 1 verified git commit with clear conventional commit message", completed: false },
     ],
     weeklyTasks: [
-      { text: "Build a responsive Next.js page integrating third-party APIs", completed: false },
-      { text: "Conduct a mock interview on behavioral/technical fundamentals", completed: false },
-      { text: "Refactor a project using TypeScript and ESLint configuration", completed: false },
-      { text: "Review mock interview transcripts and fix suggested gaps", completed: false },
+      { text: `[${topGap}] Implement test runner in repository and integrate into npm test script`, completed: false },
+      { text: "Build a responsive feature branch and deploy preview build", completed: false },
+      { text: "Conduct a mock interview on behavioral and architecture fundamentals", completed: false },
+      { text: "Refactor project following Clean Architecture and TypeScript strict mode", completed: false },
     ],
     monthlyTasks: [
-      { text: "Complete a full portfolio project with complete unit tests", completed: false },
-      { text: "Write and publish a detailed blog post on a coding pattern", completed: false },
-      { text: "Get resume ATS score above 85/100 using AI suggestions", completed: false },
-      { text: "Contribute 1 PR to an open source library or public repository", completed: false },
+      { text: `[${topGap}] Complete full test coverage milestone and verify 0 failing test cases`, completed: false },
+      { text: "Configure GitHub Actions CI/CD to run test suite on every pull request", completed: false },
+      { text: "Elevate resume ATS score above 85/100 by documenting STAR project metrics", completed: false },
+      { text: "Rescan Career Twin to measure score improvement and verify next best action", completed: false },
     ]
   };
 
@@ -100,7 +174,7 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
   const roadmap = await db.createRoadmap({
     userId: user.id,
     targetCompany,
-    targetRole,
+    targetRole: targetRoleTitle,
     dailyTasks: aiResult.dailyTasks,
     weeklyTasks: aiResult.weeklyTasks,
     monthlyTasks: aiResult.monthlyTasks,
@@ -110,8 +184,8 @@ export async function generateRoadmap(formData: FormData): Promise<RoadmapResult
   return {
     id: roadmap.id,
     targetCompany,
-    targetRole,
-    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    targetRole: targetRoleTitle,
+    missingSkills,
     dailyTasks: aiResult.dailyTasks,
     weeklyTasks: aiResult.weeklyTasks,
     monthlyTasks: aiResult.monthlyTasks,
@@ -165,7 +239,7 @@ export async function toggleTask(
     id: updated!.id,
     targetCompany: updated!.targetCompany || "Google",
     targetRole: updated!.targetRole || "Software Engineer",
-    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    missingSkills: await getCandidateMissingSkills(user.id, updated!.targetRole || "Software Engineer"),
     dailyTasks,
     weeklyTasks,
     monthlyTasks,
@@ -219,7 +293,7 @@ export async function addRoadmapTask(
     id: updated!.id,
     targetCompany: updated!.targetCompany || "Google",
     targetRole: updated!.targetRole || "Software Engineer",
-    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    missingSkills: await getCandidateMissingSkills(user.id, updated!.targetRole || "Software Engineer"),
     dailyTasks,
     weeklyTasks,
     monthlyTasks,
@@ -271,7 +345,7 @@ export async function deleteRoadmapTask(
     id: updated!.id,
     targetCompany: updated!.targetCompany || "Google",
     targetRole: updated!.targetRole || "Software Engineer",
-    missingSkills: ["Advanced TypeScript", "Next.js", "Testing", "Performance"],
+    missingSkills: await getCandidateMissingSkills(user.id, updated!.targetRole || "Software Engineer"),
     dailyTasks,
     weeklyTasks,
     monthlyTasks,

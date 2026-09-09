@@ -16,6 +16,9 @@ export async function getStudentProfileForTwin() {
   };
 }
 
+import { buildCandidateEvidenceGraph } from "@/lib/evidence";
+import { buildCandidateGroundTruth, validateTwinSWOT, type CareerTwinValidationReport } from "@/lib/validation";
+
 export type CareerTwinTimeline = {
   month: string;
   title: string;
@@ -45,6 +48,8 @@ export type CareerTwinResult = {
     reason: string;
     description: string;
   }[];
+  validationReport?: CareerTwinValidationReport;
+  isSimulated?: boolean;
 };
 
 export async function generateCareerTwin(formData: FormData): Promise<CareerTwinResult> {
@@ -168,5 +173,44 @@ export async function generateCareerTwin(formData: FormData): Promise<CareerTwin
     simulatedPayload
   );
 
-  return result as CareerTwinResult;
+  const twinResult = result as CareerTwinResult;
+
+  // Build Ground Truth to validate AI claims
+  const user = await getSessionUser().catch(() => null);
+  let resume: any = null;
+  let github: any = null;
+  let profile: any = null;
+
+  if (user) {
+    [resume, github, profile] = await Promise.all([
+      db.getLatestResumeAnalysis(user.id).catch(() => null),
+      db.getLatestGitHubAnalysis(user.id).catch(() => null),
+      db.getProfileByUserId(user.id).catch(() => null),
+    ]);
+  }
+
+  const evidenceGraph = buildCandidateEvidenceGraph({
+    resume: resume ? { skills: currentSkills.split(",").map(s => s.trim()) } : null,
+    github: github ? { languages: Array.isArray(github.languagesUsed) ? github.languagesUsed : [] } : null,
+    profile: {
+      targetRole,
+      skills: currentSkills.split(",").map(s => s.trim()),
+      cgpa,
+    }
+  });
+
+  const groundTruth = buildCandidateGroundTruth({
+    evidenceGraph,
+  });
+
+  if (twinResult.swot) {
+    const { sanitizedSWOT, report } = validateTwinSWOT(twinResult.swot, groundTruth);
+    twinResult.swot = sanitizedSWOT;
+    twinResult.validationReport = report;
+  }
+
+  // Label simulation flag clearly if returned object matches simulated fallback
+  twinResult.isSimulated = (result === simulatedPayload);
+
+  return twinResult;
 }
