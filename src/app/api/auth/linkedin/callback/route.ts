@@ -8,6 +8,9 @@ import { db as firestoreDb } from "@/lib/firebase";
 
 export const dynamic = "force-dynamic";
 
+// Feature flag: LinkedIn OAuth is gated off in favor of consolidated Firebase Auth
+const ENABLE_LINKEDIN_AUTH = process.env.ENABLE_LINKEDIN_AUTH === "true";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
@@ -19,9 +22,12 @@ export async function GET(request: Request) {
   const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.") || host.startsWith("10.") || host.startsWith("172.");
   const protocol = xForwardedProto || (isLocal ? "http" : "https");
   const redirectUri = `${protocol}://${host}/api/auth/linkedin/callback`;
-
   const onboardingRedirectUrl = `${protocol}://${host}/onboarding`;
   const loginRedirectUrl = `${protocol}://${host}/auth/signin`;
+
+  if (!ENABLE_LINKEDIN_AUTH) {
+    return NextResponse.redirect(`${loginRedirectUrl}?error=${encodeURIComponent("LinkedIn OAuth is disabled. Please sign in with Firebase Auth.")}`);
+  }
 
   if (error) {
     console.error("LinkedIn OAuth error:", error, errorDescription);

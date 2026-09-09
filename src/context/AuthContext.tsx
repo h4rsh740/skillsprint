@@ -279,8 +279,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // LinkedIn OAuth is disabled in favor of consolidated Firebase Auth
   const loginWithLinkedIn = () => {
-    router.push("/api/auth/linkedin");
+    setError("LinkedIn OAuth is disabled. Primary authentication is consolidated to Firebase Auth.");
   };
 
   const loginWithEmail = async (email: string, password: string) => {
