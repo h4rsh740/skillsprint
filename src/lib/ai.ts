@@ -15,25 +15,28 @@ export const MODELS = {
 // Simulate network delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+export type AIChatMessage = {
+  role: "user" | "assistant" | "system";
+  content: string;
+};
+
 // ─── Gemini models to try in order (most capable first) ────────────────────
-const GEMINI_MODELS = [
-  "gemini-2.0-flash",       // Active Google flagship fast model
-  "gemini-1.5-flash",       // High-availability production tier
-  "gemini-2.0-flash-lite",  // Lightweight fast response tier
-  "gemini-1.5-pro",         // Deep reasoning tier
+export const GEMINI_MODELS = [
+  "gemini-3.6-flash",       // Active flagship fast model
+  "gemini-flash-latest",    // Active alias
 ];
 
-// ─── Try Gemini API ─────────────────────────────────────────────────────────
+// ─── Try Gemini API (Single Prompt) ──────────────────────────────────────────
 async function tryGeminiAPI(
   prompt: string,
   systemInstruction?: string,
   responseJson = false
 ): Promise<string | null> {
+  // Use only dedicated Gemini API keys — do NOT fall back to Firebase keys
   const geminiApiKey =
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    process.env.FIREBASE_API_KEY;
+    null;
 
   if (!geminiApiKey) return null;
 
@@ -50,11 +53,10 @@ Core style rules:
 - Never start with a generic filler like "Great question!" or "Certainly!".
 - Sound like a knowledgeable friend, not a corporate chatbot.`;
 
-
   for (const model of GEMINI_MODELS) {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // raised from 4s → 8s
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
 
       const body: Record<string, unknown> = {
         contents: [{ parts: [{ text: prompt }] }],
@@ -83,14 +85,168 @@ Core style rules:
       if (response.ok) {
         const data = await response.json();
         const text: string | undefined = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text && text.trim().length > 10) return text;
+        if (text && text.trim().length > 10) return text.trim();
       } else {
         const err = await response.text();
         console.warn(`[AI] Gemini model ${model} error ${response.status}:`, err.slice(0, 200));
+        // If quota is exhausted on this key, don't waste time trying another Gemini model
+        if (response.status === 429) {
+          break;
+        }
       }
-    } catch (err) {
-      console.warn(`[AI] Gemini model ${model} threw:`, err);
+    } catch (err: any) {
+      console.warn(`[AI] Gemini model ${model} threw:`, err?.message || err);
     }
+  }
+
+  return null;
+}
+
+// ─── Try Gemini Multi-Turn Chat API ──────────────────────────────────────────
+export async function tryGeminiChatAPI(
+  messages: AIChatMessage[],
+  systemInstruction?: string
+): Promise<string | null> {
+  // Use only dedicated Gemini API keys — do NOT fall back to Firebase keys
+  const geminiApiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+    null;
+
+  if (!geminiApiKey) return null;
+
+  // Filter out any completely empty messages
+  const cleanMessages = messages.filter(m => m.content && m.content.trim().length > 0);
+  if (cleanMessages.length === 0) return null;
+
+  // Gemini requires the first turn in contents to have role "user".
+  // If the conversation starts with an assistant greeting, drop leading assistant turns.
+  let startIndex = 0;
+  while (startIndex < cleanMessages.length && cleanMessages[startIndex].role === "assistant") {
+    startIndex++;
+  }
+  const conversationTurns = cleanMessages.slice(startIndex);
+  if (conversationTurns.length === 0) {
+    // If no user messages exist, nothing to reply to
+    return null;
+  }
+
+  // Format into Gemini contents format (role: "user" | "model")
+  const contents = conversationTurns.map(m => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content.trim() }]
+  }));
+
+  for (const model of GEMINI_MODELS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const body: Record<string, unknown> = {
+        contents,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1500,
+        },
+      };
+
+      if (systemInstruction) {
+        body.systemInstruction = { parts: [{ text: systemInstruction }] };
+      }
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify(body),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const text: string | undefined = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && text.trim().length > 0) return text.trim();
+      } else {
+        const err = await response.text();
+        console.warn(`[AI] Gemini chat model ${model} error ${response.status}:`, err.slice(0, 200));
+        // If quota is exhausted on this key, fail over immediately
+        if (response.status === 429) {
+          break;
+        }
+      }
+    } catch (err: any) {
+      console.warn(`[AI] Gemini chat model ${model} threw:`, err?.message || err);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  return null;
+}
+
+// ─── Try OpenRouter Multi-Turn Chat API ──────────────────────────────────────
+export async function tryOpenRouterChatAPI(
+  messages: AIChatMessage[],
+  systemInstruction?: string
+): Promise<string | null> {
+  const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+  if (!openRouterApiKey || openRouterApiKey === "dummy-key-for-builds") return null;
+
+  const model = process.env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct";
+
+  const formattedMessages: { role: "system" | "user" | "assistant"; content: string }[] = [];
+  if (systemInstruction) {
+    formattedMessages.push({ role: "system", content: systemInstruction });
+  }
+
+  for (const m of messages) {
+    if (m.content && m.content.trim().length > 0) {
+      formattedMessages.push({
+        role: m.role === "assistant" ? "assistant" : "user",
+        content: m.content.trim(),
+      });
+    }
+  }
+
+  if (formattedMessages.length === 0) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${openRouterApiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://skillsprint.ai",
+        "X-Title": "SkillSprint AI Career Coach"
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        model,
+        messages: formattedMessages,
+        temperature: 0.7,
+        max_tokens: 1500,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (content && content.trim().length > 0) {
+        return content.trim();
+      }
+    } else {
+      const err = await response.text();
+      console.warn(`[AI] OpenRouter chat error ${response.status}:`, err.slice(0, 200));
+    }
+  } catch (err: any) {
+    console.warn(`[AI] OpenRouter chat threw:`, err?.message || err);
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   return null;
@@ -1770,37 +1926,53 @@ ${T}${T}${T}
   },
 };
 
-// ─── Main export ─────────────────────────────────────────────────────────────
+// ─── Career Coach Multi-Turn Chat Response Engine ───────────────────────────
+export async function generateCareerCoachChatResponse(
+  messages: AIChatMessage[],
+  systemInstruction: string
+): Promise<string> {
+  // 1. Primary tier: OpenRouter API (reliable, multi-model fallback)
+  try {
+    const openRouterResponse = await tryOpenRouterChatAPI(messages, systemInstruction);
+    if (openRouterResponse && openRouterResponse.trim().length > 0) {
+      console.log("[AI] OpenRouter responded successfully.");
+      return openRouterResponse.trim();
+    }
+  } catch (err: any) {
+    console.warn("[AI] OpenRouter chat attempt failed:", err?.message || err);
+  }
+
+  // 2. Fallback tier: Gemini API (when OpenRouter is unavailable)
+  try {
+    console.log("[AI] OpenRouter unavailable or failed. Falling back to Gemini...");
+    const geminiResponse = await tryGeminiChatAPI(messages, systemInstruction);
+    if (geminiResponse && geminiResponse.trim().length > 0) {
+      return geminiResponse.trim();
+    }
+  } catch (err: any) {
+    console.warn("[AI] Gemini chat attempt failed:", err?.message || err);
+  }
+
+  // 3. If both providers failed, return graceful fallback message
+  console.error("[AI] Both OpenRouter and Gemini failed to generate a response.");
+  return "Looks like my AI brain hit a temporary roadblock. 😭 Try sending that again.";
+}
+
+// ─── Legacy / Single-Prompt Export ───────────────────────────────────────────
 export async function generateAIResponse(prompt: string, _model: string = MODELS.CAREER_TWIN): Promise<string> {
-  // 1. Extract the student's actual last message from the full context prompt
   const userQuery = extractUserQuery(prompt);
+  const systemInstruction = `You are SkillSprint AI — an expert career coach for software engineering students. Your responses should feel natural, thoughtful, and genuinely helpful.`;
 
-  // 2. Build a structured system instruction that tells Gemini to ANALYSE first
-  const systemInstruction = `You are SkillSprint AI — an expert career coach for software engineering students. Your responses should feel exactly like Claude, Gemini, or ChatGPT: natural, thoughtful, and genuinely helpful.
+  const messages: AIChatMessage[] = [{ role: "user", content: prompt }];
+  const response = await generateCareerCoachChatResponse(messages, systemInstruction);
+  if (response && !response.includes("temporary roadblock")) {
+    return response;
+  }
 
-Response style:
-- **Match length to complexity.** A greeting gets 1-2 sentences. A system design question gets a thorough breakdown.
-- **Write like a knowledgeable friend**, not a corporate manual. Use natural prose as the default. Use markdown (bold, bullets, code blocks) only when it genuinely adds clarity — not to pad every response.
-- **Never open with filler phrases** like "Great question!", "Certainly!", "Of course!", or "Sure!".
-- **For greetings** (hi, hello, hey, sup, namaste, hii) → respond warmly in 1-2 sentences. Introduce yourself briefly and invite the student to ask anything. No bullets, no headers.
-- **For thanks** → one warm sentence, offer to continue helping.
-- **For vague messages** → ask one specific clarifying question. Don't over-explain.
-- **For technical or career questions** → explain with clarity and depth. Use code blocks for code. Use bullets only for genuinely list-like content. End with one concrete action the student can take today.
-- **For emotional or stressed messages** → lead with empathy, then be practical.
-- Always personalise using any student context available (name, target role, skills, ATS score).`;
-
-  // 3. Try Gemini with structured system+user call
-  const geminiResponse = await tryGeminiAPI(userQuery, systemInstruction);
-  if (geminiResponse) return geminiResponse;
-
-  // 4. Gemini failed — retry with the full prompt (no separate system instruction)
-  const geminiRetry = await tryGeminiAPI(prompt);
-  if (geminiRetry) return geminiRetry;
-
-  // 5. Both Gemini calls failed — use intent-matched local response as last resort
+  // Emergency offline fallback if no network/keys
   const intent = classifyIntent(userQuery);
   const responseFn = RESPONSES[intent];
-  return responseFn ? responseFn(userQuery) : RESPONSES.general(userQuery);
+  return responseFn ? responseFn(userQuery) : "Looks like my AI brain hit a temporary roadblock. 😭 Try sending that again.";
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1813,11 +1985,11 @@ export async function generateStructuredAIResponse(
   fileMimeType?: string
 ): Promise<any> {
   // Try Gemini API with structured JSON output
+  // Use only dedicated Gemini API keys — do NOT fall back to Firebase keys
   const geminiApiKey =
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    process.env.FIREBASE_API_KEY;
+    null;
 
   if (geminiApiKey) {
     for (const m of GEMINI_MODELS) {

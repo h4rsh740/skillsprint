@@ -508,7 +508,7 @@ export default function ChatPage() {
       const responseText = await askCareerCoach(history);
       setMessages(prev => [...prev, { role: "assistant", content: responseText }]);
     } catch {
-      setMessages(prev => [...prev, { role: "assistant", content: "Apologies, I encountered an error. Please try again." }]);
+      setMessages(prev => [...prev, { role: "assistant", content: "Looks like my AI brain hit a temporary roadblock. 😭 Try sending that again." }]);
     } finally {
       setLoading(false);
     }
@@ -546,7 +546,7 @@ export default function ChatPage() {
               </div>
               <div>
                 <h1 className="text-[15px] font-semibold text-gray-900 leading-none">SkillSprint AI Career Coach</h1>
-                <p className="text-[11px] text-gray-400 mt-0.5">Powered by Gemini Pro</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">Powered by SkillSprint Intelligence</p>
               </div>
             </div>
             <div className="flex items-center gap-2">

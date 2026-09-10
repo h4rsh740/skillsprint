@@ -22,7 +22,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col animate-in fade-in duration-300">
+      <body
+        className="min-h-full flex flex-col animate-in fade-in duration-300"
+        suppressHydrationWarning
+      >
         <AuthProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </AuthProvider>
