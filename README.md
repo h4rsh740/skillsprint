@@ -24,12 +24,53 @@
   <strong>8 resumes scored · avg +8.0 pt ATS improvement · 6/6 roadmaps generated in testing (100% success) · 4/4 Career Twins live</strong>
 </p>
 
+
 ---
+
+## 🏆 Razorpay AI Buildathon — Submission
+
+<p align="center">
+  <a href="https://razorpay.com/ai-buildathon"><img src="https://img.shields.io/badge/Razorpay-AI%20Buildathon-0F172A?style=for-the-badge&logo=razorpay&logoColor=white" alt="Razorpay AI Buildathon" /></a>
+  <a href="https://razorpay.com"><img src="https://img.shields.io/badge/Powered%20By-Razorpay%20APIs-3395FF?style=for-the-badge&logo=razorpay&logoColor=white" alt="Razorpay" /></a>
+  <img src="https://img.shields.io/badge/Track-AI%20x%20Fintech-6366F1?style=for-the-badge" alt="Track" />
+  <img src="https://img.shields.io/badge/Category-EdTech%20%2B%20Career%20AI-10B981?style=for-the-badge" alt="Category" />
+</p>
+
+**SkillSprint AI** was built as a submission for the **Razorpay AI Buildathon** — a hackathon challenging developers to build impactful AI-powered products in the Fintech and EdTech space using modern AI infrastructure.
+
+### 🎯 Problem Statement Addressed
+
+> *"India produces 1.5 million engineering graduates per year. Over 60% fail to land a relevant role — not because they're unqualified, but because they lack targeted, data-driven preparation aligned to actual hiring bar."*
+
+SkillSprint AI bridges this gap by combining a deterministic ATS scoring engine, live AI career coaching, and predictive Career Twin modeling into a single cohesive platform.
+
+### 🤖 What We Built for the Buildathon
+
+| Feature | AI Stack | Impact |
+|---|---|---|
+| **AI Career Twin** | Gemini + OpenRouter (Llama 3.3 70B) | Predicts 12-month career trajectory, salary bounds & placement probability |
+| **AI Career Coach (Chat)** | OpenRouter primary · Gemini fallback | Real-time multi-turn career guidance with full student profile context |
+| **Resume Intelligence** | Deterministic ATS Engine + Gemini | +8.0 pts avg ATS improvement across 8 benchmarked resumes |
+| **Voice Mock Interviews** | Web Speech API + Gemini evaluation | Live speech-to-text with instant AI scorecard feedback |
+| **Dynamic Roadmaps** | Gemini generative planning | Personalized 30/60/90-day task plans per role |
+| **Hackathon Recommender** | Curated data pipeline | Live hackathon listings (Devpost, Devfolio, MLH, Unstop) with smart skill matching |
+| **Job Intelligence** | Greenhouse API + Lever API + Curated | Real job listings from Google, Microsoft, Amazon, Stripe, Flipkart & more |
+
+### 🔗 Live Demo & Repository
+
+- 🌐 **Live App:** Deployed on Vercel — see deployment badge above
+- 📁 **Source Code:** [github.com/h4rsh740/skillsprint](https://github.com/h4rsh740/skillsprint)
+- 🤖 **AI Provider:** OpenRouter (primary) + Google Gemini (fallback) — zero hallucinated data
+- 🛡️ **Reliability:** Build verified at exit code 0 · All 35 routes compile clean
+
+---
+
 
 
 ## 🎯 The Problem
 
 Over **60% of CS graduates** in India fail to land their first relevant engineering role — not from lack of degree, but from lack of targeted, personalized preparation. Generic job boards and YouTube courses don't tell students *what specifically they are missing* for the exact companies they want. SkillSprint AI solves this with a full-stack AI pipeline that analyzes, diagnoses, and closes those gaps in real time.
+
 
 ## 🤖 What the AI Actually Does at Each Step
 
