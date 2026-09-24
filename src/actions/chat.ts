@@ -1,6 +1,6 @@
 "use server";
 
-import { generateCareerCoachChatResponse, type AIChatMessage } from "@/lib/ai";
+import { generateCareerCoachChatResponse, tryGeminiChatAPI, tryOpenRouterChatAPI, type AIChatMessage } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { getSessionUser } from "./auth";
 
@@ -132,16 +132,45 @@ Calmly decline and redirect back to positive career and tech topics.
 
 ${studentContext}`;
 
-  try {
-    const aiMessages: AIChatMessage[] = chatHistory.map(m => ({
-      role: m.role,
-      content: m.content,
-    }));
+  const aiMessages: AIChatMessage[] = chatHistory.map(m => ({
+    role: m.role,
+    content: m.content,
+  }));
 
-    const aiResponse = await generateCareerCoachChatResponse(aiMessages, systemPrompt);
-    return aiResponse || "Looks like my AI brain hit a temporary roadblock. 😭 Try sending that again.";
-  } catch (error) {
-    console.error("[Career Coach] Error generating response:", error);
-    return "Looks like my AI brain hit a temporary roadblock. 😭 Try sending that again.";
+  // 1. Try OpenRouter (primary)
+  try {
+    const openRouterResponse = await tryOpenRouterChatAPI(aiMessages, systemPrompt);
+    if (openRouterResponse && openRouterResponse.trim().length > 0) {
+      console.log("[Career Coach] OpenRouter responded successfully.");
+      return openRouterResponse.trim();
+    }
+  } catch (err: any) {
+    console.warn("[Career Coach] OpenRouter failed:", err?.message || err);
   }
+
+  // 2. Try Gemini (fallback)
+  try {
+    const geminiResponse = await tryGeminiChatAPI(aiMessages, systemPrompt);
+    if (geminiResponse && geminiResponse.trim().length > 0) {
+      console.log("[Career Coach] Gemini responded successfully.");
+      return geminiResponse.trim();
+    }
+  } catch (err: any) {
+    console.warn("[Career Coach] Gemini failed:", err?.message || err);
+  }
+
+  // 3. Offline response library — answers common questions without any API
+  try {
+    const lastUserMsg = chatHistory.filter(m => m.role === "user").at(-1)?.content ?? "";
+    const { generateAIResponse } = await import("@/lib/ai");
+    const offlineResponse = await generateAIResponse(lastUserMsg);
+    if (offlineResponse && !offlineResponse.includes("temporary roadblock")) {
+      return offlineResponse;
+    }
+  } catch (err: any) {
+    console.warn("[Career Coach] Offline fallback error:", err?.message || err);
+  }
+
+  return "Looks like my AI brain hit a temporary roadblock. 😭 Try sending that again.";
 }
+

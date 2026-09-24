@@ -22,8 +22,9 @@ export type AIChatMessage = {
 
 // ─── Gemini models to try in order (most capable first) ────────────────────
 export const GEMINI_MODELS = [
-  "gemini-3.6-flash",       // Active flagship fast model
-  "gemini-flash-latest",    // Active alias
+  "gemini-2.0-flash",           // Stable fast model
+  "gemini-1.5-flash",           // Fallback stable model
+  "gemini-2.0-flash-lite",      // Lightweight fallback
 ];
 
 // ─── Try Gemini API (Single Prompt) ──────────────────────────────────────────
