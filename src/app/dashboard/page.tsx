@@ -765,20 +765,154 @@ function StatusCard({ icon, label, status, link, actionLabel, external }: { icon
 }
 
 function DashboardSkeleton() {
+  const [progress, setProgress] = useState(0);
+  const [msgIdx, setMsgIdx] = useState(0);
+
+  const messages = [
+    "Loading your career profile...",
+    "Analyzing placement readiness...",
+    "Fetching AI insights...",
+    "Almost ready...",
+  ];
+
+  useEffect(() => {
+    // Progress bar: 0 → 90 over ~2.5s, jumps to 100 when done
+    const start = Date.now();
+    const duration = 2500;
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const p = Math.min(90, Math.floor((elapsed / duration) * 90));
+      setProgress(p);
+      if (p < 90) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+
+    // Cycle messages
+    const id = setInterval(() => setMsgIdx(i => (i + 1) % messages.length), 900);
+    return () => clearInterval(id);
+  }, []);
+
   return (
-    <div className="flex flex-col gap-8 lg:gap-12 max-w-7xl mx-auto w-full pb-10 animate-pulse">
-      <div className="bg-slate-200 h-44 rounded-3xl" />
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-slate-200 h-16 rounded-2xl" />
-        <div className="bg-slate-200 h-16 rounded-2xl" />
-        <div className="bg-slate-200 h-16 rounded-2xl" />
-        <div className="bg-slate-200 h-16 rounded-2xl" />
+    <>
+      <style>{`
+        @keyframes ss-shimmer {
+          0%   { background-position: -600px 0; }
+          100% { background-position: 600px 0; }
+        }
+        @keyframes ss-fade-in {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes ss-spin-slow {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes ss-pulse-ring {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50%       { opacity: 0.15; transform: scale(1.15); }
+        }
+        @keyframes ss-msg-fade {
+          0%   { opacity: 0; transform: translateY(4px); }
+          15%  { opacity: 1; transform: translateY(0); }
+          85%  { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-4px); }
+        }
+        .ss-shimmer-block {
+          background: linear-gradient(90deg, #e8eaed 25%, #f4f5f7 50%, #e8eaed 75%);
+          background-size: 600px 100%;
+          animation: ss-shimmer 1.4s ease-in-out infinite;
+          border-radius: 12px;
+        }
+        .ss-loader-wrap {
+          animation: ss-fade-in 0.4s ease both;
+        }
+        .ss-msg {
+          animation: ss-msg-fade 0.9s ease both;
+        }
+      `}</style>
+
+      {/* ── Full-page centred loader ── */}
+      <div className="ss-loader-wrap fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#EFEFEF] gap-6">
+
+        {/* Logo + spinner */}
+        <div className="relative flex items-center justify-center">
+          {/* Pulsing ring */}
+          <div
+            className="absolute w-20 h-20 rounded-full"
+            style={{
+              border: "2px solid #4f46e5",
+              animation: "ss-pulse-ring 1.6s ease-in-out infinite",
+            }}
+          />
+          {/* Spinning arc */}
+          <div
+            className="absolute w-16 h-16 rounded-full"
+            style={{
+              border: "3px solid transparent",
+              borderTopColor: "#4f46e5",
+              borderRightColor: "#8b5cf6",
+              animation: "ss-spin-slow 1s linear infinite",
+            }}
+          />
+          {/* Icon */}
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: "#1e1b4b" }}>
+            <BrainCircuit className="w-6 h-6 text-white" />
+          </div>
+        </div>
+
+        {/* Brand name */}
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-[15px] font-bold text-gray-900 tracking-tight">SkillSprint AI</span>
+          {/* Cycling message */}
+          <span
+            key={msgIdx}
+            className="ss-msg text-xs text-gray-400 font-medium"
+          >
+            {messages[msgIdx]}
+          </span>
+        </div>
+
+        {/* Progress bar */}
+        <div className="w-48 h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-300 ease-out"
+            style={{
+              width: `${progress}%`,
+              background: "linear-gradient(90deg, #4f46e5, #8b5cf6)",
+            }}
+          />
+        </div>
       </div>
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="bg-slate-200 h-72 rounded-3xl" />
-        <div className="bg-slate-200 h-72 rounded-3xl lg:col-span-2" />
+
+      {/* ── Skeleton behind the loader (visible after loader fades) ── */}
+      <div className="flex flex-col gap-8 lg:gap-10 max-w-7xl mx-auto w-full pb-10">
+
+        {/* Hero banner skeleton */}
+        <div className="ss-shimmer-block h-44 w-full" />
+
+        {/* 4-stat pill row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="ss-shimmer-block h-[72px]" />
+          ))}
+        </div>
+
+        {/* 3-col card row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="ss-shimmer-block h-64" />
+          <div className="ss-shimmer-block h-64 lg:col-span-2" />
+        </div>
+
+        {/* Wide card */}
+        <div className="ss-shimmer-block h-80 w-full" />
+
+        {/* 2-col bottom */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="ss-shimmer-block h-52" />
+          <div className="ss-shimmer-block h-52" />
+        </div>
       </div>
-      <div className="bg-slate-200 h-96 rounded-3xl" />
-    </div>
+    </>
   );
 }
+
