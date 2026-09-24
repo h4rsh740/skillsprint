@@ -317,24 +317,37 @@ export default function HackathonsPage() {
                   </button>
 
                   <div className="flex items-center gap-2">
-                    <a
-                      href={h.officialUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition-colors flex items-center gap-1"
-                    >
-                      Website <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
+                    {h.officialUrl ? (
+                      <a
+                        href={h.officialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => { e.preventDefault(); window.open(h.officialUrl, "_blank", "noopener,noreferrer"); }}
+                        className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition-colors flex items-center gap-1"
+                      >
+                        Website <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <span className="px-3.5 py-2 bg-gray-50 text-gray-400 font-bold rounded-xl text-xs flex items-center gap-1 cursor-not-allowed">
+                        Website <ExternalLink className="w-3.5 h-3.5" />
+                      </span>
+                    )}
 
-                    <a
-                      href={h.registrationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => updateSavedHackathonStatus(h.id, "REGISTERED")}
-                      className="px-4 py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1 shadow-md shadow-[#4f46e5]/20 active:scale-95"
-                    >
-                      Register on {h.source} <ArrowUpRight className="w-3.5 h-3.5" />
-                    </a>
+                    {h.registrationUrl ? (
+                      <a
+                        href={h.registrationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => { e.preventDefault(); updateSavedHackathonStatus(h.id, "REGISTERED"); window.open(h.registrationUrl, "_blank", "noopener,noreferrer"); }}
+                        className="px-4 py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1 shadow-md shadow-[#4f46e5]/20 active:scale-95"
+                      >
+                        Register on {h.source} <ArrowUpRight className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <span className="px-4 py-2 bg-[#4f46e5]/40 text-white font-bold rounded-xl text-xs flex items-center gap-1 cursor-not-allowed">
+                        Register on {h.source} <ArrowUpRight className="w-3.5 h-3.5" />
+                      </span>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -381,14 +394,19 @@ export default function HackathonsPage() {
                       </div>
                     </div>
 
-                    <a
-                      href={item.registrationUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-[#4f46e5] hover:text-[#4338ca] pt-1"
-                    >
-                      Enter to Close Gap →
-                    </a>
+                    {item.registrationUrl ? (
+                      <a
+                        href={item.registrationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => { e.preventDefault(); window.open(item.registrationUrl, "_blank", "noopener,noreferrer"); }}
+                        className="inline-flex items-center gap-1 text-[11px] font-bold text-[#4f46e5] hover:text-[#4338ca] pt-1"
+                      >
+                        Enter to Close Gap →
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-gray-400 pt-1 cursor-not-allowed">Link unavailable</span>
+                    )}
                   </div>
                 ))}
               </div>

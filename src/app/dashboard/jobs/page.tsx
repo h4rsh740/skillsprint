@@ -409,19 +409,25 @@ export default function JobsPage() {
                       <Sparkles className="w-3.5 h-3.5" /> Skill Simulator
                     </button>
 
-                    <a
-                      href={job.applicationUrl || job.officialUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        if (!job.applicationStatus) {
-                          handleStatusChange(job.id, "APPLIED");
-                        }
-                      }}
-                      className="px-4 py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md shadow-[#4f46e5]/20"
-                    >
-                      Apply on {job.source} <ArrowUpRight className="w-3.5 h-3.5" />
-                    </a>
+                    {(job.applicationUrl || job.officialUrl) ? (
+                      <a
+                        href={job.applicationUrl || job.officialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (!job.applicationStatus) handleStatusChange(job.id, "APPLIED");
+                          window.open(job.applicationUrl || job.officialUrl, "_blank", "noopener,noreferrer");
+                        }}
+                        className="px-4 py-2 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md shadow-[#4f46e5]/20"
+                      >
+                        Apply on {job.source} <ArrowUpRight className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <span className="px-4 py-2 bg-[#4f46e5]/40 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-not-allowed">
+                        Apply on {job.source} <ArrowUpRight className="w-3.5 h-3.5" />
+                      </span>
+                    )}
                   </div>
                 </div>
               </motion.div>
