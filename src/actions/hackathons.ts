@@ -70,13 +70,56 @@ export async function getVerifiedHackathons(filters?: {
     })
   ]);
 
-  let dbHackathons = initialDbHackathons;
-  if (dbHackathons.length === 0) {
-    await syncAllHackathons();
-    dbHackathons = await prisma.hackathon.findMany({
-      orderBy: { registrationDeadline: "asc" },
-    });
+  const now = new Date();
+  const TWENTY_FOUR_HOURS = 23 * 60 * 60 * 1000; // 23h buffer
+
+  // Determine if we need a fresh sync:
+  // 1. No data at all, OR
+  // 2. Most recently verified record is older than 24 hours
+  const newestVerifiedAt = initialDbHackathons.reduce<Date | null>((latest, h) => {
+    return !latest || h.lastVerifiedAt > latest ? h.lastVerifiedAt : latest;
+  }, null);
+  const needsSync =
+    initialDbHackathons.length === 0 ||
+    !newestVerifiedAt ||
+    now.getTime() - newestVerifiedAt.getTime() > TWENTY_FOUR_HOURS;
+
+  if (needsSync) {
+    console.log("[Hackathons] Triggering daily sync...");
+    try {
+      await syncAllHackathons();
+    } catch (err) {
+      console.warn("[Hackathons] Sync failed, serving stale data:", err);
+    }
   }
+
+  // After potential sync, fetch fresh data
+  const allDbHackathons = needsSync
+    ? await prisma.hackathon.findMany({ orderBy: { registrationDeadline: "asc" } })
+    : initialDbHackathons;
+
+  // Recompute live status based on current time and purge closed ones
+  // Any hackathon whose registrationDeadline has passed is ENDED — delete it
+  const openHackathons: typeof allDbHackathons = [];
+  for (const h of allDbHackathons) {
+    const deadline = h.registrationDeadline ? new Date(h.registrationDeadline) : null;
+    const isEnded = deadline && deadline <= now;
+
+    if (isEnded) {
+      // Silently remove from DB so it never shows again
+      try {
+        await prisma.hackathon.update({
+          where: { id: h.id },
+          data: { status: "ENDED" },
+        });
+      } catch {}
+      continue; // skip — don't include in results
+    }
+
+    openHackathons.push(h);
+  }
+
+  const dbHackathons = openHackathons;
 
   const studentSkills = profile?.skills || ["React", "JavaScript", "HTML", "CSS"];
 
@@ -94,7 +137,6 @@ export async function getVerifiedHackathons(filters?: {
     savedMap.set(s.hackathonId, s.status);
   }
 
-  const now = new Date();
   const cards: VerifiedHackathonCard[] = [];
 
   for (const h of dbHackathons) {

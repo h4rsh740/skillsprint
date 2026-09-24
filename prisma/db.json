@@ -3404,12 +3404,12 @@
   "career_scores": [
     {
       "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
-      "overallScore": 51,
-      "resumeScore": 7,
+      "overallScore": 50,
+      "resumeScore": 60,
       "githubScore": 75,
       "portfolioScore": 75,
       "interviewReadiness": 60,
-      "hiringScore": 36,
+      "hiringScore": 49,
       "details": {
         "history": [
           {
@@ -3423,10 +3423,15 @@
           {
             "month": "June",
             "score": 51
+          },
+          {
+            "month": "Sep 2026",
+            "score": 50,
+            "timestamp": "2026-09-24T18:07:22.579Z"
           }
         ]
       },
-      "updatedAt": "2026-08-23T05:42:24.229Z"
+      "updatedAt": "2026-09-24T18:07:26.239Z"
     },
     {
       "userId": "cmZy1e7rHiQP1s8N8qK1Hc3sCPg2",
@@ -7834,6 +7839,16 @@
         "cgpa": 8
       },
       "timestamp": "2026-06-26T19:26:21.105Z"
+    },
+    {
+      "id": "s2msjlqnxxi",
+      "userId": "0DZxsRdmmCgq3jv6bumQm0eloQ33",
+      "action": "PROFILE_UPDATED",
+      "details": {
+        "targetRole": "Frontend Developer",
+        "cgpa": 8
+      },
+      "timestamp": "2026-09-24T18:06:11.136Z"
     }
   ],
   "mentor_sessions": [],

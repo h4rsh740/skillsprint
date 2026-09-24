@@ -102,14 +102,47 @@ export async function getVerifiedJobs(filters?: {
     db.getLatestResumeByUserId(user.id)
   ]);
 
-  let dbJobs = initialDbJobs;
-  if (dbJobs.length === 0) {
-    await syncAllJobs();
-    dbJobs = await prisma.job.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-    });
+  const now = new Date();
+  const TWENTY_FOUR_HOURS = 23 * 60 * 60 * 1000; // 23h buffer
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+  // Sync if: no jobs at all, OR newest lastVerifiedAt is >24h old
+  const newestVerifiedAt = initialDbJobs.reduce<Date | null>((latest, j) => {
+    return !latest || j.lastVerifiedAt > latest ? j.lastVerifiedAt : latest;
+  }, null);
+  const needsSync =
+    initialDbJobs.length === 0 ||
+    !newestVerifiedAt ||
+    now.getTime() - newestVerifiedAt.getTime() > TWENTY_FOUR_HOURS;
+
+  if (needsSync) {
+    console.log("[Jobs] Triggering daily sync...");
+    try {
+      await syncAllJobs();
+    } catch (err) {
+      console.warn("[Jobs] Sync failed, serving stale data:", err);
+    }
   }
+
+  // Fetch fresh data after potential sync
+  const allDbJobs = needsSync
+    ? await prisma.job.findMany({ where: { isActive: true }, orderBy: { createdAt: "desc" } })
+    : initialDbJobs;
+
+  // Expire jobs not re-verified within 30 days — mark inactive so they vanish
+  const freshJobs: typeof allDbJobs = [];
+  for (const job of allDbJobs) {
+    const age = now.getTime() - job.lastVerifiedAt.getTime();
+    if (age > THIRTY_DAYS) {
+      try {
+        await prisma.job.update({ where: { id: job.id }, data: { isActive: false } });
+      } catch {}
+      continue; // skip expired job
+    }
+    freshJobs.push(job);
+  }
+
+  const dbJobs = freshJobs;
 
   const appMap = new Map<string, { status: ApplicationStatus; appliedAt: Date | null }>();
   for (const app of userApplications) {

@@ -139,12 +139,13 @@ const VERIFIED_HACKATHONS: NormalizedHackathon[] = [
 ];
 
 /**
- * Ingestion Service: Upserts verified live hackathons and marks expired events
+ * Ingestion Service: Upserts verified live hackathons and marks + deletes expired events
  */
 export async function syncAllHackathons(): Promise<{
   totalIngested: number;
   newHackathons: number;
   updatedHackathons: number;
+  purgedHackathons: number;
 }> {
   let newCount = 0;
   let updatedCount = 0;
@@ -224,9 +225,41 @@ export async function syncAllHackathons(): Promise<{
     }
   }
 
+  // ── Purge all ENDED hackathons from the database ──────────────────────────
+  // Any hackathon with registrationDeadline in the past is removed permanently.
+  // savedHackathon rows are cascade-deleted via the Prisma relation.
+  let purgedCount = 0;
+  try {
+    const ended = await prisma.hackathon.findMany({
+      where: {
+        OR: [
+          { status: "ENDED" },
+          { registrationDeadline: { lte: now } },
+        ],
+      },
+      select: { id: true, name: true },
+    });
+
+    for (const h of ended) {
+      try {
+        // Delete saved references first (in case cascade isn't set)
+        await prisma.savedHackathon.deleteMany({ where: { hackathonId: h.id } });
+        await prisma.hackathon.delete({ where: { id: h.id } });
+        purgedCount++;
+        console.log(`[Hackathon Sync] Purged ended hackathon: ${h.name}`);
+      } catch (err) {
+        console.warn(`[Hackathon Sync] Could not purge ${h.name}:`, err);
+      }
+    }
+  } catch (err) {
+    console.warn("[Hackathon Sync] Purge step failed:", err);
+  }
+
   return {
     totalIngested: VERIFIED_HACKATHONS.length,
     newHackathons: newCount,
     updatedHackathons: updatedCount,
+    purgedHackathons: purgedCount,
   };
 }
+
