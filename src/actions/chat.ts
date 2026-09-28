@@ -137,18 +137,7 @@ ${studentContext}`;
     content: m.content,
   }));
 
-  // 1. Try OpenRouter (primary)
-  try {
-    const openRouterResponse = await tryOpenRouterChatAPI(aiMessages, systemPrompt);
-    if (openRouterResponse && openRouterResponse.trim().length > 0) {
-      console.log("[Career Coach] OpenRouter responded successfully.");
-      return openRouterResponse.trim();
-    }
-  } catch (err: any) {
-    console.warn("[Career Coach] OpenRouter failed:", err?.message || err);
-  }
-
-  // 2. Try Gemini (fallback)
+  // 1. Try Gemini direct API (free key, primary)
   try {
     const geminiResponse = await tryGeminiChatAPI(aiMessages, systemPrompt);
     if (geminiResponse && geminiResponse.trim().length > 0) {
@@ -157,6 +146,17 @@ ${studentContext}`;
     }
   } catch (err: any) {
     console.warn("[Career Coach] Gemini failed:", err?.message || err);
+  }
+
+  // 2. Try OpenRouter free models (backup)
+  try {
+    const openRouterResponse = await tryOpenRouterChatAPI(aiMessages, systemPrompt);
+    if (openRouterResponse && openRouterResponse.trim().length > 0) {
+      console.log("[Career Coach] OpenRouter responded successfully.");
+      return openRouterResponse.trim();
+    }
+  } catch (err: any) {
+    console.warn("[Career Coach] OpenRouter failed:", err?.message || err);
   }
 
   // 3. Offline response library — answers common questions without any API

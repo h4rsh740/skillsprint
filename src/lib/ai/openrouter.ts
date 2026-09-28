@@ -11,7 +11,7 @@ import OpenAI from "openai";
  * Google Gemini fallback, and zero leakage of credentials.
  */
 
-const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct";
+const DEFAULT_MODEL = process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free";
 
 function getOpenAIClient(): OpenAI | null {
   const apiKey = process.env.OPENROUTER_API_KEY;
@@ -42,12 +42,10 @@ async function callGeminiFallback(
   if (!geminiApiKey) return null;
 
   const modelsToTry = [
-    "gemini-1.5-flash",
-    "gemini-2.0-flash",
-    "gemini-flash-latest",
-    "gemini-3.5-flash",
-    "gemini-2.5-flash",
-    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash-lite",  // Fast, confirmed working
+    "gemini-3.5-flash",       // Mid-tier fallback
+    "gemini-flash-latest",    // Alias that resolves to latest flash
+    "gemini-2.5-flash",       // Legacy fallback
   ];
 
   for (const model of modelsToTry) {

@@ -12,16 +12,13 @@ export async function GET(req: NextRequest) {
 
   const results: Record<string, any> = {};
 
-  // Test each model on both v1 and v1beta
+  // Test current available Gemini models (updated as of 2026)
   const tests = [
-    { id: "gemini-2.0-flash-lite-v1beta", model: "gemini-2.0-flash-lite", apiVersion: "v1beta" },
-    { id: "gemini-2.0-flash-v1beta", model: "gemini-2.0-flash", apiVersion: "v1beta" },
-    { id: "gemini-2.0-flash-exp-v1beta", model: "gemini-2.0-flash-exp", apiVersion: "v1beta" },
-    { id: "gemini-1.5-flash-v1beta", model: "gemini-1.5-flash", apiVersion: "v1beta" },
-    { id: "gemini-1.5-flash-v1", model: "gemini-1.5-flash", apiVersion: "v1" },
-    { id: "gemini-1.5-flash-latest-v1", model: "gemini-1.5-flash-latest", apiVersion: "v1" },
-    { id: "gemini-1.5-flash-001-v1", model: "gemini-1.5-flash-001", apiVersion: "v1" },
-    { id: "gemini-pro-v1beta", model: "gemini-pro", apiVersion: "v1beta" },
+    { id: "gemini-3.5-flash-lite-v1beta", model: "gemini-3.5-flash-lite", apiVersion: "v1beta" },
+    { id: "gemini-3.5-flash-v1beta", model: "gemini-3.5-flash", apiVersion: "v1beta" },
+    { id: "gemini-2.5-flash-v1beta", model: "gemini-2.5-flash", apiVersion: "v1beta" },
+    { id: "gemini-flash-latest-v1beta", model: "gemini-flash-latest", apiVersion: "v1beta" },
+    { id: "gemini-3.8-flash-v1beta", model: "gemini-3.8-flash", apiVersion: "v1beta" },
   ];
 
   for (const t of tests) {

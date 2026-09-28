@@ -12,7 +12,7 @@ export class GeminiError extends Error {
   }
 }
 
-const DEFAULT_MODEL = "gemini-2.0-flash";
+const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 
 /** Strip markdown code fences and extract the first JSON object. */
 function extractJson(content: string): string {

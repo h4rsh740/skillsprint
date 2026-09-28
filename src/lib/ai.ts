@@ -5,10 +5,11 @@ const openai = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY || "dummy-key-for-builds",
 });
 
+// Free-tier OpenRouter fallback models (used only when Gemini direct API fails)
 export const MODELS = {
-  RESUME_ANALYSIS: 'anthropic/claude-3.5-sonnet',
-  MOCK_INTERVIEW: 'openai/gpt-4o',
-  CAREER_TWIN: 'anthropic/claude-3-opus',
+  RESUME_ANALYSIS: 'nvidia/nemotron-3-ultra-550b-a55b:free',
+  MOCK_INTERVIEW: 'nvidia/nemotron-3-ultra-550b-a55b:free',
+  CAREER_TWIN: 'nvidia/nemotron-3-ultra-550b-a55b:free',
   EMBEDDINGS: 'openai/text-embedding-3-small'
 };
 
@@ -21,10 +22,12 @@ export type AIChatMessage = {
 };
 
 // ─── Gemini models to try in order (most capable first) ────────────────────
+// NOTE: gemini-2.0-flash, gemini-1.5-flash, gemini-2.0-flash-lite are all deprecated.
+// Use the Interactions API model names as of 2026.
 export const GEMINI_MODELS = [
-  "gemini-2.0-flash",           // Stable fast model
-  "gemini-1.5-flash",           // Fallback stable model
-  "gemini-2.0-flash-lite",      // Lightweight fallback
+  "gemini-3.5-flash-lite",      // Fast, free-tier friendly
+  "gemini-3.5-flash",           // Mid-tier fallback
+  "gemini-2.5-flash",           // Legacy fallback (may be restricted)
 ];
 
 // ─── Try Gemini API (Single Prompt) ──────────────────────────────────────────
@@ -195,7 +198,12 @@ export async function tryOpenRouterChatAPI(
   const openRouterApiKey = process.env.OPENROUTER_API_KEY;
   if (!openRouterApiKey || openRouterApiKey === "dummy-key-for-builds") return null;
 
-  const model = process.env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct";
+  // Free-tier model chain — try in order until one responds
+  const FREE_MODELS = [
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "google/gemma-4-26b-a4b-it:free",
+    "qwen/qwen3.8-27b:free",
+  ];
 
   const formattedMessages: { role: "system" | "user" | "assistant"; content: string }[] = [];
   if (systemInstruction) {
@@ -213,41 +221,45 @@ export async function tryOpenRouterChatAPI(
 
   if (formattedMessages.length === 0) return null;
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 45000);
+  for (const model of FREE_MODELS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-  try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openRouterApiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://skillsprint.ai",
-        "X-Title": "SkillSprint AI Career Coach"
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model,
-        messages: formattedMessages,
-        temperature: 0.7,
-        max_tokens: 1500,
-      }),
-    });
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${openRouterApiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://skillsprint.ai",
+          "X-Title": "SkillSprint AI Career Coach"
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages: formattedMessages,
+          temperature: 0.7,
+          max_tokens: 1500,
+        }),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content;
-      if (content && content.trim().length > 0) {
-        return content.trim();
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content && content.trim().length > 0) {
+          return content.trim();
+        }
+      } else {
+        const err = await response.text();
+        console.warn(`[AI] OpenRouter free model ${model} error ${response.status}:`, err.slice(0, 200));
+        // 429 rate-limited — try next model; other errors — also try next
+        continue;
       }
-    } else {
-      const err = await response.text();
-      console.warn(`[AI] OpenRouter chat error ${response.status}:`, err.slice(0, 200));
+    } catch (err: any) {
+      console.warn(`[AI] OpenRouter free model ${model} threw:`, err?.message || err);
+    } finally {
+      clearTimeout(timeoutId);
     }
-  } catch (err: any) {
-    console.warn(`[AI] OpenRouter chat threw:`, err?.message || err);
-  } finally {
-    clearTimeout(timeoutId);
   }
 
   return null;
@@ -1748,7 +1760,7 @@ import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
 
 const { text } = await generateText({
-  model: google('gemini-2.0-flash-lite'), // free tier
+  model: google('gemini-3.5-flash-lite'), // free tier
   prompt: 'Summarise this resume for ATS optimisation: ' + resumeText,
 });
 ${T}${T}${T}
@@ -1932,30 +1944,30 @@ export async function generateCareerCoachChatResponse(
   messages: AIChatMessage[],
   systemInstruction: string
 ): Promise<string> {
-  // 1. Primary tier: OpenRouter API (reliable, multi-model fallback)
+  // 1. Primary: Gemini direct API (free key, confirmed working)
   try {
-    const openRouterResponse = await tryOpenRouterChatAPI(messages, systemInstruction);
-    if (openRouterResponse && openRouterResponse.trim().length > 0) {
-      console.log("[AI] OpenRouter responded successfully.");
-      return openRouterResponse.trim();
-    }
-  } catch (err: any) {
-    console.warn("[AI] OpenRouter chat attempt failed:", err?.message || err);
-  }
-
-  // 2. Fallback tier: Gemini API (when OpenRouter is unavailable)
-  try {
-    console.log("[AI] OpenRouter unavailable or failed. Falling back to Gemini...");
     const geminiResponse = await tryGeminiChatAPI(messages, systemInstruction);
     if (geminiResponse && geminiResponse.trim().length > 0) {
+      console.log("[AI] Gemini responded successfully.");
       return geminiResponse.trim();
     }
   } catch (err: any) {
     console.warn("[AI] Gemini chat attempt failed:", err?.message || err);
   }
 
-  // 3. If both providers failed, return graceful fallback message
-  console.error("[AI] Both OpenRouter and Gemini failed to generate a response.");
+  // 2. Backup: OpenRouter free models
+  try {
+    const openRouterResponse = await tryOpenRouterChatAPI(messages, systemInstruction);
+    if (openRouterResponse && openRouterResponse.trim().length > 0) {
+      console.log("[AI] OpenRouter free model responded successfully.");
+      return openRouterResponse.trim();
+    }
+  } catch (err: any) {
+    console.warn("[AI] OpenRouter chat attempt failed:", err?.message || err);
+  }
+
+  // 3. All providers failed
+  console.error("[AI] Both Gemini and OpenRouter failed to generate a response.");
   return "Looks like my AI brain hit a temporary roadblock. 😭 Try sending that again.";
 }
 
@@ -2045,36 +2057,61 @@ export async function generateStructuredAIResponse(
     console.warn("[AI] All Gemini models failed for structured response, falling through to OpenRouter");
   }
 
-  // Try OpenRouter (preferred fallback — always attempt if key is set)
+  // Try OpenRouter free models (fallback — no response_format constraint needed)
   if (process.env.OPENROUTER_API_KEY) {
-    try {
-      const completion = await openai.chat.completions.create({
-        model,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: prompt }
-        ],
-      });
-      const raw = completion.choices[0].message.content || "{}";
+    const FREE_STRUCTURED_MODELS = [
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "google/gemma-4-26b-a4b-it:free",
+      "qwen/qwen3.8-27b:free",
+    ];
+    for (const freeModel of FREE_STRUCTURED_MODELS) {
       try {
-        const parsed = JSON.parse(raw);
-        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-          return { ...parsed, _isFallback: false, _source: "LIVE_AI" };
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://skillsprint.ai",
+            "X-Title": "SkillSprint AI",
+          },
+          body: JSON.stringify({
+            model: freeModel,
+            messages: [
+              { role: "system", content: systemPrompt + "\n\nIMPORTANT: You MUST respond with valid JSON only. No markdown fences, no explanations." },
+              { role: "user", content: prompt }
+            ],
+            temperature: 0.3,
+            max_tokens: 2000,
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          let raw = data.choices?.[0]?.message?.content || "";
+          // Strip markdown fences if present
+          raw = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+          const start = raw.indexOf("{");
+          const end = raw.lastIndexOf("}");
+          if (start !== -1 && end > start) raw = raw.slice(start, end + 1);
+          try {
+            const parsed = JSON.parse(raw);
+            if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+              return { ...parsed, _isFallback: false, _source: "LIVE_AI" };
+            }
+            return parsed;
+          } catch {
+            console.warn(`[AI] OpenRouter free model ${freeModel} returned non-JSON`);
+            continue;
+          }
+        } else {
+          console.warn(`[AI] OpenRouter free model ${freeModel} returned ${res.status}`);
+          continue;
         }
-        return parsed;
-      } catch {
-        // Strip markdown fences if present
-        const stripped = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-        const parsed = JSON.parse(stripped);
-        if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-          return { ...parsed, _isFallback: false, _source: "LIVE_AI" };
-        }
-        return parsed;
+      } catch (error) {
+        console.warn(`[AI] OpenRouter free model ${freeModel} threw:`, error);
+        continue;
       }
-    } catch (error) {
-      console.error("[AI] OpenRouter structured generation failed:", error);
     }
+    console.error("[AI] All OpenRouter free models failed for structured response");
   }
 
   // Last resort: return simulatedPayload with explicit fallback provenance
